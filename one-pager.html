@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Executive Brief: The Self-Driving Codebase | Revolgy</title>
+<meta name="description" content="The infrastructure shift every CTO needs to understand. From coding agents to autonomous software factories on Google Cloud.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #7640FF;
+    --primary-dark: #5e2de6;
+    --primary-soft: rgba(118, 64, 255, 0.05);
+    --primary-border: rgba(118, 64, 255, 0.15);
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: #fff;
+    color: var(--slate-600);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 4rem;
+  }
+  @media (min-width: 768px) { .page { padding: 4rem 2.5rem 5rem; } }
+
+  /* Typography */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    color: var(--slate-900);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+  h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; }
+  h2 { font-size: clamp(1.3rem, 2.5vw, 1.7rem); font-weight: 600; }
+  h3 { font-size: 1.05rem; font-weight: 600; }
+  p { margin-bottom: 1rem; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--slate-800); font-weight: 600; }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Section label */
+  .section-label {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary);
+    display: inline-block;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Sections */
+  .section { margin-bottom: 4rem; }
+
+  /* Back link */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--slate-400);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+  }
+  .back-link:hover { color: var(--primary); text-decoration: none; }
+
+  /* Hero */
+  .hero-section { margin-bottom: 3.5rem; }
+  .hero-section h1 { margin-bottom: 1.5rem; }
+  .hero-section p { font-size: 1.05rem; color: var(--slate-500); }
+
+  /* Comparison table */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+  }
+  .comparison-table th,
+  .comparison-table td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--slate-200);
+    vertical-align: top;
+  }
+  .comparison-table th {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--slate-900);
+    font-size: 0.9rem;
+    padding-bottom: 0.6rem;
+  }
+  .comparison-table th:first-child,
+  .comparison-table td:first-child {
+    font-weight: 600;
+    color: var(--slate-700);
+    width: 18%;
+    font-size: 0.78rem;
+  }
+  .comparison-table .highlight-col {
+    background: var(--primary-soft);
+  }
+  .comparison-table th.highlight-col {
+    color: var(--primary);
+    border-bottom-color: var(--primary-border);
+  }
+  .table-note {
+    font-size: 0.85rem;
+    color: var(--slate-500);
+    margin-top: 1rem;
+  }
+  @media (max-width: 640px) {
+    .comparison-table { font-size: 0.78rem; }
+    .comparison-table th, .comparison-table td { padding: 0.6rem 0.5rem; }
+  }
+
+  /* Persona cards */
+  .persona-grid {
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  @media (min-width: 640px) { .persona-grid { grid-template-columns: repeat(3, 1fr); } }
+  .persona-card {
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    padding: 1.5rem;
+  }
+  .persona-card .role {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 0.6rem;
+  }
+  .persona-card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+  .persona-card p { font-size: 0.85rem; margin: 0; }
+
+  /* Pillars (horizontal rows) */
+  .pillar-row {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--slate-100);
+  }
+  @media (min-width: 640px) { .pillar-row { grid-template-columns: 1fr 240px; } }
+  .pillar-row:last-of-type { border-bottom: none; }
+  .pillar-label {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 0.4rem;
+  }
+  .pillar-row h2 { margin-bottom: 0.8rem; }
+  .pillar-row p { font-size: 0.92rem; }
+  .pillar-visual {
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    min-height: 140px;
+  }
+  .pillar-visual svg { width: 100%; max-width: 200px; height: auto; }
+
+  /* Steps */
+  .steps { margin: 1.5rem 0; }
+  .step {
+    display: flex;
+    gap: 1.2rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--slate-100);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+  .step-content h3 { margin-bottom: 0.4rem; }
+  .step-content p { font-size: 0.9rem; }
+
+  /* Roadmap compact */
+  .roadmap-compact {
+    display: grid;
+    gap: 0;
+    margin: 1.5rem 0;
+    border: 1px solid var(--slate-200);
+  }
+  .rm-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 1fr;
+    border-bottom: 1px solid var(--slate-200);
+    font-size: 0.85rem;
+  }
+  .rm-row:last-child { border-bottom: none; }
+  .rm-row.rm-header {
+    background: var(--slate-50);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--slate-500);
+  }
+  .rm-cell {
+    padding: 0.7rem 1rem;
+    border-right: 1px solid var(--slate-200);
+    color: var(--slate-600);
+  }
+  .rm-cell:last-child { border-right: none; }
+  .rm-cell strong { color: var(--slate-800); }
+  .rm-phase {
+    font-weight: 600;
+    color: var(--slate-800);
+  }
+  @media (max-width: 640px) {
+    .rm-row { grid-template-columns: 100px 1fr 1fr; font-size: 0.78rem; }
+    .rm-cell { padding: 0.5rem 0.6rem; }
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--slate-200);
+    margin-top: 3rem;
+  }
+  .bottom-bar p { font-size: 0.9rem; color: var(--slate-500); margin: 0; }
+  .btn-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1.5rem;
+    background: var(--slate-900);
+    color: white;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-dark:hover { background: var(--primary); text-decoration: none; }
+
+  /* GCP badge row */
+  .tech-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  .tech-badge {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    color: var(--slate-500);
+  }
+
+  /* Separator */
+  .sep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--slate-300), transparent);
+    margin: 3rem 0;
+    opacity: 0.5;
+  }
+
+  /* Print styles */
+  @media print {
+    .page { padding: 1rem; }
+    .back-link, .bottom-bar .btn-dark { display: none; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a href="index.html" class="back-link">&larr; Back to overview</a>
+
+  <!-- ═══ HERO ═══ -->
+  <div class="hero-section">
+    <h1>The 4 Phases to a Self-Driving Codebase on Google Cloud</h1>
+    <p>Engineering organisations spend 30-50% of capacity on work that never ships a feature: dependency upgrades, CVE remediation, migration backlogs, code review triage. Background agents run this work autonomously on your GCP infrastructure, triggered by events, with no one at the keyboard.</p>
+    <p>The companies that move first don't just save time. They build capabilities their competitors can't replicate for years. <strong>This brief is your map.</strong></p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ THE CLOSING WINDOW ═══ -->
+  <div class="section">
+    <div class="section-label">The Closing Window</div>
+    <p>Every engineering organisation will adopt AI agents. The question is whether you build the infrastructure now, while the playbook is still forming, or later, when the leaders have already compounded years of advantage.</p>
+    <p>The pattern is familiar. Cloud, containers, CI/CD: the organisations that moved first didn't just save cost. They built capabilities their competitors couldn't replicate for years. Background agents are the same kind of shift. And enterprises have a harder version of the problem: SOC 2, FedRAMP, multi-cloud, legacy codebases that predate containers. The organisations that solve agent infrastructure inside those constraints will have a moat that doesn't compress.</p>
+    <p><strong>Six months from now, the gap will be structural.</strong> The teams investing today are building muscle memory, refining governance, and training their organisations to work alongside agents. That institutional knowledge doesn't shortcut.</p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ THE SHIFT ═══ -->
+  <div class="section">
+    <div class="section-label">The Shift</div>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Code Assistants</th>
+          <th>Coding Agents</th>
+          <th class="highlight-col">Background Agents</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>What it is</td>
+          <td>Autocomplete and chat in the IDE</td>
+          <td>AI executes multi-step tasks with human oversight</td>
+          <td class="highlight-col">Agents run autonomously, triggered by events and schedules on cloud infra</td>
+        </tr>
+        <tr>
+          <td>Who benefits</td>
+          <td>Individual developer</td>
+          <td>Individual developer</td>
+          <td class="highlight-col">The organisation</td>
+        </tr>
+        <tr>
+          <td>How it starts</td>
+          <td>Human types</td>
+          <td>Human delegates</td>
+          <td class="highlight-col">The system triggers</td>
+        </tr>
+        <tr>
+          <td>Where it runs</td>
+          <td>Developer's machine</td>
+          <td>Developer's machine</td>
+          <td class="highlight-col">GCP: Cloud Run, GKE, Vertex AI</td>
+        </tr>
+        <tr>
+          <td>Measured impact</td>
+          <td>10-20% faster coding</td>
+          <td>2-5x on scoped tasks</td>
+          <td class="highlight-col">Org-wide throughput, 24/7</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="table-note"><strong>Most organisations are in column 1.</strong> The leaders are already in column 3. The difference isn't talent or budget. It's infrastructure.</p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ WHAT'S AT STAKE ═══ -->
+  <div class="section">
+    <div class="section-label">What's at Stake</div>
+    <div class="persona-grid">
+      <div class="persona-card">
+        <div class="role">CTO</div>
+        <h3>"How do we 3x output without 3x headcount?"</h3>
+        <p>Background agents handle the 30-50% of engineering capacity spent on toil. Your developers shift from writing boilerplate to governing agent output, designing systems, and making product decisions.</p>
+      </div>
+      <div class="persona-card">
+        <div class="role">VP Engineering</div>
+        <h3>"Our DORA metrics are flat despite AI tools."</h3>
+        <p>Individual speed gains aren't translating to organisational velocity. The bottleneck moved from writing code to reviewing it. Background agents run CI triage, dependency updates, and code standards enforcement while your team sleeps.</p>
+      </div>
+      <div class="persona-card">
+        <div class="role">CISO</div>
+        <h3>"How do we govern autonomous agents?"</h3>
+        <p>Agents are actors in your system. They need IAM-scoped credentials, JIT privileges, VPC perimeters, and complete audit trails. Governance enforced at the execution layer, not by prompt.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ THE 5 PILLARS ═══ -->
+  <div class="section">
+    <div class="section-label">The 5 Infrastructure Pillars</div>
+    <p style="margin-bottom:1.5rem;">To move from personal productivity tools to a software factory, you need five foundational capabilities. Without any one of them, agents don't scale past a handful of developers.</p>
+
+    <div class="pillar-row">
+      <div>
+        <div class="pillar-label">Sandboxed Execution</div>
+        <h2>Isolated cloud environments</h2>
+        <p>Without sandboxed execution, agents share infrastructure with your developers. One misconfigured command and the blast radius is the entire machine. <strong>The standard:</strong> every agent gets an isolated, ephemeral workspace on Cloud Run or GKE with full toolchain, secrets, and network access. Spin up on demand, tear down after use, hundreds in parallel.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">Cloud Run</span>
+          <span class="tech-badge">GKE</span>
+          <span class="tech-badge">Artifact Registry</span>
+        </div>
+      </div>
+      <div class="pillar-visual">
+        <svg viewBox="0 0 180 120" fill="none">
+          <rect x="10" y="10" width="70" height="45" stroke="#7640FF" stroke-width="1.5" stroke-dasharray="4" opacity="0.3"/>
+          <rect x="15" y="15" width="60" height="35" stroke="#7640FF" stroke-width="1" fill="rgba(118,64,255,0.03)"/>
+          <text x="45" y="36" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#7640FF">agent-1</text>
+          <rect x="100" y="10" width="70" height="45" stroke="#7640FF" stroke-width="1.5" stroke-dasharray="4" opacity="0.3"/>
+          <rect x="105" y="15" width="60" height="35" stroke="#7640FF" stroke-width="1" fill="rgba(118,64,255,0.03)"/>
+          <text x="135" y="36" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#7640FF">agent-2</text>
+          <rect x="55" y="65" width="70" height="45" stroke="#7640FF" stroke-width="1.5" stroke-dasharray="4" opacity="0.3"/>
+          <rect x="60" y="70" width="60" height="35" stroke="#7640FF" stroke-width="1" fill="rgba(118,64,255,0.03)"/>
+          <text x="90" y="91" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#7640FF">agent-3</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="pillar-row">
+      <div>
+        <div class="pillar-label">Governance</div>
+        <h2>Defence in depth, not governance by prompt</h2>
+        <p>Without governance, your only guardrail is "please don't delete production" in the system prompt. No audit trail, no credential scoping, no way to prove compliance. <strong>The standard:</strong> IAM-scoped service accounts with JIT privileges, Model Armor for PII redaction and prompt injection prevention, and complete audit trails in Cloud Logging.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">IAM</span>
+          <span class="tech-badge">Model Armor</span>
+          <span class="tech-badge">Cloud Logging</span>
+          <span class="tech-badge">VPC SC</span>
+        </div>
+      </div>
+      <div class="pillar-visual">
+        <svg viewBox="0 0 180 120" fill="none">
+          <rect x="50" y="15" width="80" height="90" stroke="#e2e8f0" stroke-width="1" fill="#f8fafc"/>
+          <line x1="50" y1="45" x2="130" y2="45" stroke="#e2e8f0"/>
+          <line x1="50" y1="75" x2="130" y2="75" stroke="#e2e8f0"/>
+          <text x="90" y="34" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#94a3b8">IDENTITY</text>
+          <text x="90" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#94a3b8">PERMISSIONS</text>
+          <text x="90" y="94" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#94a3b8">AUDIT TRAIL</text>
+          <rect x="20" y="30" width="18" height="60" fill="none" stroke="#7640FF" stroke-width="1.5"/>
+          <text x="29" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="6" fill="#7640FF" transform="rotate(-90 29 64)">FIREWALL</text>
+          <rect x="142" y="30" width="18" height="60" fill="none" stroke="#7640FF" stroke-width="1.5"/>
+          <text x="151" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="6" fill="#7640FF" transform="rotate(-90 151 64)">VPC SC</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="pillar-row">
+      <div>
+        <div class="pillar-label">Context & Connectivity</div>
+        <h2>Agents need the same context as your best engineers</h2>
+        <p>Without connectivity, agents can only see the code. No access to staging, no internal APIs, no way to validate changes end-to-end. <strong>The standard:</strong> agents connect to your BigQuery datasets, GitHub repos, Cloud Logging, Jira, and Slack through MCP &mdash; the universal protocol that eliminates custom integration debt.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">MCP</span>
+          <span class="tech-badge">Vertex AI Search</span>
+          <span class="tech-badge">BigQuery</span>
+        </div>
+      </div>
+      <div class="pillar-visual">
+        <svg viewBox="0 0 180 120" fill="none">
+          <circle cx="90" cy="60" r="20" stroke="#7640FF" stroke-width="1.5" fill="rgba(118,64,255,0.05)"/>
+          <text x="90" y="63" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#7640FF">MCP</text>
+          <rect x="10" y="10" width="40" height="20" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="30" y="24" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="JetBrains Mono">GitHub</text>
+          <line x1="50" y1="20" x2="72" y2="48" stroke="#e2e8f0"/>
+          <rect x="130" y="10" width="40" height="20" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="150" y="24" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="JetBrains Mono">Jira</text>
+          <line x1="130" y1="20" x2="108" y2="48" stroke="#e2e8f0"/>
+          <rect x="10" y="90" width="40" height="20" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="30" y="104" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="JetBrains Mono">BQ</text>
+          <line x1="50" y1="100" x2="72" y2="72" stroke="#e2e8f0"/>
+          <rect x="130" y="90" width="40" height="20" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="150" y="104" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="JetBrains Mono">Slack</text>
+          <line x1="130" y1="100" x2="108" y2="72" stroke="#e2e8f0"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="pillar-row">
+      <div>
+        <div class="pillar-label">Triggers</div>
+        <h2>Remove the human from the invocation loop</h2>
+        <p>Without triggers, every agent run starts with a developer typing a prompt. You've automated the work but not the workflow. <strong>The standard:</strong> agents fire on PR events, CVE advisories, cron schedules, CI failures, and error thresholds through EventArc. No human at a terminal required. This is what graduates a coding agent into a background agent.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">EventArc</span>
+          <span class="tech-badge">Cloud Scheduler</span>
+          <span class="tech-badge">Pub/Sub</span>
+        </div>
+      </div>
+      <div class="pillar-visual">
+        <svg viewBox="0 0 180 120" fill="none">
+          <rect x="10" y="15" width="50" height="18" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="35" y="27" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="JetBrains Mono">PR event</text>
+          <rect x="10" y="40" width="50" height="18" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="35" y="52" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="JetBrains Mono">CVE feed</text>
+          <rect x="10" y="65" width="50" height="18" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="35" y="77" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="JetBrains Mono">cron 0 6 * *</text>
+          <rect x="10" y="90" width="50" height="18" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="35" y="102" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="JetBrains Mono">CI failure</text>
+          <line x1="60" y1="24" x2="105" y2="55" stroke="#e2e8f0"/>
+          <line x1="60" y1="49" x2="105" y2="58" stroke="#e2e8f0"/>
+          <line x1="60" y1="74" x2="105" y2="62" stroke="#e2e8f0"/>
+          <line x1="60" y1="99" x2="105" y2="66" stroke="#e2e8f0"/>
+          <rect x="105" y="42" width="65" height="36" stroke="#7640FF" stroke-width="1.5" fill="rgba(118,64,255,0.05)"/>
+          <text x="137" y="57" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#7640FF">EventArc</text>
+          <text x="137" y="69" text-anchor="middle" font-family="JetBrains Mono" font-size="6" fill="#94a3b8">dispatch</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="pillar-row">
+      <div>
+        <div class="pillar-label">Fleet Coordination</div>
+        <h2>From one agent to hundreds</h2>
+        <p>Without fleet coordination, you have one agent, one repo, one developer babysitting. Linear scaling at best. <strong>The standard:</strong> hundreds of agents working in parallel across your entire codebase with centralised observability, policy enforcement through a Skill Registry, and persistent sessions on GCS for full context continuity.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">A2A Protocol</span>
+          <span class="tech-badge">Skill Registry</span>
+          <span class="tech-badge">GCS Sessions</span>
+        </div>
+      </div>
+      <div class="pillar-visual">
+        <svg viewBox="0 0 180 120" fill="none">
+          <rect x="65" y="10" width="50" height="24" stroke="#7640FF" stroke-width="1.5" fill="rgba(118,64,255,0.05)"/>
+          <text x="90" y="26" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#7640FF">ORCH</text>
+          <!-- fan out lines -->
+          <line x1="78" y1="34" x2="30" y2="60" stroke="#e2e8f0"/>
+          <line x1="85" y1="34" x2="65" y2="60" stroke="#e2e8f0"/>
+          <line x1="90" y1="34" x2="90" y2="60" stroke="#e2e8f0"/>
+          <line x1="95" y1="34" x2="115" y2="60" stroke="#e2e8f0"/>
+          <line x1="102" y1="34" x2="150" y2="60" stroke="#e2e8f0"/>
+          <!-- agents -->
+          <rect x="15" y="60" width="30" height="16" stroke="#10b981" fill="rgba(16,185,129,0.06)"/>
+          <text x="30" y="71" text-anchor="middle" font-size="6" fill="#10b981" font-family="JetBrains Mono">A-1</text>
+          <rect x="50" y="60" width="30" height="16" stroke="#10b981" fill="rgba(16,185,129,0.06)"/>
+          <text x="65" y="71" text-anchor="middle" font-size="6" fill="#10b981" font-family="JetBrains Mono">A-2</text>
+          <rect x="85" y="60" width="30" height="16" stroke="#10b981" fill="rgba(16,185,129,0.06)"/>
+          <text x="100" y="71" text-anchor="middle" font-size="6" fill="#10b981" font-family="JetBrains Mono">A-3</text>
+          <rect x="120" y="60" width="30" height="16" stroke="#10b981" fill="rgba(16,185,129,0.06)"/>
+          <text x="135" y="71" text-anchor="middle" font-size="6" fill="#10b981" font-family="JetBrains Mono">A-4</text>
+          <rect x="155" y="60" width="16" height="16" stroke="#94a3b8" fill="none" stroke-dasharray="3"/>
+          <text x="163" y="71" text-anchor="middle" font-size="8" fill="#94a3b8">...</text>
+          <!-- repos below -->
+          <line x1="30" y1="76" x2="30" y2="90" stroke="#e2e8f0" stroke-dasharray="3"/>
+          <line x1="65" y1="76" x2="65" y2="90" stroke="#e2e8f0" stroke-dasharray="3"/>
+          <line x1="100" y1="76" x2="100" y2="90" stroke="#e2e8f0" stroke-dasharray="3"/>
+          <line x1="135" y1="76" x2="135" y2="90" stroke="#e2e8f0" stroke-dasharray="3"/>
+          <rect x="10" y="90" width="40" height="16" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="30" y="101" text-anchor="middle" font-size="6" fill="#94a3b8" font-family="JetBrains Mono">repo-1</text>
+          <rect x="55" y="90" width="40" height="16" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="75" y="101" text-anchor="middle" font-size="6" fill="#94a3b8" font-family="JetBrains Mono">repo-2</text>
+          <rect x="100" y="90" width="40" height="16" stroke="#e2e8f0" fill="#f8fafc"/>
+          <text x="120" y="101" text-anchor="middle" font-size="6" fill="#94a3b8" font-family="JetBrains Mono">repo-3</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ IMPLEMENTATION ROADMAP ═══ -->
+  <div class="section">
+    <div class="section-label">Implementation Roadmap</div>
+    <p style="margin-bottom:1.5rem;">A phased approach that de-risks the transition. Each phase builds on the last and delivers standalone value.</p>
+
+    <div class="roadmap-compact">
+      <div class="rm-row rm-header">
+        <div class="rm-cell">Phase</div>
+        <div class="rm-cell">Focus</div>
+        <div class="rm-cell">Tech Stack</div>
+      </div>
+      <div class="rm-row">
+        <div class="rm-cell rm-phase">1. Assisted</div>
+        <div class="rm-cell">Individual productivity baselines</div>
+        <div class="rm-cell"><span class="tech-badge" style="margin:0;">Claude Code</span> <span class="tech-badge" style="margin:0;">Gemini</span></div>
+      </div>
+      <div class="rm-row">
+        <div class="rm-cell rm-phase">2. Connected</div>
+        <div class="rm-cell">Grounding in company data</div>
+        <div class="rm-cell"><span class="tech-badge" style="margin:0;">MCP</span> <span class="tech-badge" style="margin:0;">Vertex AI Search</span></div>
+      </div>
+      <div class="rm-row">
+        <div class="rm-cell rm-phase">3. Background</div>
+        <div class="rm-cell">Asynchronous autonomy</div>
+        <div class="rm-cell"><span class="tech-badge" style="margin:0;">EventArc</span> <span class="tech-badge" style="margin:0;">Cloud Run</span> <span class="tech-badge" style="margin:0;">GCS</span></div>
+      </div>
+      <div class="rm-row">
+        <div class="rm-cell rm-phase">4. Factory</div>
+        <div class="rm-cell">Automated multi-repo fleets</div>
+        <div class="rm-cell"><span class="tech-badge" style="margin:0;">A2A</span> <span class="tech-badge" style="margin:0;">Skill Registry</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ HOW TO GET STARTED ═══ -->
+  <div class="section">
+    <div class="section-label">How to Get Started</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Run a 90-day pilot with one team and one use case</h3>
+          <p>Pick a high-toil workflow: dependency upgrades, CVE remediation, or CI failure triage. Scope it to one team that feels the pain. This gives security and compliance teams a bounded surface to evaluate before broader rollout.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>Solve the environment problem first</h3>
+          <p>If it takes a day to get a new developer or agent productive, nothing else scales. Standardise reproducible cloud environments on GKE or Cloud Run that work for both humans and agents. This is the prerequisite every leader built before scaling agents.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Build governance into the infrastructure, not the policy doc</h3>
+          <p>Enterprise security review will ask how you scope credentials, enforce deny lists, and audit agent actions. Build those answers into the GCP platform from day one with IAM, VPC Service Controls, and Cloud Logging. Retrofitting governance after agents are running is an order of magnitude harder.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-top:2rem;">
+      <a href="index.html" style="font-size:0.9rem;font-weight:500;">See the full architecture overview &rarr;</a>
+      <span style="font-size:0.82rem;color:var(--slate-400);">Published by <a href="https://www.revolgy.com" target="_blank" rel="noopener">Revolgy</a> &mdash; Google Cloud Premier Partner</span>
+    </div>
+  </div>
+
+  <!-- ═══ BOTTOM BAR ═══ -->
+  <div class="bottom-bar">
+    <p>Share this with your leadership team.</p>
+    <button class="btn-dark" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+</div>
+</body>
+</html>
