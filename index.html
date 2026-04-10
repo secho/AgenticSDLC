@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Self-Driving Codebase | Agentic SDLC on Google Cloud | Revolgy</title>
+<meta name="description" content="Move from AI copilots to autonomous software factories on Google Cloud. Revolgy partners with CTOs to design and implement the Agentic SDLC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ══ RESET ══ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #7640FF;
+    --primary-dark: #5e2de6;
+    --primary-soft: rgba(118, 64, 255, 0.08);
+    --primary-mid: rgba(118, 64, 255, 0.15);
+    --primary-glow: rgba(118, 64, 255, 0.25);
+
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: var(--font-body);
+    background: #fff;
+    color: var(--slate-600);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ══ TYPOGRAPHY ══ */
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    color: var(--slate-900);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+  h1 { font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 300; text-transform: uppercase; }
+  h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; }
+  h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); font-weight: 600; }
+  p { line-height: 1.7; }
+
+  /* ══ LAYOUT ══ */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+  @media (min-width: 768px) { .container { padding: 0 2rem; } }
+  section { padding: 5rem 0; }
+  @media (min-width: 1024px) { section { padding: 7rem 0; } }
+
+  /* ══ ARCH LINE (Remangu signature) ══ */
+  .arch-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--slate-300), transparent);
+    opacity: 0.6;
+    margin: 0;
+  }
+
+  /* ══ LABELS ══ */
+  .label {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--slate-400);
+    margin-bottom: 1rem;
+  }
+  .label--primary { color: var(--primary); }
+
+  /* ══ BUTTONS (sharp edges, Remangu style) ══ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.8rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s var(--ease);
+    /* sharp edges - no border-radius */
+  }
+  .btn--primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+  .btn--primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); }
+  .btn--outline {
+    background: transparent;
+    color: var(--slate-700);
+    border-color: var(--slate-200);
+  }
+  .btn--outline:hover { border-color: var(--primary); color: var(--primary); }
+  .btn--ghost {
+    background: transparent;
+    color: var(--primary);
+    border: none;
+    padding: 0.5rem 0;
+    font-weight: 500;
+  }
+  .btn--ghost:hover { color: var(--primary-dark); }
+  .btn--ghost .arrow { transition: transform 0.15s var(--ease); }
+  .btn--ghost:hover .arrow { transform: translateX(4px); }
+
+  /* ══ NAVIGATION ══ */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: 4rem;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--slate-200);
+    transition: all 0.15s var(--ease);
+  }
+  @media (min-width: 1024px) { nav { height: 5rem; } }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  @media (min-width: 768px) { .nav-inner { padding: 0 2rem; } }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+  .nav-logo img { height: 28px; }
+  .nav-logo .divider {
+    width: 1px;
+    height: 20px;
+    background: var(--slate-200);
+  }
+  .nav-logo .sub {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--slate-700);
+    letter-spacing: -0.02em;
+  }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a {
+    color: var(--slate-600);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .nav-links a:hover { color: var(--slate-900); }
+  .nav-links a.btn--primary { color: white; }
+  .nav-links a.btn--primary:hover { color: white; }
+  .nav-spacer { height: 4rem; }
+  @media (min-width: 1024px) { .nav-spacer { height: 5rem; } }
+  @media (max-width: 768px) {
+    .nav-links a:not(.btn) { display: none; }
+  }
+
+  /* ══ HERO ══ */
+  .hero {
+    padding: 4rem 0 5rem;
+    position: relative;
+  }
+  @media (min-width: 1024px) { .hero { padding: 6rem 0 7rem; } }
+  .hero-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: center;
+  }
+  @media (min-width: 1024px) { .hero-grid { grid-template-columns: 1fr 1fr; gap: 4rem; } }
+  .hero-content .label { margin-bottom: 1.2rem; }
+  .hero-content h1 {
+    margin-bottom: 1.5rem;
+    line-height: 0.95;
+  }
+  .hero-content h1 em {
+    font-style: italic;
+    color: var(--primary);
+    font-weight: 400;
+  }
+  .hero-content > p {
+    font-size: 1.1rem;
+    color: var(--slate-500);
+    max-width: 520px;
+    margin-bottom: 2rem;
+    line-height: 1.7;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  /* ══ TERMINAL ══ */
+  .terminal {
+    background: var(--slate-900);
+    border: 1px solid var(--slate-700);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    overflow: hidden;
+    /* sharp edges */
+  }
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.75rem 1rem;
+    background: var(--slate-800);
+    border-bottom: 1px solid var(--slate-700);
+  }
+  .terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .terminal-dot:nth-child(1) { background: #ff5f56; }
+  .terminal-dot:nth-child(2) { background: #ffbd2e; }
+  .terminal-dot:nth-child(3) { background: #27c93f; }
+  .terminal-title {
+    font-size: 0.7rem;
+    color: var(--slate-400);
+    margin-left: 0.5rem;
+  }
+  .terminal-body {
+    padding: 1.2rem 1.2rem;
+    min-height: 260px;
+    position: relative;
+  }
+  .terminal-scenario {
+    position: absolute;
+    top: 1.2rem;
+    left: 1.2rem;
+    right: 1.2rem;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .terminal-scenario.active { opacity: 1; pointer-events: auto; }
+  .t-line { padding: 1px 0; white-space: nowrap; overflow: hidden; }
+  .t-line .prompt { color: var(--success); }
+  .t-line .cmd { color: #e2e8f0; }
+  .t-line .flag { color: var(--primary); }
+  .t-line .comment { color: var(--slate-500); font-style: italic; }
+  .t-line .output { color: var(--slate-400); }
+  .t-line .ok { color: var(--success); }
+  .t-line .warn { color: var(--warning); }
+  .t-line .err { color: var(--error); }
+  .t-line .accent { color: var(--primary); }
+
+  /* Typing animation per line */
+  .t-line.typing {
+    width: 0;
+    animation: typeIn 0.6s steps(40, end) forwards;
+  }
+  .t-line.typing-slow {
+    width: 0;
+    animation: typeIn 1s steps(40, end) forwards;
+  }
+  @keyframes typeIn {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 7px;
+    height: 13px;
+    background: var(--slate-300);
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .terminal-progress {
+    display: flex;
+    gap: 4px;
+    margin-top: 0.8rem;
+  }
+  .terminal-progress .pip {
+    width: 6px;
+    height: 6px;
+    background: var(--slate-700);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .terminal-progress .pip.active { background: var(--primary); transform: scale(1.3); }
+
+  /* ══ STATS BAR ══ */
+  .stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+  .stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--slate-600);
+    transition: all 0.15s;
+  }
+  .stat-badge:hover { border-color: var(--primary); color: var(--primary); }
+  .stat-badge strong { color: var(--slate-900); font-weight: 700; }
+
+  /* ══ PROBLEM SECTION ══ */
+  .problem-section { background: var(--slate-50); }
+  .problem-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: start;
+  }
+  @media (min-width: 1024px) { .problem-grid { grid-template-columns: 1fr 1fr; gap: 4rem; } }
+  .problem-text h2 { margin-bottom: 1.5rem; }
+  .problem-text p { margin-bottom: 1rem; font-size: 1rem; }
+  .problem-text p:last-of-type { margin-bottom: 0; }
+
+  /* Bottleneck diagram */
+  .bottleneck {
+    background: white;
+    border: 1px solid var(--slate-200);
+    padding: 2rem;
+  }
+  .bn-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--slate-400);
+  }
+  .bn-header span.active { color: var(--error); font-weight: 700; }
+  .bn-track {
+    position: relative;
+    height: 50px;
+    margin-bottom: 1.5rem;
+  }
+  .bn-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--slate-200);
+  }
+  .bn-dots {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    justify-content: center;
+  }
+  .bn-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+  .bn-dot.green { background: var(--success); opacity: 0.7; }
+  .bn-dot.purple { background: var(--primary); opacity: 0.7; }
+  .bn-dot.red { background: var(--error); opacity: 0.8; }
+  .bn-dot.amber { background: var(--warning); opacity: 0.7; }
+  .bn-callout {
+    text-align: center;
+    padding: 0.6rem 1rem;
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.15);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--error);
+    letter-spacing: 0.03em;
+  }
+
+  /* ══ EQUATION ══ */
+  .equation-section {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+  .equation-section p {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    color: var(--slate-400);
+    font-weight: 400;
+  }
+  .equation-section .highlight {
+    display: block;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    color: var(--slate-900);
+    margin-top: 0.5rem;
+  }
+  .equation-section .highlight em { color: var(--primary); font-style: italic; }
+
+  /* ══ SHIFT SECTION ══ */
+  .shift-grid {
+    display: grid;
+    gap: 2rem;
+    margin-top: 3rem;
+    align-items: stretch;
+  }
+  @media (min-width: 768px) { .shift-grid { grid-template-columns: 1fr auto 1fr; } }
+  .shift-card {
+    background: white;
+    border: 1px solid var(--slate-200);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.15s var(--ease);
+  }
+  .shift-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .shift-card.faded { opacity: 0.6; }
+  .shift-card.faded:hover { opacity: 0.8; }
+  .shift-card.featured { border: 2px solid rgba(118,64,255,0.3); background: var(--primary-soft); }
+  .shift-card h3 { margin-bottom: 0.3rem; }
+  .shift-card .sub { font-size: 0.8rem; color: var(--slate-400); margin-bottom: 1.2rem; }
+  .shift-card.featured .sub { color: var(--primary); }
+  .shift-card ul { list-style: none; }
+  .shift-card ul li {
+    padding: 0.4rem 0;
+    font-size: 0.88rem;
+    color: var(--slate-500);
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+  .shift-card ul li::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--slate-300);
+    margin-top: 0.5rem;
+    flex-shrink: 0;
+  }
+  .shift-card.featured ul li::before { background: var(--primary); }
+  .shift-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 1.5rem;
+  }
+
+  /* ══ ADVANTAGE CARDS ══ */
+  .advantage-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  @media (min-width: 768px) { .advantage-grid { grid-template-columns: repeat(3, 1fr); } }
+  .adv-card {
+    background: white;
+    border: 1px solid var(--slate-200);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.15s var(--ease);
+  }
+  .adv-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .adv-card .adv-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+    background: var(--primary-soft);
+  }
+  .adv-card h3 { font-size: 1.1rem; margin-bottom: 0.2rem; }
+  .adv-card .provider {
+    font-size: 0.72rem;
+    color: var(--slate-400);
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .adv-card p { font-size: 0.9rem; }
+
+  /* ══ ARCHITECTURE PILLARS ══ */
+  .arch-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  @media (min-width: 768px) { .arch-grid { grid-template-columns: repeat(3, 1fr); } }
+  .pillar {
+    background: white;
+    border: 1px solid var(--slate-200);
+    padding: 2rem;
+    transition: all 0.15s var(--ease);
+    display: flex;
+    flex-direction: column;
+  }
+  .pillar:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .pillar-num {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--slate-100);
+    line-height: 1;
+    margin-bottom: 0.8rem;
+    transition: color 0.15s;
+  }
+  .pillar:hover .pillar-num { color: var(--primary-soft); }
+  .pillar h3 { font-size: 1.1rem; margin-bottom: 0.2rem; }
+  .pillar .pillar-sub {
+    font-size: 0.75rem;
+    color: var(--primary);
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .pillar p { font-size: 0.88rem; margin-bottom: 0.8rem; }
+  .pillar-features { display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto; }
+  .pillar-feat {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--slate-500);
+    align-items: flex-start;
+  }
+  .pillar-feat::before {
+    content: '';
+    width: 4px; height: 4px;
+    background: var(--primary);
+    border-radius: 50%;
+    margin-top: 0.5rem;
+    flex-shrink: 0;
+  }
+  .pillar-feat strong { color: var(--slate-800); font-weight: 600; }
+
+  /* ══ SWARM SECTION ══ */
+  .swarm-section { background: var(--slate-50); }
+  .swarm-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  @media (min-width: 768px) { .swarm-grid { grid-template-columns: 1fr 1fr; } }
+  .swarm-card {
+    background: white;
+    border: 1px solid var(--slate-200);
+    padding: 2rem;
+    transition: all 0.15s var(--ease);
+  }
+  .swarm-card:hover { border-color: var(--primary); }
+  .swarm-card h3 { margin-bottom: 0.2rem; }
+  .swarm-card .swarm-sub { font-size: 0.8rem; color: var(--slate-400); margin-bottom: 1.2rem; }
+  .swarm-card svg { width: 100%; height: auto; }
+  .swarm-card .caption { font-size: 0.82rem; color: var(--slate-400); margin-top: 1rem; text-align: center; }
+
+  /* ══ GOVERNANCE ══ */
+  .gov-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  @media (min-width: 768px) { .gov-grid { grid-template-columns: repeat(2, 1fr); } }
+  .gov-card {
+    background: white;
+    border: 1px solid var(--slate-200);
+    padding: 1.5rem;
+    transition: all 0.15s var(--ease);
+  }
+  .gov-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .gov-card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .gov-icon {
+    width: 28px; height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-soft);
+    flex-shrink: 0;
+  }
+  .gov-card p { font-size: 0.85rem; }
+  .gov-card code {
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    padding: 1px 5px;
+    color: var(--primary);
+  }
+
+  /* ══ QUOTE BLOCK ══ */
+  .quote-block {
+    border-left: 2px solid var(--primary);
+    padding: 1.5rem 2rem;
+    margin: 3rem auto;
+    max-width: 700px;
+  }
+  .quote-block p {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--slate-800);
+    line-height: 1.5;
+  }
+  .quote-block .quote-sub {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--slate-400);
+    margin-top: 0.5rem;
+    font-weight: 400;
+  }
+
+  /* ══ FACTORY FEATURES ══ */
+  .factory-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  @media (min-width: 640px) { .factory-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .factory-grid { grid-template-columns: repeat(3, 1fr); } }
+  .factory-feat {
+    background: white;
+    border: 1px solid var(--slate-200);
+    padding: 1.5rem;
+    transition: all 0.15s var(--ease);
+  }
+  .factory-feat:hover { border-color: var(--primary); }
+  .factory-feat h4 {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--slate-800);
+    margin-bottom: 0.4rem;
+  }
+  .factory-feat p { font-size: 0.82rem; }
+
+  /* ══ ROADMAP ══ */
+  .roadmap-section { background: var(--slate-50); }
+  .roadmap-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  @media (min-width: 640px) { .roadmap-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .roadmap-grid { grid-template-columns: repeat(4, 1fr); } }
+  .phase {
+    background: white;
+    border: 1px solid var(--slate-200);
+    padding: 1.5rem;
+    position: relative;
+    transition: all 0.15s var(--ease);
+  }
+  .phase:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .phase-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    margin-bottom: 0.8rem;
+  }
+  .phase:nth-child(1) .phase-badge { background: rgba(16,185,129,0.08); color: var(--success); }
+  .phase:nth-child(2) .phase-badge { background: rgba(59,130,246,0.08); color: #3b82f6; }
+  .phase:nth-child(3) .phase-badge { background: var(--primary-soft); color: var(--primary); }
+  .phase:nth-child(4) .phase-badge { background: rgba(239,68,68,0.06); color: var(--error); }
+  .phase h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+  .phase .phase-tech {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--slate-400);
+    margin-bottom: 0.6rem;
+  }
+  .phase p { font-size: 0.82rem; }
+
+  /* ══ CTA ══ */
+  .cta-section {
+    text-align: center;
+    padding: 5rem 2rem;
+    position: relative;
+    background: var(--slate-900);
+    color: white;
+  }
+  @media (min-width: 1024px) { .cta-section { padding: 7rem 2rem; } }
+  .cta-section h2 { color: white; margin-bottom: 1rem; }
+  .cta-section h2 em { color: var(--primary); font-style: italic; }
+  .cta-section p {
+    color: var(--slate-400);
+    font-size: 1.05rem;
+    max-width: 580px;
+    margin: 0 auto 2.5rem;
+  }
+  .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .cta-section .btn--outline { color: white; border-color: var(--slate-600); }
+  .cta-section .btn--outline:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* ══ FOOTER ══ */
+  footer {
+    border-top: 1px solid var(--slate-200);
+    padding: 2rem;
+    text-align: center;
+  }
+  footer p { font-size: 0.78rem; color: var(--slate-400); }
+  footer a { color: var(--primary); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ══ SCROLL REVEAL ══ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ══ SVG HELPER ══ */
+  .svg-muted { stroke: var(--slate-300); }
+  .svg-primary { stroke: var(--primary); }
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://www.revolgy.com" target="_blank" rel="noopener">
+      <svg width="120" height="28" viewBox="0 0 120 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="21" font-family="'Space Grotesk', system-ui, sans-serif" font-size="20" font-weight="700" fill="#0f172a" letter-spacing="-0.5">revolgy</text>
+      </svg>
+      <span class="divider"></span>
+      <span class="sub">Agentic SDLC</span>
+    </a>
+    <div class="nav-links">
+      <a href="#problem">The Problem</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#governance">Governance</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#cta" class="btn btn--primary" style="padding:0.5rem 1.2rem;">Book a Strategy Session</a>
+    </div>
+  </div>
+</nav>
+<div class="nav-spacer"></div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-content">
+        <span class="label label--primary">Strategic Roadmap for CTOs</span>
+        <h1>The self-driving <em>codebase</em></h1>
+        <p>Your engineers are faster with AI. But your SDLC is still bottlenecked by human-synchronous tasks. We help you move from personal copilots to autonomous software factories on Google Cloud.</p>
+        <div class="hero-actions">
+          <a href="#cta" class="btn btn--primary">Start your transformation <span class="arrow">&rarr;</span></a>
+          <a href="#problem" class="btn btn--outline">See the architecture</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-title">revolgy-agent-dispatch</span>
+          </div>
+          <div class="terminal-body" id="terminalBody"></div>
+          <div class="terminal-progress" id="terminalProgress">
+            <span class="pip active" data-index="0"></span>
+            <span class="pip" data-index="1"></span>
+            <span class="pip" data-index="2"></span>
+            <span class="pip" data-index="3"></span>
+            <span class="pip" data-index="4"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══ STATS BAR ═══ -->
+<div class="container">
+  <div class="stats-bar">
+    <div class="stat-badge"><strong>Google Cloud</strong> Premier Partner</div>
+    <div class="stat-badge"><strong>300+</strong> Cloud Transformations</div>
+    <div class="stat-badge"><strong>Anthropic</strong> + Vertex AI</div>
+    <div class="stat-badge"><strong>MCP</strong> Native Integration</div>
+    <div class="stat-badge">Enterprise <strong>Security</strong> First</div>
+  </div>
+</div>
+
+<div class="arch-line"></div>
+
+<!-- ═══ PROBLEM ═══ -->
+<section class="problem-section" id="problem">
+  <div class="container">
+    <div class="problem-grid">
+      <div class="problem-text reveal">
+        <span class="label label--primary">The Bottleneck</span>
+        <h2>Individual speed does not equal organizational velocity</h2>
+        <p>You rolled out coding agents. Engineers are faster. PRs flood in. But code reviews pile up. Dependencies stall. Incidents still need a human at the keyboard.</p>
+        <p>AI productivity has reached a <strong style="color:var(--slate-900)">local maximum</strong>. The SDLC itself is the constraint &mdash; not the speed of writing code. Current AI tools are localhost-bound: they fight for your machine state, drain battery, and stop when the laptop closes.</p>
+        <p>The gains are compounding with the individual, not the organization. Your DORA metrics are flat. The backlog grows faster than you can drain it.</p>
+      </div>
+
+      <div class="reveal" style="animation-delay:0.15s">
+        <div class="bottleneck">
+          <div class="bn-header">
+            <span>PLAN</span><span>CODE</span><span class="active">REVIEW</span><span>TEST</span><span>DEPLOY</span>
+          </div>
+          <div class="bn-track">
+            <div class="bn-line"></div>
+            <div class="bn-dots" style="left:2%;width:50px;">
+              <span class="bn-dot purple"></span><span class="bn-dot green"></span><span class="bn-dot green"></span>
+            </div>
+            <div class="bn-dots" style="left:20%;width:60px;">
+              <span class="bn-dot green"></span><span class="bn-dot green"></span><span class="bn-dot purple"></span><span class="bn-dot green"></span><span class="bn-dot amber"></span>
+            </div>
+            <div class="bn-dots" style="left:40%;width:90px;">
+              <span class="bn-dot red"></span><span class="bn-dot red"></span><span class="bn-dot red"></span><span class="bn-dot red"></span><span class="bn-dot amber"></span><span class="bn-dot red"></span><span class="bn-dot amber"></span><span class="bn-dot red"></span><span class="bn-dot red"></span><span class="bn-dot red"></span><span class="bn-dot red"></span><span class="bn-dot amber"></span>
+            </div>
+            <div class="bn-dots" style="left:70%;width:50px;">
+              <span class="bn-dot green"></span><span class="bn-dot amber"></span><span class="bn-dot green"></span>
+            </div>
+            <div class="bn-dots" style="left:87%;width:50px;">
+              <span class="bn-dot red"></span><span class="bn-dot green"></span><span class="bn-dot red"></span><span class="bn-dot green"></span>
+            </div>
+          </div>
+          <div class="bn-callout">REVIEW is the constraint &mdash; human-synchronous bottleneck</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ EQUATION ═══ -->
+<div class="arch-line"></div>
+<div class="equation-section reveal">
+  <p>Coding agents made individuals faster.</p>
+  <span class="highlight">Background agents make codebases <em>self-driving.</em></span>
+</div>
+<div class="arch-line"></div>
+
+<!-- ═══ SHIFT ═══ -->
+<section id="shift">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <span class="label label--primary">The Paradigm Shift</span>
+      <h2>From copilots to background agents</h2>
+      <p style="max-width:650px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">The next leap isn't "better autocomplete." It's moving from AI-assisted development to a fully Agentic SDLC where autonomous agents run on your cloud infrastructure.</p>
+    </div>
+
+    <div class="shift-grid reveal">
+      <div class="shift-card faded">
+        <h3>AI-Assisted SDLC</h3>
+        <div class="sub">Where most teams are today</div>
+        <ul>
+          <li>Chat-based code suggestions</li>
+          <li>Tied to developer's local machine</li>
+          <li>Stops when the laptop closes</li>
+          <li>One developer, one assistant</li>
+          <li>Human drives every decision</li>
+        </ul>
+      </div>
+      <div class="shift-arrow">&rarr;</div>
+      <div class="shift-card featured">
+        <h3>Agentic SDLC</h3>
+        <div class="sub">Where we take you</div>
+        <ul>
+          <li>Autonomous cloud-native agents</li>
+          <li>Runs on GCP infrastructure 24/7</li>
+          <li>Event-driven, asynchronous execution</li>
+          <li>Agent swarms across repositories</li>
+          <li>Human governs, agents execute</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══ GCP + ANTHROPIC ADVANTAGE ═══ -->
+<section id="advantage">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <span class="label label--primary">The Competitive Edge</span>
+      <h2>GCP + Anthropic advantage</h2>
+      <p style="max-width:650px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">Contextual density and standardized connectivity. Three capabilities that turn your GCP stack into a software factory.</p>
+    </div>
+
+    <div class="advantage-grid reveal">
+      <div class="adv-card">
+        <div class="adv-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7640FF" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>Reasoning</h3>
+        <div class="provider">Anthropic &middot; Claude 4.6</div>
+        <p>Industry standard for agenticness &mdash; planning multi-step tasks, using tools, and self-correcting logic autonomously.</p>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7640FF" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3>Context</h3>
+        <div class="provider">Google &middot; Gemini Pro</div>
+        <p>2M+ token window as organizational memory &mdash; entire repos, Jira history, Slack threads for architecturally sound decisions.</p>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7640FF" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <h3>Connectivity</h3>
+        <div class="provider">Open Standard &middot; MCP</div>
+        <p>Model Context Protocol &mdash; the universal plug. Agents securely touch BigQuery, GitHub, Cloud Logging without custom integration debt.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section id="architecture">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <span class="label label--primary">Architecture</span>
+      <h2>The software factory</h2>
+      <p style="max-width:650px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">To scale, agents must be treated as cloud infrastructure, not personal tools. Three architectural pillars make this possible.</p>
+    </div>
+
+    <div class="arch-grid reveal">
+      <div class="pillar">
+        <div class="pillar-num">01</div>
+        <h3>Decoupled Execution</h3>
+        <div class="pillar-sub">Agentic Workspace</div>
+        <p>Move agents off local terminals into isolated Cloud Workspaces on GKE or Cloud Run.</p>
+        <div class="pillar-features">
+          <div class="pillar-feat"><strong>Trigger-Based Dispatch</strong> &mdash; invoked by events: tickets, CI failures, CVEs</div>
+          <div class="pillar-feat"><strong>Headless Development</strong> &mdash; clone, execute, test, present PR for human audit</div>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">02</div>
+        <h3>Centralized Skill & Memory</h3>
+        <div class="pillar-sub">Shared Brain</div>
+        <p>Agents share intelligence across the organization through a unified skill and memory layer.</p>
+        <div class="pillar-features">
+          <div class="pillar-feat"><strong>Skill Registry</strong> &mdash; centralized SKILL.md files; update once, upgrade every agent</div>
+          <div class="pillar-feat"><strong>Persistent Sessions</strong> &mdash; state on GCS; fork and resume any research context</div>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">03</div>
+        <h3>Team of Agents</h3>
+        <div class="pillar-sub">Swarm Pattern</div>
+        <p>Complex tasks are assigned to specialized agent teams, not a single model.</p>
+        <div class="pillar-features">
+          <div class="pillar-feat"><strong>The Architect</strong> (Claude) &mdash; plans the change</div>
+          <div class="pillar-feat"><strong>The Librarian</strong> (Gemini) &mdash; sources 2M-token context</div>
+          <div class="pillar-feat"><strong>The Reviewer</strong> (Private Model) &mdash; audits against policies</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SWARM PATTERNS ═══ -->
+<section class="swarm-section">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <span class="label label--primary">Scaling Patterns</span>
+      <h2>Fleets and swarms</h2>
+      <p style="max-width:600px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">Two orchestration patterns for multi-agent work. Choose based on your topology.</p>
+    </div>
+
+    <div class="swarm-grid reveal">
+      <div class="swarm-card">
+        <h3>Agent Fleets</h3>
+        <div class="swarm-sub">One task across many repositories</div>
+        <svg viewBox="0 0 440 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Orchestrator -->
+          <rect x="10" y="75" width="60" height="40" fill="#7640FF" opacity="0.1" stroke="#7640FF" stroke-width="1.5"/>
+          <text x="40" y="99" text-anchor="middle" fill="#7640FF" font-family="Space Grotesk, sans-serif" font-size="9" font-weight="600">ORCH</text>
+          <!-- Lines -->
+          <line x1="70" y1="85" x2="140" y2="35" stroke="#e2e8f0" stroke-width="1"/>
+          <line x1="70" y1="90" x2="140" y2="75" stroke="#e2e8f0" stroke-width="1"/>
+          <line x1="70" y1="100" x2="140" y2="115" stroke="#e2e8f0" stroke-width="1"/>
+          <line x1="70" y1="105" x2="140" y2="155" stroke="#e2e8f0" stroke-width="1"/>
+          <!-- Agents -->
+          <rect x="140" y="20" width="40" height="30" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="1"/>
+          <text x="160" y="39" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono, monospace" font-size="7">A-1</text>
+          <rect x="140" y="60" width="40" height="30" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="1"/>
+          <text x="160" y="79" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono, monospace" font-size="7">A-2</text>
+          <rect x="140" y="100" width="40" height="30" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="1"/>
+          <text x="160" y="119" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono, monospace" font-size="7">A-3</text>
+          <rect x="140" y="140" width="40" height="30" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="1"/>
+          <text x="160" y="159" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono, monospace" font-size="7">A-4</text>
+          <!-- Arrows to repos -->
+          <line x1="180" y1="35" x2="240" y2="35" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="180" y1="75" x2="240" y2="75" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="180" y1="115" x2="240" y2="115" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="180" y1="155" x2="240" y2="155" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4"/>
+          <!-- Repos -->
+          <rect x="240" y="22" width="70" height="26" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="275" y="39" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8">api-svc</text>
+          <rect x="240" y="62" width="70" height="26" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="275" y="79" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8">auth-svc</text>
+          <rect x="240" y="102" width="70" height="26" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="275" y="119" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8">web-app</text>
+          <rect x="240" y="142" width="70" height="26" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="275" y="159" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="8">data-pipe</text>
+          <!-- HITL -->
+          <line x1="310" y1="35" x2="360" y2="35" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+          <line x1="310" y1="75" x2="360" y2="75" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+          <line x1="310" y1="115" x2="360" y2="115" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+          <line x1="310" y1="155" x2="360" y2="155" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+          <rect x="360" y="22" width="55" height="26" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+          <text x="387" y="39" text-anchor="middle" fill="#3b82f6" font-size="8" opacity="0.6" font-weight="500">Review</text>
+          <rect x="360" y="62" width="55" height="26" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+          <text x="387" y="79" text-anchor="middle" fill="#3b82f6" font-size="8" opacity="0.6" font-weight="500">Review</text>
+          <rect x="360" y="102" width="55" height="26" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+          <text x="387" y="119" text-anchor="middle" fill="#3b82f6" font-size="8" opacity="0.6" font-weight="500">Review</text>
+          <rect x="360" y="142" width="55" height="26" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+          <text x="387" y="159" text-anchor="middle" fill="#3b82f6" font-size="8" opacity="0.6" font-weight="500">Review</text>
+          <!-- Column labels -->
+          <text x="40" y="12" text-anchor="middle" fill="#94a3b8" font-size="7" font-weight="600" letter-spacing="1.5" text-transform="uppercase">DISPATCH</text>
+          <text x="160" y="12" text-anchor="middle" fill="#94a3b8" font-size="7" font-weight="600" letter-spacing="1.5">AGENTS</text>
+          <text x="275" y="12" text-anchor="middle" fill="#94a3b8" font-size="7" font-weight="600" letter-spacing="1.5">REPOS</text>
+          <text x="387" y="12" text-anchor="middle" fill="#94a3b8" font-size="7" font-weight="600" letter-spacing="1.5">HITL</text>
+        </svg>
+        <div class="caption">Each agent works independently on its own repo. Humans review the contributions.</div>
+      </div>
+
+      <div class="swarm-card">
+        <h3>Agent Swarms</h3>
+        <div class="swarm-sub">Many agents, one outcome</div>
+        <svg viewBox="0 0 440 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Orchestrator -->
+          <rect x="10" y="75" width="60" height="40" fill="#7640FF" opacity="0.1" stroke="#7640FF" stroke-width="1.5"/>
+          <text x="40" y="99" text-anchor="middle" fill="#7640FF" font-family="Space Grotesk, sans-serif" font-size="9" font-weight="600">ORCH</text>
+          <!-- Lines to swarm -->
+          <line x1="70" y1="85" x2="130" y2="45" stroke="#e2e8f0" stroke-width="1"/>
+          <line x1="70" y1="90" x2="130" y2="80" stroke="#e2e8f0" stroke-width="1"/>
+          <line x1="70" y1="100" x2="130" y2="115" stroke="#e2e8f0" stroke-width="1"/>
+          <line x1="70" y1="105" x2="130" y2="150" stroke="#e2e8f0" stroke-width="1"/>
+          <!-- Swarm agents with inter-connections -->
+          <line x1="155" y1="45" x2="175" y2="75" stroke="#e2e8f0" stroke-width="0.7"/>
+          <line x1="175" y1="75" x2="160" y2="110" stroke="#e2e8f0" stroke-width="0.7"/>
+          <line x1="145" y1="80" x2="160" y2="110" stroke="#e2e8f0" stroke-width="0.7"/>
+          <line x1="160" y1="110" x2="180" y2="140" stroke="#e2e8f0" stroke-width="0.7"/>
+          <line x1="145" y1="150" x2="180" y2="140" stroke="#e2e8f0" stroke-width="0.7"/>
+
+          <rect x="130" y="30" width="50" height="28" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="1"/>
+          <text x="155" y="47" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono, monospace" font-size="7">PLAN</text>
+          <rect x="150" y="65" width="50" height="28" fill="#7640FF" opacity="0.1" stroke="#7640FF" stroke-width="1"/>
+          <text x="175" y="82" text-anchor="middle" fill="#7640FF" font-family="JetBrains Mono, monospace" font-size="7">CODE</text>
+          <rect x="120" y="68" width="50" height="28" fill="#f59e0b" opacity="0.1" stroke="#f59e0b" stroke-width="1"/>
+          <text x="145" y="85" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono, monospace" font-size="7">CTX</text>
+          <rect x="135" y="100" width="50" height="28" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="1"/>
+          <text x="160" y="117" text-anchor="middle" fill="#10b981" font-family="JetBrains Mono, monospace" font-size="7">TEST</text>
+          <rect x="155" y="130" width="50" height="28" fill="#ef4444" opacity="0.1" stroke="#ef4444" stroke-width="1"/>
+          <text x="180" y="148" text-anchor="middle" fill="#ef4444" font-family="JetBrains Mono, monospace" font-size="7">AUDIT</text>
+          <rect x="120" y="138" width="50" height="28" fill="#7640FF" opacity="0.1" stroke="#7640FF" stroke-width="1"/>
+          <text x="145" y="155" text-anchor="middle" fill="#7640FF" font-family="JetBrains Mono, monospace" font-size="7">FIX</text>
+          <!-- Arrow to result -->
+          <line x1="210" y1="95" x2="300" y2="95" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="6"/>
+          <polygon points="300,90 310,95 300,100" fill="#e2e8f0"/>
+          <!-- Result -->
+          <rect x="320" y="65" width="100" height="60" fill="#7640FF" opacity="0.06" stroke="#7640FF" stroke-width="1.5"/>
+          <text x="370" y="90" text-anchor="middle" fill="#7640FF" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="600">UNIFIED</text>
+          <text x="370" y="104" text-anchor="middle" fill="#7640FF" font-family="Space Grotesk, sans-serif" font-size="10" font-weight="600">RESULT</text>
+          <!-- Labels -->
+          <text x="40" y="12" text-anchor="middle" fill="#94a3b8" font-size="7" font-weight="600" letter-spacing="1.5">DISPATCH</text>
+          <text x="160" y="12" text-anchor="middle" fill="#94a3b8" font-size="7" font-weight="600" letter-spacing="1.5">SWARM</text>
+          <text x="370" y="12" text-anchor="middle" fill="#94a3b8" font-size="7" font-weight="600" letter-spacing="1.5">RESULT</text>
+        </svg>
+        <div class="caption">Each agent works on a different facet. Results converge into one outcome.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══ GOVERNANCE ═══ -->
+<section id="governance">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <span class="label label--primary">Governance & Security</span>
+      <h2>You become governor of the AI workforce</h2>
+      <p style="max-width:650px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">As agents gain autonomy, governance shifts from prompts to infrastructure. Zero-trust identity, JIT permissions, and full audit trails &mdash; enforced at the execution layer.</p>
+    </div>
+
+    <div class="gov-grid reveal">
+      <div class="gov-card">
+        <h3>
+          <span class="gov-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7640FF" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          IAM-Scoped Agents
+        </h3>
+        <p>Each agent gets a GCP Service Account with Just-In-Time privileges. An agent fixing a database bug only gets <code>roles/cloudsql.admin</code> for 30 minutes.</p>
+      </div>
+      <div class="gov-card">
+        <h3>
+          <span class="gov-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7640FF" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          Model Armor
+        </h3>
+        <p>Vertex AI's native safety layers redact PII and prevent prompt injection before agents touch your codebase. Defense in depth at the platform level.</p>
+      </div>
+      <div class="gov-card">
+        <h3>
+          <span class="gov-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7640FF" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          Reasoning Traces
+        </h3>
+        <p>Every tool call and "thought" logged to Cloud Logging. Monitor Human Interruption Rates &mdash; if humans constantly correct agents, the Skill Registry needs tuning.</p>
+      </div>
+      <div class="gov-card">
+        <h3>
+          <span class="gov-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7640FF" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M12 8v8M8 12h8"/></svg></span>
+          Private Reasoning Hub
+        </h3>
+        <p>Host open-weights models on private GKE clusters within a VPC Service Control perimeter. Proprietary logic never leaves your network.</p>
+      </div>
+    </div>
+
+    <div class="quote-block reveal">
+      <p>Governance. Enforced at the execution layer, not by prompt.</p>
+      <div class="quote-sub">Identity, permissions, audit trails.</div>
+    </div>
+
+    <div class="factory-grid reveal">
+      <div class="factory-feat">
+        <h4>Sandboxed Execution</h4>
+        <p>Each agent gets its own isolated dev environment with a full toolchain and test suite.</p>
+      </div>
+      <div class="factory-feat">
+        <h4>Context & Connectivity</h4>
+        <p>Agents reach internal APIs, private registries, and database replicas behind your firewall.</p>
+      </div>
+      <div class="factory-feat">
+        <h4>Event-Driven Triggers</h4>
+        <p>Schedules, webhooks, PR events, Slack messages &mdash; remove the human from the invocation loop.</p>
+      </div>
+      <div class="factory-feat">
+        <h4>Fleet Coordination</h4>
+        <p>One intent, every repo. Parallel provisioning, progress tracking, aggregated results.</p>
+      </div>
+      <div class="factory-feat">
+        <h4>Skill Registry</h4>
+        <p>Centralized prompt and tool definitions. Update the security standard once, upgrade every agent.</p>
+      </div>
+      <div class="factory-feat">
+        <h4>Session Persistence</h4>
+        <p>Session state on GCS. Fork an agent's 2-hour research session and resume with full context.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══ ROADMAP ═══ -->
+<section class="roadmap-section" id="roadmap">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <span class="label label--primary">Implementation</span>
+      <h2>Your path to the factory floor</h2>
+      <p style="max-width:650px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">A phased roadmap from individual productivity to automated multi-repo fleets. Each phase builds on the last. We guide you through every step.</p>
+    </div>
+
+    <div class="roadmap-grid reveal">
+      <div class="phase">
+        <div class="phase-badge">Phase 1 &middot; Assisted</div>
+        <h3>Individual Productivity</h3>
+        <div class="phase-tech">Claude Code / Gemini</div>
+        <p>Equip engineers with AI coding assistants. Establish velocity baselines and identify SDLC bottlenecks.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-badge">Phase 2 &middot; Connected</div>
+        <h3>Grounding in Company Data</h3>
+        <div class="phase-tech">MCP + Vertex AI Search</div>
+        <p>Connect agents to organizational knowledge &mdash; repos, wikis, tickets. Move from generic to context-aware.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-badge">Phase 3 &middot; Background</div>
+        <h3>Asynchronous Autonomy</h3>
+        <div class="phase-tech">EventArc + Cloud Run + GCS</div>
+        <p>Agents run on cloud infrastructure, triggered by events. Headless execution. The laptop can close.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-badge">Phase 4 &middot; Factory</div>
+        <h3>Automated Fleets</h3>
+        <div class="phase-tech">A2A + Skill Registry</div>
+        <p>Full orchestration across your codebase. Agent swarms, fleet coordination, centralized governance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section" id="cta">
+  <div class="reveal">
+    <span class="label" style="color:var(--primary);">Ready to move?</span>
+    <h2>Your codebase should run<br>while you <em>sleep</em></h2>
+    <p>We partner with engineering leaders to design and implement the Agentic SDLC on Google Cloud. Not a pitch deck &mdash; a working factory floor.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn btn--primary" style="padding:0.9rem 2rem;font-size:0.95rem;">Book a Strategy Session <span class="arrow">&rarr;</span></a>
+      <a href="#" class="btn btn--outline" style="padding:0.9rem 2rem;">Download the Full Roadmap</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <p><a href="https://www.revolgy.com" target="_blank" rel="noopener">Revolgy</a> &middot; The Self-Driving Codebase &middot; Agentic SDLC on Google Cloud</p>
+</footer>
+
+<!-- ═══ SCRIPTS ═══ -->
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  // ── Realistic Terminal Animation ──
+  (function() {
+    const body = document.getElementById('terminalBody');
+    const pips = document.querySelectorAll('#terminalProgress .pip');
+    let current = 0;
+    let cancelled = false;
+
+    // Each scenario: array of line objects
+    // type: 'comment' | 'command' | 'output' | 'ok' | 'warn' | 'err' | 'waiting'
+    const scenarios = [
+      { lines: [
+        { type: 'comment', text: '# CVE detected in production dependency' },
+        { type: 'command', text: 'agent dispatch --trigger=cve-2026-4821' },
+        { type: 'output',  text: 'Spawning fleet on Cloud Run...',         delay: 600 },
+        { type: 'ok',      text: 'Worktrees cloned across 14 repositories', delay: 900 },
+        { type: 'ok',      text: 'Dependency patched: openssl 3.1.2 → 3.1.3', delay: 700 },
+        { type: 'ok',      text: 'All test suites passing (14/14)',         delay: 800 },
+        { type: 'waiting', text: '14 PRs ready for human review' },
+      ]},
+      { lines: [
+        { type: 'comment', text: '# CI build failed on main branch' },
+        { type: 'command', text: 'agent dispatch --trigger=ci-failure --branch=main' },
+        { type: 'output',  text: 'Analyzing build logs on Cloud Logging...', delay: 800 },
+        { type: 'ok',      text: 'Root cause: flaky test in auth-service',   delay: 1000 },
+        { type: 'ok',      text: 'Fix applied: retry logic + deterministic seed', delay: 700 },
+        { type: 'ok',      text: 'Regression suite green (247/247 tests)',   delay: 800 },
+        { type: 'waiting', text: 'PR #892 opened, linked to incident' },
+      ]},
+      { lines: [
+        { type: 'comment', text: '# New ticket assigned: PLAT-1847' },
+        { type: 'command', text: 'agent dispatch --trigger=linear/PLAT-1847' },
+        { type: 'output',  text: 'Reading ticket + Slack thread context...', delay: 900 },
+        { type: 'ok',      text: 'Implementation plan approved by Architect', delay: 800 },
+        { type: 'ok',      text: '3 files changed, 142 additions, 28 deletions', delay: 700 },
+        { type: 'ok',      text: 'Unit + integration tests added and passing', delay: 800 },
+        { type: 'waiting', text: 'PR draft ready, ticket moved to Review' },
+      ]},
+      { lines: [
+        { type: 'comment', text: '# Weekly dependency audit (scheduled)' },
+        { type: 'command', text: 'agent fleet --schedule=weekly --scope=all-repos' },
+        { type: 'output',  text: 'Scanning 38 repositories for outdated deps...', delay: 1000 },
+        { type: 'warn',    text: 'Found 23 outdated packages across 12 repos', delay: 800 },
+        { type: 'ok',      text: 'Bumped 23 packages, resolved 4 conflicts',  delay: 900 },
+        { type: 'ok',      text: 'All builds green. No breaking changes.',     delay: 700 },
+        { type: 'waiting', text: '12 PRs batched for review' },
+      ]},
+      { lines: [
+        { type: 'comment', text: '# New security standard published' },
+        { type: 'command', text: 'agent swarm --skill=security-audit-v2' },
+        { type: 'output',  text: 'Deploying swarm: Architect + Reviewer + Fixer', delay: 700 },
+        { type: 'ok',      text: 'Scanned 1.2M lines across 38 services',     delay: 1100 },
+        { type: 'err',     text: 'Found 7 violations, 3 critical',            delay: 600 },
+        { type: 'ok',      text: 'Auto-fixed 5/7 — 2 flagged for human review', delay: 900 },
+        { type: 'waiting', text: 'Compliance report generated' },
+      ]},
+    ];
+
+    function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    // Typewriter: types text char-by-char into a span
+    async function typewrite(container, text, charDelay) {
+      for (let i = 0; i < text.length; i++) {
+        if (cancelled) return;
+        container.textContent += text[i];
+        // Variable speed: faster for spaces/punctuation
+        const ch = text[i];
+        let d = charDelay;
+        if (ch === ' ') d = charDelay * 0.4;
+        else if (ch === '-' || ch === '=' || ch === '/') d = charDelay * 0.6;
+        // Random jitter ±30%
+        d = d * (0.7 + Math.random() * 0.6);
+        await sleep(d);
+      }
+    }
+
+    function createLine() {
+      const div = document.createElement('div');
+      div.className = 't-line';
+      div.style.opacity = '0';
+      body.appendChild(div);
+      return div;
+    }
+
+    function showLine(div) {
+      div.style.transition = 'opacity 0.2s ease';
+      div.style.opacity = '1';
+    }
+
+    // Render one scenario with full animation
+    async function playScenario(index) {
+      cancelled = false;
+      body.innerHTML = '';
+      updatePips(index);
+      const scenario = scenarios[index];
+
+      for (const item of scenario.lines) {
+        if (cancelled) return;
+        const line = createLine();
+
+        if (item.type === 'comment') {
+          const span = document.createElement('span');
+          span.className = 'comment';
+          line.appendChild(span);
+          showLine(line);
+          await typewrite(span, item.text, 18);
+          await sleep(300);
+
+        } else if (item.type === 'command') {
+          // Prompt
+          const prompt = document.createElement('span');
+          prompt.className = 'prompt';
+          prompt.textContent = '$ ';
+          line.appendChild(prompt);
+          // Cursor that moves with typing
+          const cursor = document.createElement('span');
+          cursor.className = 'cursor-blink';
+          // Command text span
+          const cmdSpan = document.createElement('span');
+          cmdSpan.className = 'cmd';
+          line.appendChild(cmdSpan);
+          line.appendChild(cursor);
+          showLine(line);
+          await sleep(400);
+          // Type the command with realistic speed
+          const parts = item.text.split(' ');
+          for (let p = 0; p < parts.length; p++) {
+            if (cancelled) return;
+            const part = parts[p];
+            // Color flags differently
+            if (part.startsWith('--') || part.startsWith('-')) {
+              const flagSpan = document.createElement('span');
+              flagSpan.className = 'flag';
+              line.insertBefore(flagSpan, cursor);
+              await typewrite(flagSpan, part, 38);
+            } else {
+              await typewrite(cmdSpan, part, 45);
+            }
+            if (p < parts.length - 1) {
+              cmdSpan.textContent += ' ';
+              await sleep(80);
+            }
+          }
+          // "Press enter" — remove cursor, brief pause
+          await sleep(300);
+          cursor.remove();
+          await sleep(500);
+
+        } else if (item.type === 'output') {
+          const span = document.createElement('span');
+          span.className = 'output';
+          span.textContent = item.text;
+          line.appendChild(span);
+          showLine(line);
+          await sleep(item.delay || 600);
+
+        } else if (item.type === 'ok') {
+          const icon = document.createElement('span');
+          icon.className = 'ok';
+          icon.textContent = '\u2713 ';
+          const span = document.createElement('span');
+          span.className = 'output';
+          span.textContent = item.text;
+          line.appendChild(icon);
+          line.appendChild(span);
+          showLine(line);
+          await sleep(item.delay || 600);
+
+        } else if (item.type === 'warn') {
+          const icon = document.createElement('span');
+          icon.className = 'warn';
+          icon.textContent = '! ';
+          const span = document.createElement('span');
+          span.className = 'output';
+          span.textContent = item.text;
+          line.appendChild(icon);
+          line.appendChild(span);
+          showLine(line);
+          await sleep(item.delay || 600);
+
+        } else if (item.type === 'err') {
+          const icon = document.createElement('span');
+          icon.className = 'err';
+          icon.textContent = '\u2717 ';
+          const span = document.createElement('span');
+          span.className = 'output';
+          span.textContent = item.text;
+          line.appendChild(icon);
+          line.appendChild(span);
+          showLine(line);
+          await sleep(item.delay || 600);
+
+        } else if (item.type === 'waiting') {
+          const icon = document.createElement('span');
+          icon.className = 'accent';
+          icon.textContent = '\u25B6 ';
+          const span = document.createElement('span');
+          span.className = 'output';
+          span.textContent = item.text;
+          const cursor = document.createElement('span');
+          cursor.className = 'cursor-blink';
+          line.appendChild(icon);
+          line.appendChild(span);
+          line.appendChild(cursor);
+          showLine(line);
+        }
+      }
+
+      // Hold the completed scenario on screen for reading
+      if (!cancelled) await sleep(4000);
+    }
+
+    function updatePips(index) {
+      pips.forEach((p, i) => {
+        p.classList.toggle('active', i === index);
+      });
+    }
+
+    // Main loop
+    async function loop() {
+      while (true) {
+        await playScenario(current);
+        if (!cancelled) {
+          current = (current + 1) % scenarios.length;
+        }
+      }
+    }
+
+    // Click on pips to jump
+    pips.forEach(pip => {
+      pip.addEventListener('click', () => {
+        const idx = parseInt(pip.dataset.index);
+        cancelled = true;
+        current = idx;
+        // Small delay to let current playScenario bail out
+        setTimeout(() => { cancelled = false; playScenario(idx).then(() => {
+          if (!cancelled) { current = (idx + 1) % scenarios.length; loop(); }
+        }); }, 50);
+      });
+    });
+
+    loop();
+  })();
+</script>
+</body>
+</html>
