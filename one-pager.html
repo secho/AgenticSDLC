@@ -415,7 +415,7 @@
           <td>Where it runs</td>
           <td>Developer's machine</td>
           <td>Developer's machine</td>
-          <td class="highlight-col">GCP: Cloud Run, GKE, Vertex AI</td>
+          <td class="highlight-col">Google Cloud: Cloud Run, GKE, Gemini Enterprise</td>
         </tr>
         <tr>
           <td>Measured impact</td>
@@ -520,7 +520,7 @@
         <p>Without connectivity, agents can only see the code. No access to staging, no internal APIs, no way to validate changes end-to-end. <strong>The standard:</strong> agents connect to your BigQuery datasets, GitHub repos, Cloud Logging, Jira, and Slack through MCP &mdash; the universal protocol that eliminates custom integration debt.</p>
         <div class="tech-badges">
           <span class="tech-badge">MCP</span>
-          <span class="tech-badge">Vertex AI Search</span>
+          <span class="tech-badge">Agent Search</span>
           <span class="tech-badge">BigQuery</span>
         </div>
       </div>
@@ -548,9 +548,9 @@
       <div>
         <div class="pillar-label">Triggers</div>
         <h2>Remove the human from the invocation loop</h2>
-        <p>Without triggers, every agent run starts with a developer typing a prompt. You've automated the work but not the workflow. <strong>The standard:</strong> agents fire on PR events, CVE advisories, cron schedules, CI failures, and error thresholds through EventArc. No human at a terminal required. This is what graduates a coding agent into a background agent.</p>
+        <p>Without triggers, every agent run starts with a developer typing a prompt. You've automated the work but not the workflow. <strong>The standard:</strong> agents fire on PR events, CVE advisories, cron schedules, CI failures, and error thresholds through Eventarc. No human at a terminal required. This is what graduates a coding agent into a background agent.</p>
         <div class="tech-badges">
-          <span class="tech-badge">EventArc</span>
+          <span class="tech-badge">Eventarc</span>
           <span class="tech-badge">Cloud Scheduler</span>
           <span class="tech-badge">Pub/Sub</span>
         </div>
@@ -570,7 +570,7 @@
           <line x1="60" y1="74" x2="105" y2="62" stroke="#e2e8f0"/>
           <line x1="60" y1="99" x2="105" y2="66" stroke="#e2e8f0"/>
           <rect x="105" y="42" width="65" height="36" stroke="#7640FF" stroke-width="1.5" fill="rgba(118,64,255,0.05)"/>
-          <text x="137" y="57" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#7640FF">EventArc</text>
+          <text x="137" y="57" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#7640FF">Eventarc</text>
           <text x="137" y="69" text-anchor="middle" font-family="JetBrains Mono" font-size="6" fill="#94a3b8">dispatch</text>
         </svg>
       </div>
@@ -640,17 +640,17 @@
       <div class="rm-row">
         <div class="rm-cell rm-phase">1. Assisted</div>
         <div class="rm-cell">Individual productivity baselines</div>
-        <div class="rm-cell"><span class="tech-badge" style="margin:0;">Claude Code</span> <span class="tech-badge" style="margin:0;">Gemini</span></div>
+        <div class="rm-cell"><span class="tech-badge" style="margin:0;">Claude Code</span> <span class="tech-badge" style="margin:0;">Gemini Code Assist</span></div>
       </div>
       <div class="rm-row">
         <div class="rm-cell rm-phase">2. Connected</div>
         <div class="rm-cell">Grounding in company data</div>
-        <div class="rm-cell"><span class="tech-badge" style="margin:0;">MCP</span> <span class="tech-badge" style="margin:0;">Vertex AI Search</span></div>
+        <div class="rm-cell"><span class="tech-badge" style="margin:0;">MCP</span> <span class="tech-badge" style="margin:0;">Agent Search</span></div>
       </div>
       <div class="rm-row">
         <div class="rm-cell rm-phase">3. Background</div>
         <div class="rm-cell">Asynchronous autonomy</div>
-        <div class="rm-cell"><span class="tech-badge" style="margin:0;">EventArc</span> <span class="tech-badge" style="margin:0;">Cloud Run</span> <span class="tech-badge" style="margin:0;">GCS</span></div>
+        <div class="rm-cell"><span class="tech-badge" style="margin:0;">Eventarc</span> <span class="tech-badge" style="margin:0;">Cloud Run</span> <span class="tech-badge" style="margin:0;">Cloud Storage</span></div>
       </div>
       <div class="rm-row">
         <div class="rm-cell rm-phase">4. Factory</div>
