@@ -178,6 +178,36 @@
   }
   .persona-card p { font-size: 0.85rem; margin: 0; }
 
+  /* Principles */
+  .principle-grid {
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  @media (min-width: 640px) { .principle-grid { grid-template-columns: repeat(2, 1fr); } }
+  .principle-card {
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    padding: 1.4rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .principle-num {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .principle-card h3 {
+    font-size: 0.95rem;
+    margin: 0 0 0.4rem 0;
+    line-height: 1.3;
+  }
+  .principle-card p { font-size: 0.85rem; margin: 0; }
+
   /* Pillars (horizontal rows) */
   .pillar-row {
     display: grid;
@@ -448,6 +478,59 @@
         <div class="role">CISO</div>
         <h3>"How do we govern autonomous agents?"</h3>
         <p>Agents are actors in your system. They need IAM-scoped credentials, JIT privileges, VPC perimeters, and complete audit trails. Governance enforced at the execution layer, not by prompt.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ FIRST PRINCIPLES ═══ -->
+  <div class="section">
+    <div class="section-label">First Principles</div>
+    <p style="margin-bottom:1.5rem;">Before the infrastructure, the assumptions. These six principles distinguish the Agentic SDLC from "Agile with AI bolted on." Get them right and the architecture follows naturally.</p>
+
+    <div class="principle-grid">
+      <div class="principle-card">
+        <div class="principle-num">01</div>
+        <div>
+          <h3>Reimagine, don't retrofit</h3>
+          <p>Sprints and standups were built for week-long human cycles. Agents run in hours. Bolting AI onto Scrum gets you faster horse chariots, not automobiles.</p>
+        </div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-num">02</div>
+        <div>
+          <h3>The system initiates; humans govern</h3>
+          <p>Copilots wait for a prompt. Background agents wait for an event &mdash; CVE, PR, CI failure. Humans set policy and review outcomes. The keyboard goes quiet.</p>
+        </div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-num">03</div>
+        <div>
+          <h3>Oversight is load-bearing</h3>
+          <p>Don't strip every checkpoint for speed. Targeted human validation is the loss function that catches compounding errors before they reach production.</p>
+        </div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-num">04</div>
+        <div>
+          <h3>Match autonomy to capability</h3>
+          <p>Agents excel at execution and pattern-matching, not yet at standalone judgement under ambiguity. Broad autonomy where they're strong; tight constraints where they're not.</p>
+        </div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-num">05</div>
+        <div>
+          <h3>Plans are generated, not prescribed</h3>
+          <p>No canonical workflow fits every codebase. Agents propose, humans refine, agents decompose recursively. The methodology is reusable; the workflows are not.</p>
+        </div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-num">06</div>
+        <div>
+          <h3>Skill is infrastructure</h3>
+          <p>Senior expertise can't live only in heads or onboarding docs. Encode it as a Skill Registry &mdash; prompts, tools, patterns. Update once; every agent inherits the upgrade.</p>
+        </div>
       </div>
     </div>
   </div>

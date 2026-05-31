@@ -870,6 +870,7 @@
     </a>
     <div class="nav-links" id="navLinks">
       <a href="#problem" onclick="closeNav()">The Problem</a>
+      <a href="#principles" onclick="closeNav()">Principles</a>
       <a href="#architecture" onclick="closeNav()">Architecture</a>
       <a href="#governance" onclick="closeNav()">Governance</a>
       <a href="#roadmap" onclick="closeNav()">Roadmap</a>
@@ -1018,6 +1019,52 @@
           <li>Agent swarms across repositories</li>
           <li>Human governs, agents execute</li>
         </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══ PRINCIPLES ═══ -->
+<section id="principles">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <span class="label label--primary">First Principles</span>
+      <h2>Six principles for the Agentic SDLC</h2>
+      <p style="max-width:680px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">These aren't tactics. They're the assumptions every architecture decision rests on. Get them wrong and you're patching Agile with AI &mdash; wondering why velocity didn't change.</p>
+    </div>
+
+    <div class="arch-grid reveal" style="margin-top:3rem;">
+      <div class="pillar">
+        <div class="pillar-num">01</div>
+        <h3>Reimagine, don't retrofit</h3>
+        <p>Sprints, standups, story points &mdash; Agile was built for week-long cycles with humans in every loop. Agents run in hours. Bolting agents onto Scrum produces faster horse chariots, not automobiles. The SDLC itself needs redrawing.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">02</div>
+        <h3>The system initiates; humans govern</h3>
+        <p>Copilots wait for a prompt. Background agents wait for an event. A CVE drops, a PR opens, a CI build fails &mdash; the system dispatches the right agent. Humans set policy and review outcomes. The keyboard goes quiet.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">03</div>
+        <h3>Oversight is load-bearing</h3>
+        <p>Stripping every checkpoint in the name of speed is the wrong instinct. Targeted human validation is the loss function that catches compounding errors before they reach production. Code that ships fast and locks in bad decisions costs more than the time it saved.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">04</div>
+        <h3>Match autonomy to capability</h3>
+        <p>Models excel at execution and pattern-matching. They're not yet reliable at standalone judgement under ambiguity. Give agents broad autonomy where they're strong &mdash; writing code, running tests, applying patches. Tight constraints where they're not &mdash; architecture, trade-offs, risk.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">05</div>
+        <h3>Plans are generated, not prescribed</h3>
+        <p>There's no canonical workflow for "CVE remediation" or "dependency upgrade" that fits every codebase. Agents read the intent, propose a plan, humans refine it, agents decompose recursively. The methodology is reusable; the workflows are not.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">06</div>
+        <h3>Skill is infrastructure</h3>
+        <p>Your best engineers' expertise can't live only in their heads or in onboarding docs. Encode it as a Skill Registry &mdash; prompts, tool definitions, design patterns. Update once, every agent inherits the upgrade. The most valuable thing they build is no longer code; it's the skills that compound it.</p>
       </div>
     </div>
   </div>
