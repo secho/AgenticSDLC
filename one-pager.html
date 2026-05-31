@@ -484,52 +484,52 @@
 
   <div class="sep"></div>
 
-  <!-- ═══ FIRST PRINCIPLES ═══ -->
+  <!-- ═══ OPERATING PRINCIPLES ═══ -->
   <div class="section">
-    <div class="section-label">First Principles</div>
-    <p style="margin-bottom:1.5rem;">Before the infrastructure, the assumptions. These six principles distinguish the Agentic SDLC from "Agile with AI bolted on." Get them right and the architecture follows naturally.</p>
+    <div class="section-label">Operating Principles</div>
+    <p style="margin-bottom:1.5rem;">Before you pick the tools, pick the rules. Six things shape every architecture decision &mdash; how fast the team operates, who approves what, where expert knowledge lives. Set them on purpose. Otherwise you bolt AI onto how you already work and wonder why velocity didn't change.</p>
 
     <div class="principle-grid">
       <div class="principle-card">
         <div class="principle-num">01</div>
         <div>
-          <h3>Reimagine, don't retrofit</h3>
-          <p>Sprints and standups were built for week-long human cycles. Agents run in hours. Bolting AI onto Scrum gets you faster horse chariots, not automobiles.</p>
+          <h3>Agile rituals don't fit agent speed</h3>
+          <p>Sprints last weeks. Agents work in minutes, in parallel across dozens of repos. Forcing agent work into Scrum makes the rituals expensive overhead &mdash; and most of the AI gains get eaten by coordination meetings. Redesign the team's rhythm around the new pace.</p>
         </div>
       </div>
       <div class="principle-card">
         <div class="principle-num">02</div>
         <div>
-          <h3>The system initiates; humans govern</h3>
-          <p>Copilots wait for a prompt. Background agents wait for an event &mdash; CVE, PR, CI failure. Humans set policy and review outcomes. The keyboard goes quiet.</p>
+          <h3>Events trigger agents, not prompts</h3>
+          <p>With copilots, a developer types and AI responds. With background agents, the system fires the agent when something happens &mdash; CVE alert, new ticket, failing build. The developer's job becomes setting the rules that decide which agent runs, when, with which permissions.</p>
         </div>
       </div>
       <div class="principle-card">
         <div class="principle-num">03</div>
         <div>
-          <h3>Oversight is load-bearing</h3>
-          <p>Don't strip every checkpoint for speed. Targeted human validation is the loss function that catches compounding errors before they reach production.</p>
+          <h3>Humans approve the high-risk changes</h3>
+          <p>Don't remove every approval step for speed. Some changes &mdash; architecture, schema migrations, security defaults &mdash; are expensive to fix once shipped. Keep human approval on those. For dependency bumps and test additions, let the agent merge directly.</p>
         </div>
       </div>
       <div class="principle-card">
         <div class="principle-num">04</div>
         <div>
-          <h3>Match autonomy to capability</h3>
-          <p>Agents excel at execution and pattern-matching, not yet at standalone judgement under ambiguity. Broad autonomy where they're strong; tight constraints where they're not.</p>
+          <h3>Match agent freedom to task risk</h3>
+          <p>The same agent safe to auto-merge a CVE patch is risky to let pick a database engine. Decide autonomy per task type, not per agent. Full autonomy on easy-to-rollback changes. Tight guardrails on changes that aren't. Define this at the policy layer.</p>
         </div>
       </div>
       <div class="principle-card">
         <div class="principle-num">05</div>
         <div>
-          <h3>Plans are generated, not prescribed</h3>
-          <p>No canonical workflow fits every codebase. Agents propose, humans refine, agents decompose recursively. The methodology is reusable; the workflows are not.</p>
+          <h3>Plans are generated, not templated</h3>
+          <p>You can't write a generic "CVE remediation" workflow that fits every codebase. Each repo has different services, tests, deploy targets. Let the agent read the intent and codebase, propose a plan, human refines, agent breaks it into tasks. Reuse the planning process &mdash; not the plan.</p>
         </div>
       </div>
       <div class="principle-card">
         <div class="principle-num">06</div>
         <div>
-          <h3>Skill is infrastructure</h3>
-          <p>Senior expertise can't live only in heads or onboarding docs. Encode it as a Skill Registry &mdash; prompts, tools, patterns. Update once; every agent inherits the upgrade.</p>
+          <h3>Expert rules live in files, not in heads</h3>
+          <p>Your senior engineer knows how to handle PII, when to add an index, which patterns to avoid. That knowledge lives in their head and in Slack. It can't scale to every PR. Encode it as prompts, tool configs, and policy files. Update one file; every agent uses it next run.</p>
         </div>
       </div>
     </div>

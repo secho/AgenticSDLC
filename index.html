@@ -1030,42 +1030,46 @@
 <section id="principles">
   <div class="container">
     <div class="reveal" style="text-align:center;">
-      <span class="label label--primary">First Principles</span>
-      <h2>Six principles for the Agentic SDLC</h2>
-      <p style="max-width:680px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">These aren't tactics. They're the assumptions every architecture decision rests on. Get them wrong and you're patching Agile with AI &mdash; wondering why velocity didn't change.</p>
+      <span class="label label--primary">Operating Principles</span>
+      <h2>Six things to get right first</h2>
+      <p style="max-width:700px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">Before you pick the tools, pick the rules. Six things shape every architecture decision &mdash; how fast the team operates, who approves what, where expert knowledge lives. Set them on purpose. Otherwise you bolt AI onto how you already work and wonder why velocity didn't change.</p>
     </div>
 
     <div class="arch-grid reveal" style="margin-top:3rem;">
       <div class="pillar">
         <div class="pillar-num">01</div>
-        <h3>Reimagine, don't retrofit</h3>
-        <p>Sprints, standups, story points &mdash; Agile was built for week-long cycles with humans in every loop. Agents run in hours. Bolting agents onto Scrum produces faster horse chariots, not automobiles. The SDLC itself needs redrawing.</p>
+        <h3>Agile rituals don't fit agent speed</h3>
+        <p>Sprints are 2 weeks. Standups are daily. Story points assume tasks take days. Agents work in minutes and hours, running in parallel across dozens of repos. Forcing agent work into Scrum makes the rituals expensive overhead, and most of the AI productivity gets eaten by coordination meetings. The team's operating rhythm has to be redesigned around the new pace.</p>
       </div>
       <div class="pillar">
         <div class="pillar-num">02</div>
-        <h3>The system initiates; humans govern</h3>
-        <p>Copilots wait for a prompt. Background agents wait for an event. A CVE drops, a PR opens, a CI build fails &mdash; the system dispatches the right agent. Humans set policy and review outcomes. The keyboard goes quiet.</p>
+        <h3>Events trigger agents, not prompts</h3>
+        <p>With copilots, a developer types and the AI responds. With background agents, the system fires the agent when something happens &mdash; a CVE alert, a new ticket, a failing build, a deploy event. No developer needs to be present. The developer's job moves from typing prompts to setting up the rules that decide which agent runs, when, and with what permissions.</p>
       </div>
       <div class="pillar">
         <div class="pillar-num">03</div>
-        <h3>Oversight is load-bearing</h3>
-        <p>Stripping every checkpoint in the name of speed is the wrong instinct. Targeted human validation is the loss function that catches compounding errors before they reach production. Code that ships fast and locks in bad decisions costs more than the time it saved.</p>
+        <h3>Humans approve the high-risk changes</h3>
+        <p>It's tempting to remove every approval step in the name of speed. Don't. Some changes &mdash; architecture decisions, schema migrations, security defaults &mdash; are expensive to fix once they ship. Keep human approval on those. For low-risk changes like dependency bumps or new test cases, let the agent merge directly. Match the review process to the cost of getting it wrong.</p>
       </div>
       <div class="pillar">
         <div class="pillar-num">04</div>
-        <h3>Match autonomy to capability</h3>
-        <p>Models excel at execution and pattern-matching. They're not yet reliable at standalone judgement under ambiguity. Give agents broad autonomy where they're strong &mdash; writing code, running tests, applying patches. Tight constraints where they're not &mdash; architecture, trade-offs, risk.</p>
+        <h3>Match agent freedom to task risk</h3>
+        <p>The same agent that's safe to let auto-merge a CVE patch is risky to let auto-pick a database engine. Decide autonomy per task type, not per agent. Full autonomy on changes that are easy to roll back &mdash; dependency upgrades, test additions, lint fixes. Tight guardrails on changes that aren't &mdash; architecture, schemas, customer-facing copy. Define this once at the policy layer, not separately for every agent.</p>
       </div>
       <div class="pillar">
         <div class="pillar-num">05</div>
-        <h3>Plans are generated, not prescribed</h3>
-        <p>There's no canonical workflow for "CVE remediation" or "dependency upgrade" that fits every codebase. Agents read the intent, propose a plan, humans refine it, agents decompose recursively. The methodology is reusable; the workflows are not.</p>
+        <h3>Plans are generated, not templated</h3>
+        <p>You can't write a generic "CVE remediation" workflow that works on every codebase. Each repo has different services, tests, and deploy targets. Let the agent read the intent and the codebase, propose a plan, a human refines it, the agent breaks it into tasks. What you reuse is the planning process &mdash; not the plan itself.</p>
       </div>
       <div class="pillar">
         <div class="pillar-num">06</div>
-        <h3>Skill is infrastructure</h3>
-        <p>Your best engineers' expertise can't live only in their heads or in onboarding docs. Encode it as a Skill Registry &mdash; prompts, tool definitions, design patterns. Update once, every agent inherits the upgrade. The most valuable thing they build is no longer code; it's the skills that compound it.</p>
+        <h3>Expert rules live in files, not in heads</h3>
+        <p>Your senior engineer knows how to handle PII, when to add an index, which patterns to avoid. Right now that knowledge lives in their head and in Slack threads. It can't scale to every PR and every agent. Encode those rules as prompts, tool configs, and policy files that ship with every agent. Update one file; every agent uses the new rule on the next run.</p>
       </div>
+    </div>
+
+    <div class="reveal" style="text-align:center;margin-top:3rem;max-width:720px;margin-left:auto;margin-right:auto;">
+      <p style="font-size:0.95rem;color:var(--slate-500);">Think of these as defaults &mdash; what the system does when nobody's explicitly choosing. Set them on purpose and the architecture is consistent. Skip them and you end up with a pile of AI tools that don't add up to an Agentic SDLC.</p>
     </div>
   </div>
 </section>
