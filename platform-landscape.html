@@ -147,6 +147,32 @@
   }
   .platform-block p { font-size: 0.92rem; }
 
+  /* Per-platform detail facts */
+  .platform-facts {
+    list-style: none;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.55rem 2rem;
+  }
+  @media (min-width: 640px) { .platform-facts { grid-template-columns: 1fr 1fr; } }
+  .platform-facts li {
+    display: flex;
+    gap: 0.65rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--slate-600);
+  }
+  .platform-facts li .k {
+    flex: 0 0 4.5rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--primary);
+    padding-top: 0.28rem;
+  }
+
   .category-heading {
     margin: 2.5rem 0 0.5rem;
   }
@@ -193,9 +219,8 @@
 </style>
 </head>
 <body>
+<script src="nav.js" defer></script>
 <div class="page">
-
-  <a href="index.html" class="back-link">&larr; Back to overview</a>
 
   <!-- ═══ HERO ═══ -->
   <div class="hero-section">
@@ -227,6 +252,14 @@
           <td>Model-agnostic</td>
           <td>Orchestrates other vendors' agents</td>
           <td>Cloud control plane</td>
+          <td>None by design</td>
+        </tr>
+        <tr>
+          <td>Port.io</td>
+          <td>Governance &amp; orchestration (IDP)</td>
+          <td>Model-agnostic</td>
+          <td>Governs &amp; orchestrates other agents</td>
+          <td>SaaS control plane + MCP</td>
           <td>None by design</td>
         </tr>
         <tr>
@@ -312,60 +345,136 @@
   <div class="section">
     <div class="section-label">Platform Profiles</div>
 
+    <p style="margin-bottom:0.5rem;color:var(--slate-500);">Three groups, doing different jobs. Governance layers manage agents they don't provide. Autonomous coding agents do the work. IDE-native and ecosystem assistants keep a human in the loop. Most real stacks end up combining one from each.</p>
+
     <h2 class="category-heading">Governance &amp; orchestration</h2>
+    <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">These don't write code themselves &mdash; they sit above the agents that do, adding the context, policy, identity, and cost control an organization needs before it lets agents loose at scale.</p>
     <div class="platform-block">
       <h3>JetBrains Central</h3>
       <div class="provider">Governance layer &middot; Model-agnostic</div>
-      <p>Not an IDE or a model &mdash; an orchestration and governance layer that sits above whichever agents a team already runs (Claude Agent, Codex, Gemini CLI, or custom). It adds policy enforcement, identity, cost attribution, and execution infrastructure across tools the team already uses. Announced March 2026, moving into broader rollout mid-2026. It manages agents; it doesn't replace the need to select and pay for them separately.</p>
+      <p>Not an IDE or a model &mdash; an orchestration and governance layer that sits above whichever agents a team already runs (Claude Agent, Codex, Gemini CLI, or custom). It adds policy enforcement, identity, cost attribution, and cloud execution infrastructure across the tools a team already uses, and lets agents collaborate with humans through Slack, Atlassian, and Linear. JetBrains frames it around a survey finding it published in early 2026: ~90% of developers use AI, but only ~22% use coding agents &mdash; the bottleneck has moved from generating code to governing it. It manages agents; it doesn't replace the need to select and pay for them separately.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Shifting to on-demand AI credits; Early Access Program in Q2 2026</span></li>
+        <li><span class="k">Backing</span><span>From JetBrains (IntelliJ, PyCharm); launch partners Google Cloud, Anthropic, OpenAI</span></li>
+        <li><span class="k">Best for</span><span>Governing policy and cost across many agents, models, and clouds</span></li>
+        <li><span class="k">Watch for</span><span>Early &mdash; limited rollout through 2026, not yet generally available</span></li>
+      </ul>
+    </div>
+    <div class="platform-block">
+      <h3>Port.io</h3>
+      <div class="provider">Agentic engineering platform (IDP) &middot; Model-agnostic</div>
+      <p>An internal developer portal that repositioned in 2026 as an agentic engineering platform. Rather than ship its own coding agent, it becomes the control plane: a <strong>Context Lake</strong> (a pre-joined catalog of services, ownership, and standards) that agents query, workflow orchestration, an <strong>AI Registry</strong> cataloguing every agent, skill, and MCP server in the org, and governance that scopes what each agent can read and do via RBAC. Claude, Cursor, and Copilot reach it through Port's MCP server. Its pitch is taming "agentic chaos" &mdash; and cost: Port reports its Context Lake cut per-query token spend 56&ndash;80% versus agents hitting raw MCP connections, by not re-deriving system relationships on every run.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free tier; Basic $30 and Standard $40 per seat/mo; custom Enterprise</span></li>
+        <li><span class="k">Backing</span><span>~$158M raised, ~$800M valuation (Series C led by General Atlantic, late 2025)</span></li>
+        <li><span class="k">Best for</span><span>Platform teams unifying agent context, catalog, and governance on an IDP</span></li>
+        <li><span class="k">Watch for</span><span>A control plane, not a coding agent &mdash; you still bring the agents</span></li>
+      </ul>
     </div>
 
     <h2 class="category-heading">Autonomous coding agents</h2>
+    <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">These do the actual work &mdash; plan a task, execute it in a sandbox, and hand back a pull request. They range from fully unattended to human-supervised.</p>
     <div class="platform-block">
       <h3>Factory.ai</h3>
       <div class="provider">Multi-surface Droids &middot; Model-agnostic</div>
-      <p>Organizes agents by job function rather than shipping one general-purpose assistant &mdash; a Code Droid ships changes, a Reliability Droid investigates incidents, a Knowledge Droid writes docs. Runs from a terminal, desktop app, SDK, or headless in CI/CD. Self-serve pricing steps from $20 to $200/month, with real cost jumps once teams lean on heavier autonomous workloads.</p>
+      <p>Organizes agents by job function rather than shipping one general-purpose assistant &mdash; a Code Droid ships changes, a Reliability Droid investigates incidents, a Knowledge Droid writes docs, a Product Droid drafts PRDs. They run from a terminal, desktop app, SDK, or headless in CI/CD, and work against any leading frontier or open-weight model. Factory commits to not training on customer code and operates under SOC 2 Type II. Its broad "run agents across the whole delivery workflow" framing is the ambition; the caveat is cost predictability under heavy use.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Pro $20, Plus $100, Max $200 per month; Enterprise on request</span></li>
+        <li><span class="k">Traction</span><span>~$1.5B valuation; used at Nvidia, Adobe, Morgan Stanley, MongoDB; ranked #1 on Terminal-Bench</span></li>
+        <li><span class="k">Best for</span><span>Teams wanting agents across the full delivery workflow, not just editing</span></li>
+        <li><span class="k">Watch for</span><span>Usage costs can balloon on heavy autonomous workloads</span></li>
+      </ul>
     </div>
     <div class="platform-block">
       <h3>Devin (Cognition)</h3>
       <div class="provider">Autonomous coding agent &middot; Cognition</div>
-      <p>Popularized the "assign it a ticket" model: it plans, executes inside an isolated VM with its own browser, terminal, and editor, and opens a PR with no supervision during the run, including several tickets in parallel. Pricing moved from a flat $500/seat to usage-based billing after 2025. Independent testing consistently puts real-world success rates well below its benchmark headline &mdash; budget for review time on anything non-trivial.</p>
+      <p>Popularized the "assign it a ticket" model: it plans, executes inside an isolated VM with its own browser, terminal, and editor, and opens a PR with no supervision during the run &mdash; several tickets in parallel, each in its own sandbox. Pricing moved from a flat $500/seat to usage-based billing (ACUs, a normalized measure of VM time and inference), which drove rapid growth. Cognition also acquired the Windsurf IDE. Independent testing consistently puts real-world success rates well below its benchmark headline, so budget review time on anything non-trivial.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Usage-based (ACUs); tiers from free up to ~$500/mo Team, plus Enterprise</span></li>
+        <li><span class="k">Traction</span><span>Cognition valued ~$26B; Nubank ran a 6M-line migration on it, citing large efficiency gains</span></li>
+        <li><span class="k">Best for</span><span>Parallel, well-scoped ticket backlogs and large-scale migrations</span></li>
+        <li><span class="k">Watch for</span><span>Real-world success trails the benchmark headline &mdash; review overhead is real</span></li>
+      </ul>
     </div>
     <div class="platform-block">
       <h3>GitHub Copilot &mdash; Agent Mode &amp; Coding Agent</h3>
       <div class="provider">In-editor + async cloud agent &middot; Multi-model</div>
-      <p>Two tiers span the workflow: Agent Mode makes supervised multi-file edits inside the IDE, and the separate Coding Agent takes a GitHub Issue and returns a PR asynchronously. Deep integration with CodeQL, secret scanning, and Dependabot means every PR gets vetted automatically. The tradeoff is ecosystem gravity &mdash; it's built around GitHub as the system of record, and `.copilotignore` exclusions don't apply to the Coding Agent.</p>
+      <p>Two tiers span the workflow. <strong>Agent Mode</strong> makes supervised multi-file edits inside the IDE (VS Code, Visual Studio, JetBrains, Eclipse, Xcode); the separate <strong>Coding Agent</strong> takes a GitHub Issue and returns a PR asynchronously from a GitHub Actions sandbox. Every PR the Coding Agent opens triggers CodeQL, secret scanning, and Dependabot automatically, and MCP lets it pull context from databases, Confluence, or Figma mid-task. The tradeoff is ecosystem gravity &mdash; it assumes GitHub as the system of record &mdash; and a known gap: <code>.copilotignore</code> exclusions don't apply to the Coding Agent.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free; Pro $10, Pro+ $39, Business $19, Enterprise $39; usage-based for agentic features</span></li>
+        <li><span class="k">Traction</span><span>~20M users, ~4.7M paid; the coding agent is used across ~90% of the Fortune 100</span></li>
+        <li><span class="k">Best for</span><span>Teams standardized on GitHub as their system of record</span></li>
+        <li><span class="k">Watch for</span><span>Ecosystem lock-in; ignore-file exclusions don't bind the Coding Agent</span></li>
+      </ul>
     </div>
     <div class="platform-block">
       <h3>Anthropic Claude Code</h3>
       <div class="provider">Terminal/IDE agent + enterprise platform &middot; Claude only</div>
-      <p>Started as a terminal coding assistant and grew an enterprise layer on top: Dynamic Workflows for large parallel refactors across dozens of sub-agents, Managed Agents for hosted long-running agent infrastructure, an open Skills standard, and admin/governance controls similar in spirit to what JetBrains Central is trying to standardize across vendors. Deployable on Anthropic's cloud, Azure, or self-hosted &mdash; but the model is Claude only.</p>
+      <p>Started as a terminal coding assistant and grew an enterprise layer on top: <strong>Dynamic Workflows</strong> fan a single request out to dozens or hundreds of parallel sub-agents for codebase-scale refactors and migrations; <strong>Managed Agents</strong> provide hosted infrastructure for stateful, long-running agents so teams don't build the execution loop themselves; an open <strong>Skills</strong> standard and plugin marketplace let orgs package and deploy reusable capabilities; and admin controls add spend caps, analytics, and model routing &mdash; much of what JetBrains Central and Port aim to standardize across vendors, but for Claude specifically. Deployable on Anthropic's cloud, Azure, or self-hosted, with a US data zone for residency.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Via Claude Pro/Max subscriptions and API; enterprise spend caps and analytics</span></li>
+        <li><span class="k">Strengths</span><span>Parallel sub-agents, Managed Agents, Skills standard, plugin marketplace</span></li>
+        <li><span class="k">Best for</span><span>Deep interactive engineering and codebase-scale refactors/migrations</span></li>
+        <li><span class="k">Watch for</span><span>Claude-only &mdash; no choice of underlying model</span></li>
+      </ul>
     </div>
     <div class="platform-block">
       <h3>Google Jules</h3>
       <div class="provider">Async coding agent &middot; Gemini only</div>
-      <p>Built for fire-and-forget review: no editor, no local mode &mdash; everything clones into a Google Cloud VM, plans, executes, and opens a PR. Strong on scoped, well-defined tasks; weaker on architectural judgment calls, matching its reputation in reviews as a capable junior developer that still needs oversight.</p>
+      <p>Built for fire-and-forget review: no editor, no local mode &mdash; everything clones into a Google Cloud VM, where Jules drafts a plan, executes, adds tests alongside the implementation, and opens a PR. Strong on scoped, well-defined tasks; weaker on architectural judgment and large-codebase context, matching its reputation as a capable junior developer that still needs oversight. Teams often pair it with an interactive tool &mdash; Jules for long-running or overnight work, something like Claude Code or Cursor for the in-the-loop engineering.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free (15 tasks/day); AI Pro $19.99 and AI Ultra $124.99 per month by task quota</span></li>
+        <li><span class="k">Runs on</span><span>Gemini, inside a Google Cloud VM &mdash; no local or editor surface</span></li>
+        <li><span class="k">Best for</span><span>Fire-and-forget PRs on routine, well-scoped tasks</span></li>
+        <li><span class="k">Watch for</span><span>Weak on complex/architectural work; execution is Google-Cloud-only</span></li>
+      </ul>
     </div>
     <div class="platform-block">
       <h3>OpenAI Codex</h3>
       <div class="provider">CLI + cloud coding agent &middot; GPT-5.x-Codex</div>
-      <p>Covers the same asynchronous issue-to-PR pattern as Jules, but adds an open-source local CLI that teams can audit and self-host the execution loop for &mdash; useful where Jules' Google-VM-only model is a non-starter on data residency. Bundled into ChatGPT plans, with API-rate billing for overflow usage.</p>
+      <p>Covers the same asynchronous issue-to-PR pattern as Jules, but spans the terminal, the ChatGPT app, and the cloud, routing over coding-specific GPT-5.x variants. Its differentiator is an <strong>open-source CLI</strong> (Apache-2.0) that teams can audit and run locally &mdash; useful where the cloud agents' code upload or Jules' Google-VM-only model is a non-starter on data residency. Switch to the local CLI when you need strict control; use the cloud when you want fire-and-forget.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Bundled with paid ChatGPT plans; API-rate billing for overflow usage</span></li>
+        <li><span class="k">Surfaces</span><span>Open-source CLI (Apache-2.0), ChatGPT app, and OpenAI cloud</span></li>
+        <li><span class="k">Best for</span><span>Teams wanting an auditable, self-hostable CLI alongside cloud PRs</span></li>
+        <li><span class="k">Watch for</span><span>Cloud agents upload code to OpenAI &mdash; use the CLI for strict control</span></li>
+      </ul>
     </div>
 
     <h2 class="category-heading">IDE-native &amp; ecosystem-specific assistants</h2>
+    <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">These keep a developer in the driver's seat &mdash; agentic help delivered inside an editor or tied to a specific ecosystem, rather than run unattended.</p>
     <div class="platform-block">
       <h3>Cursor</h3>
       <div class="provider">AI-native IDE &middot; Multiple models</div>
-      <p>An IDE first &mdash; a VS Code fork with agentic editing (multi-file changes, background cloud agents) built in rather than bolted on. The fastest path for an individual developer who wants high-autonomy editing without leaving a familiar editor shell, but optimized for solo/small-team speed rather than org-wide governance.</p>
+      <p>An IDE first &mdash; a VS Code fork with agentic editing built in rather than bolted on: Composer for multi-file changes, Rules/Commands for repeatable behavior, and background cloud agents for parallel work. It embeds code chunks for retrieval (a RAG approach to codebase context) and lets developers pick the underlying model. The fastest path for someone who wants high-autonomy editing without leaving a familiar editor shell, but tuned for solo and small-team speed rather than org-wide governance.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Subscription IDE with per-tier request limits; multiple selectable models</span></li>
+        <li><span class="k">Strengths</span><span>Composer multi-file edits, background cloud agents, multi-agent workflows</span></li>
+        <li><span class="k">Best for</span><span>Fast, high-autonomy in-editor work for individuals and small teams</span></li>
+        <li><span class="k">Watch for</span><span>Optimized for editing speed over organization-wide governance</span></li>
+      </ul>
     </div>
     <div class="platform-block">
       <h3>Amazon Q Developer</h3>
       <div class="provider">Cloud-native assistant &middot; Amazon Bedrock</div>
-      <p>An AWS modernization accelerator more than a general coding agent &mdash; IAM-aware, Bedrock-routed, strongest on tasks tied to AWS infrastructure like migrations and console automation. Outside an AWS-centric stack it's a weaker general-purpose choice than the model-agnostic options on this list.</p>
+      <p>An AWS modernization accelerator more than a general coding agent &mdash; built on Amazon Bedrock, IAM-aware, and integrated across IDEs and the AWS Console with chat in Slack and Teams. It's strongest on tasks tied to AWS infrastructure: migrations, modernization, and console automation. Analysts frame it as complementary to editor-native tools rather than a replacement &mdash; the AWS operations layer alongside your IDE. Off an AWS-centric stack, the model-agnostic options on this list are a stronger general-purpose choice.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free tier plus paid Pro; part of the AWS ecosystem</span></li>
+        <li><span class="k">Runs on</span><span>Amazon Bedrock, IAM-aware, across major IDEs and the AWS Console</span></li>
+        <li><span class="k">Best for</span><span>AWS-native modernization, migrations, and console-driven tasks</span></li>
+        <li><span class="k">Watch for</span><span>Weaker general-purpose choice off an AWS-centric stack</span></li>
+      </ul>
     </div>
     <div class="platform-block">
       <h3>Sourcegraph Cody &amp; Amp</h3>
       <div class="provider">Search-backed assistant + agent &middot; Enterprise LLMs / model-agnostic</div>
-      <p>Sourcegraph split its offering in two. Cody leans on Sourcegraph's code-search graph &mdash; a real advantage in sprawling, multi-repo enterprise estates, though it lags newer tools on raw agentic capability and can be slow on multi-million-line monorepos. Amp is the separate, more agentic product: model-agnostic routing, shared team threads, and zero-data-retention deployment options for compliance-sensitive teams.</p>
+      <p>Sourcegraph split its offering in two. <strong>Cody</strong> leans on Sourcegraph's code-search graph &mdash; a structural advantage in sprawling, multi-repo estates &mdash; but went enterprise-only in 2025 (its free and pro tiers were retired), lags newer tools on raw agentic capability, and can be slow on multi-million-line monorepos. <strong>Amp</strong> is the separate, more agentic product: model-agnostic routing, multi-agent orchestration, shared team threads, and zero-data-retention deployment for compliance-sensitive teams. Many orgs keep Sourcegraph for search and pair it with a separate agent for execution.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Cody enterprise-only (free/pro retired 2025); Amp sold separately</span></li>
+        <li><span class="k">Strengths</span><span>Cody = code-search-graph context; Amp = model-agnostic multi-agent + ZDR</span></li>
+        <li><span class="k">Best for</span><span>Massive multi-repo estates where finding code is the real bottleneck</span></li>
+        <li><span class="k">Watch for</span><span>Cody lags on agentic depth; latency on very large monorepos</span></li>
+      </ul>
     </div>
   </div>
 
@@ -374,7 +483,7 @@
   <!-- ═══ TAKEAWAY ═══ -->
   <div class="section">
     <div class="section-label">The Takeaway</div>
-    <p>Almost every platform above bundles the same three layers together: which agents you can use, how they're governed, and which cloud they run on. Pick one and you've usually picked all three. JetBrains Central is the first to explicitly split governance from execution &mdash; a sign the market is moving toward the architecture this site argues for: agents, governance, and cloud infrastructure as three independently replaceable layers, not a single vendor's bundle.</p>
+    <p>Almost every coding agent above bundles the same three layers together: which agents you can use, how they're governed, and which cloud they run on. Pick one and you've usually picked all three. The governance layers &mdash; JetBrains Central and Port.io &mdash; are the clearest sign the market is splitting those apart: control planes that manage whichever agents, models, and clouds you choose. That's exactly the architecture this site argues for: agents, governance, and cloud infrastructure as three independently replaceable layers, not a single vendor's bundle.</p>
     <p>That's the difference between adopting a platform and building the capability yourself. The right platforms above can still be part of your stack &mdash; the question is whether your architecture lets you swap any one of them later without rebuilding the rest.</p>
 
     <div class="closing-links">
