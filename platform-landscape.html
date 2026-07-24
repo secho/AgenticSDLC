@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Landscape | Agentic SDLC</title>
+<meta name="description" content="A practitioner's map of the AI SDLC platform market — governance layers, autonomous coding agents, and IDE-native assistants compared.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #7640FF;
+    --primary-dark: #5e2de6;
+    --primary-soft: rgba(118, 64, 255, 0.05);
+    --primary-border: rgba(118, 64, 255, 0.15);
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: #fff;
+    color: var(--slate-600);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 4rem;
+  }
+  @media (min-width: 768px) { .page { padding: 4rem 2.5rem 5rem; } }
+
+  /* Typography */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    color: var(--slate-900);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+  h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; }
+  h2 { font-size: clamp(1.2rem, 2.2vw, 1.5rem); font-weight: 600; }
+  h3 { font-size: 1.05rem; font-weight: 600; }
+  p { margin-bottom: 1rem; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--slate-800); font-weight: 600; }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Section label */
+  .section-label {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary);
+    display: inline-block;
+    margin-bottom: 1.5rem;
+  }
+
+  .section { margin-bottom: 4rem; }
+
+  /* Back link */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--slate-400);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+  }
+  .back-link:hover { color: var(--primary); text-decoration: none; }
+
+  /* Hero */
+  .hero-section { margin-bottom: 3.5rem; }
+  .hero-section h1 { margin-bottom: 1.5rem; }
+  .hero-section p { font-size: 1.05rem; color: var(--slate-500); }
+
+  /* Comparison table */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.83rem;
+  }
+  .comparison-table th,
+  .comparison-table td {
+    padding: 0.8rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid var(--slate-200);
+    vertical-align: top;
+  }
+  .comparison-table th {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--slate-900);
+    font-size: 0.85rem;
+    padding-bottom: 0.6rem;
+  }
+  .comparison-table th:first-child,
+  .comparison-table td:first-child {
+    font-weight: 600;
+    color: var(--slate-700);
+    width: 14%;
+    font-size: 0.8rem;
+  }
+  .table-note {
+    font-size: 0.85rem;
+    color: var(--slate-500);
+    margin-top: 1rem;
+  }
+  @media (max-width: 640px) {
+    .comparison-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .comparison-table th, .comparison-table td { min-width: 130px; font-size: 0.76rem; padding: 0.6rem 0.7rem; }
+    .comparison-table th:first-child, .comparison-table td:first-child { min-width: 100px; position: sticky; left: 0; background: white; z-index: 1; }
+  }
+
+  /* Platform profile blocks */
+  .platform-block {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--slate-100);
+  }
+  .platform-block:last-child { border-bottom: none; }
+  .platform-block .provider {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--slate-400);
+    margin-bottom: 0.6rem;
+  }
+  .platform-block p { font-size: 0.92rem; }
+
+  .category-heading {
+    margin: 2.5rem 0 0.5rem;
+  }
+  .category-heading:first-child { margin-top: 0; }
+
+  /* Separator */
+  .sep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--slate-300), transparent);
+    margin: 3rem 0;
+    opacity: 0.5;
+  }
+
+  .closing-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .closing-links-group {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .closing-links a { font-size: 0.9rem; font-weight: 500; }
+
+  footer {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    font-size: 0.8rem;
+    color: var(--slate-400);
+  }
+
+  /* Mobile global */
+  @media (max-width: 480px) {
+    .page { padding: 2rem 1rem 3rem; }
+    .section { margin-bottom: 2.5rem; }
+    .sep { margin: 2rem 0; }
+    h1 { font-size: 1.6rem; }
+    .hero-section p { font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a href="index.html" class="back-link">&larr; Back to overview</a>
+
+  <!-- ═══ HERO ═══ -->
+  <div class="hero-section">
+    <span class="label" style="display:block;font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--primary);margin-bottom:1rem;">Market Landscape</span>
+    <h1>The AI SDLC platform landscape</h1>
+    <p>Every major dev-tools vendor has shipped some version of "agents that write and ship code" in the last eighteen months. Before you architect your own agentic SDLC, it helps to know what the market already sells &mdash; where it's strong, where it locks you in, and where the gaps are that a vendor-agnostic architecture fills.</p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ COMPARISON TABLE ═══ -->
+  <div class="section">
+    <div class="section-label">The Comparison</div>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Category</th>
+          <th>Model(s)</th>
+          <th>Autonomy Model</th>
+          <th>Deployment Surface</th>
+          <th>Vendor / Cloud Tie</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>JetBrains Central</td>
+          <td>Governance &amp; orchestration layer</td>
+          <td>Model-agnostic</td>
+          <td>Orchestrates other vendors' agents</td>
+          <td>Cloud control plane</td>
+          <td>None by design</td>
+        </tr>
+        <tr>
+          <td>Factory.ai</td>
+          <td>Multi-surface agent platform ("Droids")</td>
+          <td>Model-agnostic (GPT-5.x, Claude, Gemini)</td>
+          <td>Autonomous, task-specialized agents</td>
+          <td>CLI, desktop, SDK, cloud sandbox</td>
+          <td>Low</td>
+        </tr>
+        <tr>
+          <td>Devin</td>
+          <td>Autonomous coding agent</td>
+          <td>Cognition + partner models</td>
+          <td>Unattended, parallel VM sessions</td>
+          <td>Cognition-hosted cloud sandbox</td>
+          <td>Vendor-hosted execution</td>
+        </tr>
+        <tr>
+          <td>GitHub Copilot</td>
+          <td>In-editor agent + async cloud agent</td>
+          <td>Multi-model picker</td>
+          <td>Supervised (Agent Mode) / unattended (Coding Agent)</td>
+          <td>Major IDEs + GitHub Actions sandbox</td>
+          <td>GitHub ecosystem</td>
+        </tr>
+        <tr>
+          <td>Claude Code</td>
+          <td>Terminal/IDE agent + enterprise platform</td>
+          <td>Claude only</td>
+          <td>Interactive up to hundreds of parallel sub-agents</td>
+          <td>Terminal, IDE, Anthropic cloud, Azure, self-hosted</td>
+          <td>Single-model vendor, flexible cloud</td>
+        </tr>
+        <tr>
+          <td>Google Jules</td>
+          <td>Async autonomous coding agent</td>
+          <td>Gemini only</td>
+          <td>Fully unattended, fire-and-forget</td>
+          <td>Google Cloud VM only</td>
+          <td>Google Cloud + Gemini</td>
+        </tr>
+        <tr>
+          <td>OpenAI Codex</td>
+          <td>CLI + cloud coding agent</td>
+          <td>GPT-5.x-Codex router</td>
+          <td>Unattended (cloud) / supervised (CLI)</td>
+          <td>Terminal (open-source CLI), ChatGPT, OpenAI cloud</td>
+          <td>OpenAI models; CLI is self-hostable</td>
+        </tr>
+        <tr>
+          <td>Cursor</td>
+          <td>AI-native IDE</td>
+          <td>Multiple, user-selectable</td>
+          <td>Supervised multi-file + background cloud agents</td>
+          <td>Desktop IDE (VS Code fork) + cloud agents</td>
+          <td>Cursor's own editor</td>
+        </tr>
+        <tr>
+          <td>Amazon Q Developer</td>
+          <td>Cloud-native assistant</td>
+          <td>Routed via Amazon Bedrock</td>
+          <td>Supervised, AWS-task focused</td>
+          <td>Major IDEs + AWS Console</td>
+          <td>AWS / Bedrock, IAM-bound</td>
+        </tr>
+        <tr>
+          <td>Sourcegraph Cody / Amp</td>
+          <td>Search-backed assistant + agent</td>
+          <td>Enterprise LLMs (Cody) / model-agnostic (Amp)</td>
+          <td>Supervised (Cody) / multi-agent (Amp)</td>
+          <td>IDE plugins, on-prem/ZDR deployment</td>
+          <td>Low</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="table-note">Pricing and feature scope on all of these shift monthly &mdash; treat this table as a snapshot of the market's shape, not a current price list.</p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ PLATFORM PROFILES ═══ -->
+  <div class="section">
+    <div class="section-label">Platform Profiles</div>
+
+    <h2 class="category-heading">Governance &amp; orchestration</h2>
+    <div class="platform-block">
+      <h3>JetBrains Central</h3>
+      <div class="provider">Governance layer &middot; Model-agnostic</div>
+      <p>Not an IDE or a model &mdash; an orchestration and governance layer that sits above whichever agents a team already runs (Claude Agent, Codex, Gemini CLI, or custom). It adds policy enforcement, identity, cost attribution, and execution infrastructure across tools the team already uses. Announced March 2026, moving into broader rollout mid-2026. It manages agents; it doesn't replace the need to select and pay for them separately.</p>
+    </div>
+
+    <h2 class="category-heading">Autonomous coding agents</h2>
+    <div class="platform-block">
+      <h3>Factory.ai</h3>
+      <div class="provider">Multi-surface Droids &middot; Model-agnostic</div>
+      <p>Organizes agents by job function rather than shipping one general-purpose assistant &mdash; a Code Droid ships changes, a Reliability Droid investigates incidents, a Knowledge Droid writes docs. Runs from a terminal, desktop app, SDK, or headless in CI/CD. Self-serve pricing steps from $20 to $200/month, with real cost jumps once teams lean on heavier autonomous workloads.</p>
+    </div>
+    <div class="platform-block">
+      <h3>Devin (Cognition)</h3>
+      <div class="provider">Autonomous coding agent &middot; Cognition</div>
+      <p>Popularized the "assign it a ticket" model: it plans, executes inside an isolated VM with its own browser, terminal, and editor, and opens a PR with no supervision during the run, including several tickets in parallel. Pricing moved from a flat $500/seat to usage-based billing after 2025. Independent testing consistently puts real-world success rates well below its benchmark headline &mdash; budget for review time on anything non-trivial.</p>
+    </div>
+    <div class="platform-block">
+      <h3>GitHub Copilot &mdash; Agent Mode &amp; Coding Agent</h3>
+      <div class="provider">In-editor + async cloud agent &middot; Multi-model</div>
+      <p>Two tiers span the workflow: Agent Mode makes supervised multi-file edits inside the IDE, and the separate Coding Agent takes a GitHub Issue and returns a PR asynchronously. Deep integration with CodeQL, secret scanning, and Dependabot means every PR gets vetted automatically. The tradeoff is ecosystem gravity &mdash; it's built around GitHub as the system of record, and `.copilotignore` exclusions don't apply to the Coding Agent.</p>
+    </div>
+    <div class="platform-block">
+      <h3>Anthropic Claude Code</h3>
+      <div class="provider">Terminal/IDE agent + enterprise platform &middot; Claude only</div>
+      <p>Started as a terminal coding assistant and grew an enterprise layer on top: Dynamic Workflows for large parallel refactors across dozens of sub-agents, Managed Agents for hosted long-running agent infrastructure, an open Skills standard, and admin/governance controls similar in spirit to what JetBrains Central is trying to standardize across vendors. Deployable on Anthropic's cloud, Azure, or self-hosted &mdash; but the model is Claude only.</p>
+    </div>
+    <div class="platform-block">
+      <h3>Google Jules</h3>
+      <div class="provider">Async coding agent &middot; Gemini only</div>
+      <p>Built for fire-and-forget review: no editor, no local mode &mdash; everything clones into a Google Cloud VM, plans, executes, and opens a PR. Strong on scoped, well-defined tasks; weaker on architectural judgment calls, matching its reputation in reviews as a capable junior developer that still needs oversight.</p>
+    </div>
+    <div class="platform-block">
+      <h3>OpenAI Codex</h3>
+      <div class="provider">CLI + cloud coding agent &middot; GPT-5.x-Codex</div>
+      <p>Covers the same asynchronous issue-to-PR pattern as Jules, but adds an open-source local CLI that teams can audit and self-host the execution loop for &mdash; useful where Jules' Google-VM-only model is a non-starter on data residency. Bundled into ChatGPT plans, with API-rate billing for overflow usage.</p>
+    </div>
+
+    <h2 class="category-heading">IDE-native &amp; ecosystem-specific assistants</h2>
+    <div class="platform-block">
+      <h3>Cursor</h3>
+      <div class="provider">AI-native IDE &middot; Multiple models</div>
+      <p>An IDE first &mdash; a VS Code fork with agentic editing (multi-file changes, background cloud agents) built in rather than bolted on. The fastest path for an individual developer who wants high-autonomy editing without leaving a familiar editor shell, but optimized for solo/small-team speed rather than org-wide governance.</p>
+    </div>
+    <div class="platform-block">
+      <h3>Amazon Q Developer</h3>
+      <div class="provider">Cloud-native assistant &middot; Amazon Bedrock</div>
+      <p>An AWS modernization accelerator more than a general coding agent &mdash; IAM-aware, Bedrock-routed, strongest on tasks tied to AWS infrastructure like migrations and console automation. Outside an AWS-centric stack it's a weaker general-purpose choice than the model-agnostic options on this list.</p>
+    </div>
+    <div class="platform-block">
+      <h3>Sourcegraph Cody &amp; Amp</h3>
+      <div class="provider">Search-backed assistant + agent &middot; Enterprise LLMs / model-agnostic</div>
+      <p>Sourcegraph split its offering in two. Cody leans on Sourcegraph's code-search graph &mdash; a real advantage in sprawling, multi-repo enterprise estates, though it lags newer tools on raw agentic capability and can be slow on multi-million-line monorepos. Amp is the separate, more agentic product: model-agnostic routing, shared team threads, and zero-data-retention deployment options for compliance-sensitive teams.</p>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ TAKEAWAY ═══ -->
+  <div class="section">
+    <div class="section-label">The Takeaway</div>
+    <p>Almost every platform above bundles the same three layers together: which agents you can use, how they're governed, and which cloud they run on. Pick one and you've usually picked all three. JetBrains Central is the first to explicitly split governance from execution &mdash; a sign the market is moving toward the architecture this site argues for: agents, governance, and cloud infrastructure as three independently replaceable layers, not a single vendor's bundle.</p>
+    <p>That's the difference between adopting a platform and building the capability yourself. The right platforms above can still be part of your stack &mdash; the question is whether your architecture lets you swap any one of them later without rebuilding the rest.</p>
+
+    <div class="closing-links">
+      <div class="closing-links-group">
+        <a href="index.html#cta">Talk to us about your architecture &rarr;</a>
+        <a href="one-pager.html">Read the Executive Brief &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
+</footer>
+
+</body>
+</html>

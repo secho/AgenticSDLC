@@ -4,15 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A two-page static marketing website for the "Agentic SDLC / Self-Driving Codebase" concept. No build system, no package manager, no framework — plain HTML files with all CSS and JavaScript inline.
+A static marketing website for the "Agentic SDLC / Self-Driving Codebase" concept. No build system, no package manager, no framework — plain HTML files with all CSS and JavaScript inline.
 
 ## Development
 
-Open either file directly in a browser; no server required.
+Open any file directly in a browser; no server required.
 
 ```bash
-open index.html        # main landing page
-open one-pager.html    # executive brief
+open index.html                # main landing page
+open one-pager.html            # executive brief
+open platform-landscape.html   # AI SDLC platform comparison
 ```
 
 For a local HTTP server if needed:
@@ -26,6 +27,7 @@ python3 -m http.server 8080
 |------|---------|
 | `index.html` | Full landing page with nav, animations, and all sections |
 | `one-pager.html` | Printable executive brief linked from the landing page |
+| `platform-landscape.html` | Comparison of third-party AI SDLC platforms (JetBrains Central, Factory.ai, Devin, Copilot, etc.), linked from nav |
 
 ### `index.html` sections (in order, keyed by `id=`)
 
@@ -43,6 +45,6 @@ All design tokens are CSS custom properties defined in `:root` of each file. The
 
 ## Positioning / messaging constraints
 
-- Cloud-agnostic: do not hard-code any single cloud provider's product names
-- No partner branding in the pages themselves (AWS partner credential was removed per git history)
+- Cloud-agnostic: do not hard-code any single cloud provider's product names when describing *this site's own* architecture. This doesn't apply to `platform-landscape.html`, which factually names real third-party products for comparison.
+- No partner branding of any cloud provider in the pages
 - Tone: direct, IT-practitioner language — not sales-speak
