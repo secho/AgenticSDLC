@@ -178,6 +178,77 @@
   }
   .category-heading:first-child { margin-top: 0; }
 
+  /* ── Analysis figures (Secho Quadrant / Eye Cycle) ──
+     Wide by nature; they scroll horizontally on narrow screens,
+     the same way the comparison tables do. */
+  .figure-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.75rem 0 0.75rem;
+    border: 1px solid var(--slate-200);
+    background: #fff;
+  }
+  .figure-scroll svg { display: block; min-width: 660px; width: 100%; height: auto; }
+  .fig-note { font-size: 0.82rem; color: var(--slate-500); line-height: 1.6; margin-top: 0.75rem; }
+  .fig-scroll-hint { display: none; font-size: 0.72rem; color: var(--slate-400); margin-top: 0.4rem; font-family: var(--font-mono); }
+  @media (max-width: 720px) { .fig-scroll-hint { display: block; } }
+
+  /* Axis / quadrant text inside the figures.
+     Each rule is scoped under .figure-scroll so it outranks the base
+     `.figure-scroll text` fill — otherwise every label, including the
+     white numerals inside the markers, inherits slate-600. */
+  .figure-scroll text { font-family: var(--font-mono); fill: var(--slate-600); }
+  .figure-scroll text.f-quad   { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; fill: var(--slate-500); }
+  .figure-scroll text.f-axis   { font-size: 10.5px; letter-spacing: 0.1em; fill: var(--slate-500); }
+  .figure-scroll text.f-name   { font-size: 10.5px; fill: var(--slate-700); }
+  .figure-scroll text.f-name-i { font-size: 10.5px; fill: var(--slate-600); }
+  .figure-scroll text.f-phase  { font-size: 9.5px; letter-spacing: 0.1em; fill: var(--slate-500); }
+  .figure-scroll text.f-num    { font-size: 8.5px; font-weight: 600; fill: #fff; }
+  .figure-scroll text.f-num-o  { font-size: 8.5px; font-weight: 600; fill: #92400e; }
+  /* the name groups set the class on <g>, so restate it for their children */
+  .figure-scroll g.f-name text   { font-size: 10.5px; fill: var(--slate-700); }
+  .figure-scroll g.f-name-i text { font-size: 10.5px; fill: var(--slate-600); }
+  .f-rule   { stroke: var(--slate-200); fill: none; }
+  .f-mid    { stroke: var(--slate-300); fill: none; stroke-dasharray: 3 4; }
+  .f-curve  { stroke: var(--slate-400); fill: none; stroke-width: 1.6; }
+
+  /* Eye Cycle legend */
+  .cycle-legend { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.4rem 1.75rem; }
+  @media (min-width: 620px) { .cycle-legend { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 980px) { .cycle-legend { grid-template-columns: 1fr 1fr; } }
+  .cycle-legend li { display: flex; align-items: baseline; gap: 0.55rem; font-size: 0.84rem; line-height: 1.5; }
+  .cycle-legend .n {
+    flex: 0 0 1.35rem; height: 1.35rem;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600;
+    color: #fff; background: var(--slate-400);
+    align-self: flex-start; margin-top: 0.1rem;
+  }
+  .cycle-legend .t { flex: 1 1 auto; color: var(--slate-700); }
+  .cycle-legend .p {
+    flex: 0 0 auto;
+    font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em;
+    padding: 0.1rem 0.4rem; white-space: nowrap;
+    border: 1px solid currentColor;
+  }
+  .p--far  { color: #64748b; }
+  .p--mid  { color: var(--primary); }
+  .p--near { color: #0f766e; }
+  .p--here { color: #334155; }
+  .p--dead { color: #92400e; }
+  .n--far  { background: #64748b; }
+  .n--mid  { background: var(--primary); }
+  .n--near { background: #0f766e; }
+  .n--here { background: #334155; }
+  .n--dead { background: #92400e; }
+
+  /* Shared key row under both figures */
+  .fig-key { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-top: 0.9rem; font-size: 0.78rem; color: var(--slate-500); }
+  .fig-key span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .fig-key i { width: 10px; height: 10px; display: inline-block; }
+  .fig-key i.sq { border: 1.5px solid var(--slate-500); background: #fff; }
+  .fig-key i.ci { border-radius: 50%; background: var(--primary); }
+
   /* Separator */
   .sep {
     height: 1px;
@@ -227,6 +298,7 @@
     <span class="label" style="display:block;font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--primary);margin-bottom:1rem;">Market Landscape</span>
     <h1>The AI SDLC platform landscape</h1>
     <p>Every major dev-tools vendor has shipped some version of "agents that write and ship code" in the last eighteen months. Before you architect your own agentic SDLC, it helps to know what the market already sells &mdash; where it's strong, where it locks you in, and where the gaps are that a vendor-agnostic architecture fills.</p>
+    <p>Two halves below. First the agents and the control planes that govern them &mdash; the part of the market that gets the attention. Then <a href="#stack">the layers underneath</a>: the model gateway, the sandbox, the observability plane, the review and verification tier. Those are the pieces that decide whether the agent on top is actually replaceable.</p>
   </div>
 
   <div class="sep"></div>
@@ -480,10 +552,482 @@
 
   <div class="sep"></div>
 
+  <!-- ═══ THE LAYERS UNDERNEATH ═══ -->
+  <div class="section" id="stack">
+    <div class="section-label">The Layers Underneath</div>
+
+    <p>Everything above competes for the same slot: the thing that writes the code. But an agent is only the visible layer of a stack. Underneath it sits a model gateway deciding which LLM answers and what it costs; a sandbox where generated code actually runs; an observability plane recording what happened; and a review tier that decides whether any of it ships.</p>
+    <p>These get bought later, usually after the first agent rollout has already made them urgent &mdash; and by then the decision has often been made by default. That matters, because <strong>this is where replaceability is actually won or lost.</strong> An agent you can swap is worth little if its model routing, execution, and audit trail are welded to one vendor. Put a gateway underneath and the model layer becomes a config change; skip it and every agent negotiates its own billing relationship with every provider.</p>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Layer</th>
+          <th>What it gives you</th>
+          <th>Open source</th>
+          <th>Deployment</th>
+          <th>Lock-in</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>LiteLLM</td>
+          <td>Model gateway</td>
+          <td>One endpoint over 100+ providers; virtual keys, budgets, guardrails</td>
+          <td>Yes &mdash; MIT core</td>
+          <td>Self-hosted Docker; air-gapped option</td>
+          <td>None &mdash; you run it</td>
+        </tr>
+        <tr>
+          <td>OpenRouter</td>
+          <td>Model gateway (hosted)</td>
+          <td>One key over 400+ models, routing and fallback</td>
+          <td>No</td>
+          <td>Hosted only</td>
+          <td>Hosted marketplace; ~5% on inference</td>
+        </tr>
+        <tr>
+          <td>Portkey</td>
+          <td>Model gateway + guardrails</td>
+          <td>Routing over 200+ LLMs, 50+ guardrails, observability</td>
+          <td>Gateway core yes</td>
+          <td>Hosted or customer VPC</td>
+          <td>Governance gated to Enterprise tier</td>
+        </tr>
+        <tr>
+          <td>E2B</td>
+          <td>Execution sandbox</td>
+          <td>Firecracker microVMs for untrusted agent-written code</td>
+          <td>Yes</td>
+          <td>Managed or self-hosted</td>
+          <td>Low</td>
+        </tr>
+        <tr>
+          <td>Daytona</td>
+          <td>Execution sandbox</td>
+          <td>Stateful container workspaces, ~90&nbsp;ms cold start</td>
+          <td>No &mdash; closed mid-2026</td>
+          <td>Managed only</td>
+          <td>Managed-only since 2026</td>
+        </tr>
+        <tr>
+          <td>Langfuse</td>
+          <td>Observability &amp; evals</td>
+          <td>Tracing, prompt versioning, LLM-as-judge scoring</td>
+          <td>Yes &mdash; MIT</td>
+          <td>Self-hosted or cloud</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>LangSmith</td>
+          <td>Observability &amp; evals</td>
+          <td>Tracing and evals tuned to LangChain workflows</td>
+          <td>SDKs only</td>
+          <td>Cloud; self-host is Enterprise-only</td>
+          <td>LangChain ecosystem</td>
+        </tr>
+        <tr>
+          <td>Braintrust</td>
+          <td>Evaluation-first</td>
+          <td>Eval scoring, datasets, regression tracking</td>
+          <td>No</td>
+          <td>Vendor cloud</td>
+          <td>Vendor-hosted</td>
+        </tr>
+        <tr>
+          <td>CodeRabbit</td>
+          <td>Automated review</td>
+          <td>Review on every PR; broadest install base</td>
+          <td>No</td>
+          <td>SaaS; self-hosted on Enterprise</td>
+          <td>Low</td>
+        </tr>
+        <tr>
+          <td>Greptile</td>
+          <td>Automated review</td>
+          <td>Whole-codebase context for architectural impact</td>
+          <td>No</td>
+          <td>SaaS</td>
+          <td>Low</td>
+        </tr>
+        <tr>
+          <td>Moderne / OpenRewrite</td>
+          <td>Deterministic modernization</td>
+          <td>Rule-based mass refactoring over a semantic tree</td>
+          <td>OpenRewrite yes</td>
+          <td>Self-hosted or SaaS</td>
+          <td>Recipes are portable</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="table-note">Same caveat as above &mdash; this is the shape of the market in mid-2026, not a current price list.</p>
+
+    <h2 class="category-heading">Model gateways &amp; routing</h2>
+    <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">One endpoint in front of every model provider. Agents point at it instead of at OpenAI or Anthropic directly, and it becomes the single place you enforce budgets, keys, fallback, and audit &mdash; the layer that makes "swap the model" a config change rather than a migration.</p>
+    <div class="platform-block">
+      <h3>LiteLLM</h3>
+      <div class="provider">Open-source AI gateway &middot; BerriAI</div>
+      <p>The default open-source answer to "how do we stop every team wiring their own provider keys". A proxy that exposes 100+ providers &mdash; Bedrock, Azure, Vertex, Anthropic, OpenAI, vLLM, NVIDIA NIM &mdash; behind one OpenAI-compatible endpoint, with per-key and per-team budgets, model allowlists, rate limits, secret redaction, and spend tracking on every call. The part that matters for an agentic SDLC: <strong>the coding agents already speak to it.</strong> Claude Code points at a gateway with two environment variables (<code>ANTHROPIC_BASE_URL</code> and <code>ANTHROPIC_AUTH_TOKEN</code>), and Codex, Gemini CLI, Roo Code and others route the same way &mdash; so one proxy gives you attributed, budget-capped, auditable spend across every agent in the org, including per-session and per-sub-agent breakdown from the headers Claude Code sends. It added an MCP gateway front door in August 2026, putting tool access behind the same control point as model access. It is infrastructure you operate, which is the tradeoff: below roughly $2K/month of inference the running cost outweighs the saving, and above ~$10K/month it is usually the cheapest option on this page.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free to self-host (MIT core); Enterprise from ~$250/mo, sized to request capacity &mdash; never per token</span></li>
+        <li><span class="k">Enterprise</span><span>SSO/SAML, audit logs, RBAC, KMS/Vault integration, air-gapped deployment, 24/7 SLA</span></li>
+        <li><span class="k">Traction</span><span>~54K GitHub stars, 1,000+ contributors; in production at Netflix, Lemonade, Rocket Money</span></li>
+        <li><span class="k">Best for</span><span>Making the model layer swappable and putting one budget and audit trail under every agent</span></li>
+        <li><span class="k">Watch for</span><span>You operate it &mdash; needs DevOps capacity, and it becomes a availability-critical hop</span></li>
+      </ul>
+    </div>
+    <div class="platform-block">
+      <h3>OpenRouter</h3>
+      <div class="provider">Hosted model marketplace &middot; Aggregator</div>
+      <p>The zero-effort version of the same idea: one API key, 400+ models, routing and fallback handled for you. It removes the operational burden LiteLLM imposes, and in exchange you accept a hosted intermediary in the path of every inference call and roughly a 5% margin on top of provider pricing. Excellent for evaluation and for teams who want to try six models this month without six procurement conversations; harder to justify once spend is material or once inference has to stay inside your own network.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Pay-per-use at provider rates plus roughly 5%</span></li>
+        <li><span class="k">Traction</span><span>~$1.3B valuation (Series B led by CapitalG, May 2026); ~25T tokens/week across 400+ models</span></li>
+        <li><span class="k">Best for</span><span>Fast model evaluation and breadth without running infrastructure</span></li>
+        <li><span class="k">Watch for</span><span>A third party sits in every request path &mdash; check that against your data policy</span></li>
+      </ul>
+    </div>
+    <div class="platform-block">
+      <h3>Portkey</h3>
+      <div class="provider">Managed AI gateway + guardrails &middot; Hybrid open source</div>
+      <p>Sits between the two: an open-source gateway core with a managed control plane focused on what happens <em>after</em> you deploy &mdash; observability, retries, caching, and a library of 50+ guardrails applied inline on requests and responses. Deployable into a customer VPC, which is the usual reason it wins over OpenRouter in regulated environments. The catch is packaging: the governance features that justify a gateway in the first place &mdash; RBAC, per-team budgets, SSO, custom retention &mdash; sit behind the Enterprise tier.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free Developer tier; Production ~$49/mo; Enterprise custom (SSO, VPC, RBAC, HIPAA/SOC 2)</span></li>
+        <li><span class="k">Traction</span><span>$15M Series A (Elevation Capital, Feb 2026); ~14B tokens/day processed</span></li>
+        <li><span class="k">Best for</span><span>Teams wanting gateway plus guardrails and tracing without operating the stack</span></li>
+        <li><span class="k">Watch for</span><span>Governance is gated to Enterprise &mdash; price it in before you compare to LiteLLM</span></li>
+      </ul>
+    </div>
+
+    <h2 class="category-heading">Execution sandboxes</h2>
+    <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">Every autonomous agent above runs code it just wrote. Bundled platforms hide this behind their own cloud; if you want agents on your infrastructure, this is the layer you buy or build.</p>
+    <div class="platform-block">
+      <h3>E2B</h3>
+      <div class="provider">Firecracker microVM sandboxes &middot; Open source</div>
+      <p>Hardware-level isolation for untrusted, model-generated code &mdash; each execution gets its own kernel via Firecracker, the same microVM technology under AWS Lambda, so a kernel-level exploit can't reach the host or a neighbouring run. That distinction matters more than it sounds: container-based sandboxes share the host kernel, which is an acceptable risk for your own code and a harder argument for code an LLM wrote unsupervised. Open source and self-hostable, which keeps the execution layer under your control rather than the agent vendor's.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Isolation</span><span>Firecracker microVMs &mdash; dedicated kernel per execution</span></li>
+        <li><span class="k">Traction</span><span>Reports use at ~94% of the Fortune 100; 1B+ sandboxes started, ~3.5M monthly SDK downloads</span></li>
+        <li><span class="k">Best for</span><span>Running agent-written code where the isolation boundary has to hold</span></li>
+        <li><span class="k">Watch for</span><span>microVM start-up is slower than containers &mdash; the price of the stronger boundary</span></li>
+      </ul>
+    </div>
+    <div class="platform-block">
+      <h3>Daytona</h3>
+      <div class="provider">Stateful container workspaces &middot; Managed</div>
+      <p>Optimized for the other end of the tradeoff: container-based workspaces with roughly 90&nbsp;ms cold starts &mdash; the fastest in 2026 third-party benchmarks &mdash; and persistent state, so an agent can install dependencies, write files, and return to the same environment on a later turn. That statefulness fits long-running agent sessions well. The significant change is governance, not technology: the codebase went closed-source in mid-2026, so full self-hosting is no longer available, and the isolation boundary is a shared host kernel.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Isolation</span><span>Containers &mdash; shared host kernel, weaker boundary than a microVM</span></li>
+        <li><span class="k">Strengths</span><span>~90&nbsp;ms cold start; stateful workspaces that survive across agent turns</span></li>
+        <li><span class="k">Best for</span><span>Latency-sensitive, long-lived agent sessions on trusted-ish code</span></li>
+        <li><span class="k">Watch for</span><span>Closed-source since mid-2026 &mdash; managed-only, so it is a dependency, not a component</span></li>
+      </ul>
+    </div>
+
+    <h2 class="category-heading">Observability &amp; evaluation</h2>
+    <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">You cannot govern what you cannot see, and you cannot tell whether a prompt or model change improved anything without a scoring harness. This layer is what turns "the agents seem better" into a number.</p>
+    <div class="platform-block">
+      <h3>Langfuse</h3>
+      <div class="provider">Open-source LLM observability &middot; MIT</div>
+      <p>The open-source baseline: tracing across multi-turn agent runs, prompt versioning with a playground, and evaluation via LLM-as-judge, human feedback, or custom metrics. MIT-licensed with self-hosting as a first-class deployment mode rather than an enterprise upsell &mdash; which is the whole argument for it in regulated environments, since traces of agent runs over your source code are exactly the data you least want leaving the building. LiteLLM can route its per-team logs straight into it, making the two a common pairing.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free self-hosted (MIT); managed cloud from ~$29/mo</span></li>
+        <li><span class="k">Traction</span><span>~28K GitHub stars; the most-adopted open-source option in the category</span></li>
+        <li><span class="k">Best for</span><span>Keeping agent traces inside your own perimeter with no licence gate on self-hosting</span></li>
+        <li><span class="k">Watch for</span><span>Self-hosting means you own the storage and retention problem too</span></li>
+      </ul>
+    </div>
+    <div class="platform-block">
+      <h3>LangSmith &amp; Braintrust</h3>
+      <div class="provider">Managed tracing / evaluation-first &middot; Proprietary</div>
+      <p><strong>LangSmith</strong> is LangChain's managed surface &mdash; strongest if you already build on LangChain, and it shipped a purpose-built trace store (SmithDB) in 2026 for materially faster queries at volume. Its constraint is structural: the SDKs are open source but the backend, UI, and storage are not, and self-hosting is an Enterprise-only add-on. <strong>Braintrust</strong> attacks the harder half &mdash; rigorous evaluation, with datasets, scorers, and regression tracking as the primary object rather than tracing bolted onto it. If your problem is "did this change make the agent better", that focus is the point; it is also the most vendor-hosted option here.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>LangSmith: free tier, ~$39/seat/mo Plus, custom Enterprise. Braintrust: free tier up to ~$249/mo Pro</span></li>
+        <li><span class="k">Traction</span><span>Braintrust raised $80M Series B at ~$800M valuation (Feb 2026)</span></li>
+        <li><span class="k">Best for</span><span>LangSmith on a LangChain stack; Braintrust where eval rigour is the actual requirement</span></li>
+        <li><span class="k">Watch for</span><span>Both are proprietary &mdash; LangSmith self-hosting is Enterprise-gated, Braintrust is cloud-only</span></li>
+      </ul>
+    </div>
+
+    <h2 class="category-heading">Automated review &amp; verification</h2>
+    <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">Once agents open pull requests faster than people can read them, review becomes the bottleneck. This layer is the direct answer &mdash; and it is the commercial version of the argument on <a href="method.html">The Method</a>: generating code was never the constraint, judging it was.</p>
+    <div class="platform-block">
+      <h3>CodeRabbit</h3>
+      <div class="provider">AI pull-request review &middot; SaaS + self-hosted</div>
+      <p>The most widely installed review agent on GitHub and GitLab &mdash; over 2M repositories connected and 13M+ pull requests processed &mdash; which matters here mostly as evidence of how quickly this became a real category. It comments line-by-line on every PR, and in comparative testing it flags fewer issues than the most aggressive alternatives but wastes markedly less reviewer time on false positives. Given that the failure mode of automated review is reviewers learning to ignore it, that ratio is the metric to judge on, not raw catch rate.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free tier for summaries; Pro ~$24&ndash;30/user/mo; Enterprise adds self-hosting</span></li>
+        <li><span class="k">Traction</span><span>$60M Series B at ~$550M valuation (Sept 2025); 2M+ repos, 13M+ PRs reviewed</span></li>
+        <li><span class="k">Best for</span><span>Broad first-pass review coverage where signal-to-noise decides adoption</span></li>
+        <li><span class="k">Watch for</span><span>Per-seat pricing scales with the team, not with how many PRs agents actually open</span></li>
+      </ul>
+    </div>
+    <div class="platform-block">
+      <h3>Greptile</h3>
+      <div class="provider">Codebase-aware review &middot; SaaS</div>
+      <p>Reviews a change against the whole repository rather than the diff in isolation, which is why it is the stronger of the two at architectural impact &mdash; the "this is fine locally and wrong for this system" class of problem that a diff-scoped reviewer structurally cannot see. It also catches the most issues per pass in comparative testing, and generates the most false positives doing it. Whether that trade works depends entirely on whether your reviewers still read the output after two weeks.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free Starter tier (June 2026); Pro ~$30/seat/mo with review credits; free for public OSS</span></li>
+        <li><span class="k">Traction</span><span>Series A led by Benchmark at ~$180M valuation (2026)</span></li>
+        <li><span class="k">Best for</span><span>Large codebases where the expensive defects are architectural, not local</span></li>
+        <li><span class="k">Watch for</span><span>Highest false-positive rate in the category &mdash; tune it or lose the reviewers</span></li>
+      </ul>
+    </div>
+
+    <h2 class="category-heading">Deterministic modernization</h2>
+    <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">The non-probabilistic counterpart to everything above &mdash; and the right tool for a large share of legacy work that teams reflexively hand to an LLM.</p>
+    <div class="platform-block">
+      <h3>Moderne &amp; OpenRewrite</h3>
+      <div class="provider">Rule-based mass refactoring &middot; Open-source engine + enterprise platform</div>
+      <p>OpenRewrite is an open-source refactoring engine built on a <strong>Lossless Semantic Tree</strong> &mdash; a code model that resolves symbols, tracks relationships, and preserves formatting and intent, so a transformation either applies correctly or does not apply at all. Moderne is the enterprise platform that runs those recipes across thousands of repositories at once, with an audit trail. Java-first, with Python support added in early 2026.</p>
+      <p>The reason it belongs on this page: for framework upgrades, API migrations, and CVE remediation, a deterministic recipe is <em>strictly better</em> than an agent &mdash; it needs no review budget, no shadow run, and no oracle, because it cannot produce a surprise. The honest architecture uses both: recipes for anything expressible as a rule, agents for the work that genuinely requires judgement. Reaching for an LLM first on mechanical refactoring is the most common expensive mistake in this space.</p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>OpenRewrite free and open source; Moderne platform commercial</span></li>
+        <li><span class="k">Traction</span><span>$30M Series B; in use at Walmart and Allstate, and inside AWS and Microsoft tooling</span></li>
+        <li><span class="k">Best for</span><span>Anything expressible as a rule &mdash; upgrades, API migrations, vulnerability remediation at scale</span></li>
+        <li><span class="k">Watch for</span><span>Requires a recipe to exist or be written; no help where behaviour must be inferred</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ SECHO QUADRANT ═══ -->
+  <div class="section" id="quadrant">
+    <div class="section-label">The Secho Quadrant</div>
+    <p>Analyst quadrants usually plot capability against vision, which tells you who is winning and nothing about what you are signing up for. This one plots the two things an engineering leader actually has to trade off.</p>
+    <p><strong>Horizontal &mdash; independence:</strong> how cheaply you could replace this in eighteen months. Open source, self-hostable, standard protocols and portable artifacts move a platform right. Proprietary execution, a required cloud, a single model vendor, or a proprietary system of record move it left.</p>
+    <p><strong>Vertical &mdash; surface area:</strong> how much of the delivery lifecycle it owns. High is not better. A platform high on this axis does more for you and displaces more of your architecture; one low on it does a single job and gets out of the way.</p>
+
+    <div class="figure-scroll">
+      <svg viewBox="0 0 720 560" role="img" aria-labelledby="q-title q-desc">
+        <title id="q-title">The Secho Quadrant &mdash; independence against surface area</title>
+        <desc id="q-desc">A scatter plot of 22 platforms. The horizontal axis is independence (how easily the platform can be replaced), the vertical axis is surface area (how much of the delivery lifecycle it owns). Four quadrants: gravity wells (high surface, low independence) contain Claude Code, GitHub Copilot, Devin, Cursor and OpenAI Codex; load-bearing (high surface, high independence) contains Factory.ai, Port.io and Sourcegraph Amp; ecosystem bets (low surface, low independence) contain Google Jules, Amazon Q, Daytona, LangSmith and Braintrust; swappable parts (low surface, high independence) contain LiteLLM, Langfuse, E2B, Moderne, CodeRabbit, Greptile, Portkey and JetBrains Central.</desc>
+
+        <!-- plot frame -->
+        <rect class="f-rule" x="70" y="40" width="620" height="430"/>
+        <line class="f-mid" x1="380" y1="40" x2="380" y2="470"/>
+        <line class="f-mid" x1="70" y1="255" x2="690" y2="255"/>
+
+        <!-- quadrant labels -->
+        <text class="f-quad" x="88"  y="62">GRAVITY WELLS</text>
+        <text class="f-quad" x="672" y="62" text-anchor="end">LOAD-BEARING</text>
+        <text class="f-quad" x="88"  y="456">ECOSYSTEM BETS</text>
+        <text class="f-quad" x="672" y="456" text-anchor="end">SWAPPABLE PARTS</text>
+
+        <!-- axes -->
+        <text class="f-axis" x="380" y="500" text-anchor="middle">INDEPENDENCE &mdash; HOW CHEAPLY YOU COULD REPLACE IT &nbsp;&rarr;</text>
+        <text class="f-axis" x="-255" y="26" text-anchor="middle" transform="rotate(-90)">SURFACE AREA &mdash; HOW MUCH IT OWNS &nbsp;&rarr;</text>
+
+        <!-- ── agents &amp; control planes (filled) ── -->
+        <g fill="#7640FF">
+          <circle cx="349" cy="92"  r="5"/>
+          <circle cx="256" cy="148" r="5"/>
+          <circle cx="206" cy="186" r="5"/>
+          <circle cx="492" cy="160" r="5"/>
+          <circle cx="399" cy="169" r="5"/>
+          <circle cx="306" cy="212" r="5"/>
+          <circle cx="151" cy="277" r="5"/>
+          <circle cx="169" cy="307" r="5"/>
+          <circle cx="454" cy="238" r="5"/>
+          <circle cx="640" cy="289" r="5"/>
+          <circle cx="566" cy="221" r="5"/>
+        </g>
+        <g class="f-name">
+          <text x="360" y="96">Claude Code</text>
+          <text x="267" y="152">GitHub Copilot</text>
+          <text x="217" y="190">Devin</text>
+          <text x="503" y="164">Factory.ai</text>
+          <text x="410" y="173">OpenAI Codex</text>
+          <text x="317" y="216">Cursor</text>
+          <text x="162" y="281">Google Jules</text>
+          <text x="180" y="311">Amazon Q</text>
+          <text x="465" y="242">Sourcegraph Amp</text>
+          <text x="640" y="306" text-anchor="middle">JetBrains Central</text>
+          <text x="577" y="225">Port.io</text>
+        </g>
+
+        <!-- ── infrastructure layers (hollow) ── -->
+        <g fill="#fff" stroke="#0f766e" stroke-width="1.6">
+          <rect x="654" y="358" width="9" height="9"/>
+          <rect x="400" y="401" width="9" height="9"/>
+          <rect x="456" y="349" width="9" height="9"/>
+          <rect x="611" y="414" width="9" height="9"/>
+          <rect x="245" y="410" width="9" height="9"/>
+          <rect x="642" y="388" width="9" height="9"/>
+          <rect x="313" y="371" width="9" height="9"/>
+          <rect x="270" y="367" width="9" height="9"/>
+          <rect x="511" y="324" width="9" height="9"/>
+          <rect x="487" y="380" width="9" height="9"/>
+          <rect x="555" y="290" width="9" height="9"/>
+        </g>
+        <g class="f-name-i">
+          <text x="649" y="356" text-anchor="end">LiteLLM</text>
+          <text x="395" y="410" text-anchor="end">OpenRouter</text>
+          <text x="473" y="358">Portkey</text>
+          <text x="606" y="422" text-anchor="end">E2B</text>
+          <text x="240" y="418" text-anchor="end">Daytona</text>
+          <text x="637" y="397" text-anchor="end">Langfuse</text>
+          <text x="330" y="380">LangSmith</text>
+          <text x="265" y="375" text-anchor="end">Braintrust</text>
+          <text x="528" y="332">CodeRabbit</text>
+          <text x="504" y="388">Greptile</text>
+          <text x="550" y="298" text-anchor="end">Moderne</text>
+        </g>
+
+        <!-- inline key -->
+        <g transform="translate(70,528)">
+          <circle cx="6" cy="-4" r="5" fill="#7640FF"/>
+          <text class="f-axis" x="18" y="0">AGENT OR CONTROL PLANE</text>
+          <rect x="205" y="-8.5" width="9" height="9" fill="#fff" stroke="#0f766e" stroke-width="1.6"/>
+          <text class="f-axis" x="222" y="0">INFRASTRUCTURE LAYER</text>
+        </g>
+      </svg>
+    </div>
+    <p class="fig-scroll-hint">&larr; scroll to see the full chart &rarr;</p>
+
+    <p class="fig-note">Positions are our assessment, not a vendor survey, and they are judgments about architecture rather than quality. Several platforms would move materially on a single announcement &mdash; Claude Code goes right the day it routes a second model vendor; Daytona went left when it closed its source in mid&#8209;2026.</p>
+
+    <h2 class="category-heading">Reading it</h2>
+    <p><strong>Gravity wells</strong> are the most capable products on the page and the most expensive to leave. Claude Code, Copilot, Devin, Cursor and Codex all deliver real autonomy today, and each one assumes something structural in return &mdash; a single model vendor, GitHub as the system of record, vendor-hosted execution, a specific editor. None of that is a reason to avoid them. It is a reason to know which assumption you are accepting, and to keep the layers underneath them yours.</p>
+    <p><strong>Load-bearing</strong> is the small set that does a lot without dictating much: Factory.ai, because it is model-agnostic and runs headless in your own CI; Port.io, because it governs agents it does not supply; Sourcegraph Amp, for model-agnostic routing with zero-data-retention deployment. This is the quadrant to prefer for anything you expect to still be running in three years.</p>
+    <p><strong>Swappable parts</strong> is where most of the infrastructure sits, and low surface area is the feature. LiteLLM, Langfuse, E2B and OpenRewrite each do one job, are open source, and cost roughly a day to remove. JetBrains Central sits here rather than in load-bearing for one reason only: it is not generally available yet. Delivered scope is what the vertical axis measures, and an early-access product has not delivered it.</p>
+    <p><strong>Ecosystem bets</strong> is the quadrant that needs the most honesty. Google Jules and Amazon Q are genuinely good inside Google Cloud and AWS respectively and weak outside them &mdash; correct choices if that commitment is already made, poor ones as a hedge. Daytona and the proprietary observability tools land here on packaging rather than capability: a managed-only sandbox and an Enterprise-gated trace store are fine products that you cannot take with you.</p>
+    <p>The diagonal is the actual finding. <strong>Almost nothing sits in the top-right.</strong> The market has not yet produced a platform that does most of the lifecycle without owning most of your architecture &mdash; which is precisely why the working pattern is a load-bearing or gravity-well agent on top, with independent, swappable layers underneath.</p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ SECHO'S EYE CYCLE ═══ -->
+  <div class="section" id="eye-cycle">
+    <div class="section-label">Secho's Eye Cycle</div>
+    <p>The quadrant is about vendors. This is about <strong>techniques</strong> &mdash; the things that stay true after the logos change. A vendor can be excellent while the technique it sells is still a few months from being usable, and the reverse happens just as often: the least fashionable idea on this curve is frequently the one that pays.</p>
+    <p>Five phases: <strong>first contact</strong> (it exists, mostly in papers and demos), <strong>overclaim</strong> (the conference-talk peak), <strong>reckoning</strong> (production contact), <strong>real practice</strong> (people who ship start writing down what works), and <strong>load-bearing</strong> (boring, assumed, invisible).</p>
+    <p><strong>The horizon is months, not years.</strong> Analyst hype cycles are calibrated to enterprise software timescales, where five years to the plateau is normal. That calibration is wrong here. This field re-tools roughly every quarter, so the marker against each technique below is <em>months to load-bearing</em> &mdash; the point at which you would stop treating it as a bet and start assuming it. Plan procurement and hiring against that clock, not a five-year one.</p>
+
+    <div class="figure-scroll">
+      <svg viewBox="0 0 720 400" role="img" aria-labelledby="c-title c-desc">
+        <title id="c-title">Secho's Eye Cycle &mdash; techniques in the agentic SDLC, mid-2026</title>
+        <desc id="c-desc">A hype-cycle curve with twenty-seven techniques placed along five phases. First contact holds learned codebase world-models, proof-carrying agent output, and agent-generated formal specifications. Overclaim holds continuous shadow production, agent-to-agent protocols, computer-use agents for QA, agent identity scoping, massively parallel agent swarms at the apex, autonomous multi-repo migration, autonomous incident remediation, and AI-native developer platforms. Reckoning holds fully unattended ticket-to-PR, mega-context in place of retrieval, vibe coding, benchmark-led agent selection, and prompt engineering as a role. Real practice holds record-and-replay test generation, automated diff classification, spec-driven development, shadow-run verification, agent trace observability, microVM sandboxing, and AI code review. Load-bearing holds MCP as tool plumbing, LLM gateways, deterministic rule-based refactoring, and inline completion.</desc>
+
+        <!-- phase bands -->
+        <g class="f-mid">
+          <line x1="190" y1="36" x2="190" y2="334"/>
+          <line x1="330" y1="36" x2="330" y2="334"/>
+          <line x1="455" y1="36" x2="455" y2="334"/>
+          <line x1="612" y1="36" x2="612" y2="334"/>
+        </g>
+        <line class="f-rule" x1="60" y1="334" x2="700" y2="334"/>
+
+        <text class="f-phase" x="125" y="354" text-anchor="middle">FIRST CONTACT</text>
+        <text class="f-phase" x="260" y="354" text-anchor="middle">OVERCLAIM</text>
+        <text class="f-phase" x="392" y="354" text-anchor="middle">RECKONING</text>
+        <text class="f-phase" x="533" y="354" text-anchor="middle">REAL PRACTICE</text>
+        <text class="f-phase" x="656" y="354" text-anchor="middle">LOAD-BEARING</text>
+        <text class="f-axis" x="380" y="382" text-anchor="middle">MATURITY &nbsp;&rarr;</text>
+        <text class="f-axis" x="-185" y="26" text-anchor="middle" transform="rotate(-90)">EXPECTATION &nbsp;&rarr;</text>
+
+        <!-- the curve -->
+        <path class="f-curve" d="M60 330 C120 328 175 300 205 218 C222 150 240 82 260 68 C282 62 300 130 330 200 C356 262 376 292 400 296 C432 300 462 278 500 246 C548 200 582 162 625 142 C655 130 678 126 700 123"/>
+
+        <!-- markers: fill encodes months to load-bearing -->
+        <g>
+          <!-- first contact -->
+          <circle cx="90"  cy="329" r="8" fill="#64748b"/><text class="f-num" x="90"  y="332" text-anchor="middle">1</text>
+          <circle cx="128" cy="322" r="8" fill="#64748b"/><text class="f-num" x="128" y="325" text-anchor="middle">2</text>
+          <circle cx="162" cy="307" r="8" fill="#64748b"/><text class="f-num" x="162" y="310" text-anchor="middle">3</text>
+          <!-- climbing -->
+          <circle cx="196" cy="236" r="8" fill="#7640FF"/><text class="f-num" x="196" y="239" text-anchor="middle">4</text>
+          <circle cx="216" cy="163" r="8" fill="#64748b"/><text class="f-num" x="216" y="166" text-anchor="middle">5</text>
+          <circle cx="236" cy="103" r="8" fill="#7640FF"/><text class="f-num" x="236" y="106" text-anchor="middle">6</text>
+          <circle cx="250" cy="80"  r="8" fill="#7640FF"/><text class="f-num" x="250" y="83"  text-anchor="middle">7</text>
+          <!-- apex -->
+          <circle cx="266" cy="67"  r="8" fill="#7640FF"/><text class="f-num" x="266" y="70"  text-anchor="middle">8</text>
+          <circle cx="284" cy="85"  r="8" fill="#7640FF"/><text class="f-num" x="284" y="88"  text-anchor="middle">9</text>
+          <circle cx="302" cy="129" r="8" fill="#7640FF"/><text class="f-num" x="302" y="132" text-anchor="middle">10</text>
+          <circle cx="320" cy="181" r="8" fill="#7640FF"/><text class="f-num" x="320" y="184" text-anchor="middle">11</text>
+          <!-- descending into reckoning -->
+          <circle cx="348" cy="241" r="8" fill="#7640FF"/><text class="f-num" x="348" y="244" text-anchor="middle">12</text>
+          <circle cx="372" cy="272" r="8" fill="#fff" stroke="#92400e" stroke-width="2"/><text class="f-num-o" x="372" y="275" text-anchor="middle">13</text>
+          <circle cx="396" cy="292" r="8" fill="#fff" stroke="#92400e" stroke-width="2"/><text class="f-num-o" x="396" y="295" text-anchor="middle">14</text>
+          <circle cx="420" cy="297" r="8" fill="#fff" stroke="#92400e" stroke-width="2"/><text class="f-num-o" x="420" y="300" text-anchor="middle">15</text>
+          <circle cx="442" cy="293" r="8" fill="#fff" stroke="#92400e" stroke-width="2"/><text class="f-num-o" x="442" y="296" text-anchor="middle">16</text>
+          <!-- real practice -->
+          <circle cx="468" cy="280" r="8" fill="#7640FF"/><text class="f-num" x="468" y="283" text-anchor="middle">17</text>
+          <circle cx="490" cy="264" r="8" fill="#7640FF"/><text class="f-num" x="490" y="267" text-anchor="middle">18</text>
+          <circle cx="512" cy="246" r="8" fill="#0f766e"/><text class="f-num" x="512" y="249" text-anchor="middle">19</text>
+          <circle cx="534" cy="228" r="8" fill="#0f766e"/><text class="f-num" x="534" y="231" text-anchor="middle">20</text>
+          <circle cx="556" cy="208" r="8" fill="#0f766e"/><text class="f-num" x="556" y="211" text-anchor="middle">21</text>
+          <circle cx="578" cy="188" r="8" fill="#0f766e"/><text class="f-num" x="578" y="191" text-anchor="middle">22</text>
+          <circle cx="600" cy="170" r="8" fill="#0f766e"/><text class="f-num" x="600" y="173" text-anchor="middle">23</text>
+          <!-- already load-bearing -->
+          <circle cx="626" cy="152" r="8" fill="#334155"/><text class="f-num" x="626" y="155" text-anchor="middle">24</text>
+          <circle cx="650" cy="138" r="8" fill="#334155"/><text class="f-num" x="650" y="141" text-anchor="middle">25</text>
+          <circle cx="672" cy="130" r="8" fill="#334155"/><text class="f-num" x="672" y="133" text-anchor="middle">26</text>
+          <circle cx="694" cy="124" r="8" fill="#334155"/><text class="f-num" x="694" y="127" text-anchor="middle">27</text>
+        </g>
+      </svg>
+    </div>
+    <p class="fig-scroll-hint">&larr; scroll to see the full chart &rarr;</p>
+
+    <div class="fig-key" style="margin-bottom:0.4rem;">
+      <span>Marker colour and the chip below both show <strong style="color:var(--slate-700);">months to load-bearing</strong>:</span>
+      <span><i class="ci" style="background:#64748b;border-radius:50%;"></i> 5+ months</span>
+      <span><i class="ci" style="background:#7640FF;border-radius:50%;"></i> 2&ndash;5 months</span>
+      <span><i class="ci" style="background:#0f766e;border-radius:50%;"></i> under 2 months</span>
+      <span><i class="ci" style="background:#334155;border-radius:50%;"></i> already there</span>
+      <span><i class="ci" style="background:#fff;border:2px solid #92400e;border-radius:50%;"></i> obsolete before it gets there</span>
+    </div>
+
+    <ol class="cycle-legend">
+      <li><span class="n n--far">1</span><span class="t">Learned codebase world-models &mdash; predicting a change's effect without running it</span><span class="p p--far">5+ mo</span></li>
+      <li><span class="n n--far">2</span><span class="t">Proof-carrying agent output &mdash; patch ships with a machine-checkable certificate</span><span class="p p--far">5+ mo</span></li>
+      <li><span class="n n--far">3</span><span class="t">Agent-generated formal specifications from legacy code</span><span class="p p--far">5+ mo</span></li>
+      <li><span class="n n--mid">4</span><span class="t">Continuous shadow production &mdash; permanent parallel-run, not per-migration</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--far">5</span><span class="t">Agent-to-agent negotiation protocols</span><span class="p p--far">5+ mo</span></li>
+      <li><span class="n n--mid">6</span><span class="t">Computer-use agents driving the real UI for QA</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--mid">7</span><span class="t">Agent identity &amp; least-privilege scoping</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--mid">8</span><span class="t">Massively parallel agent swarms</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--mid">9</span><span class="t">Autonomous multi-repo migration</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--mid">10</span><span class="t">Autonomous incident remediation ("AI SRE")</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--mid">11</span><span class="t">AI-native developer platforms / context lakes</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--mid">12</span><span class="t">Fully unattended ticket-to-PR</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--dead">13</span><span class="t">Mega-context in place of retrieval</span><span class="p p--dead">obsolete first</span></li>
+      <li><span class="n n--dead">14</span><span class="t">Vibe coding</span><span class="p p--dead">obsolete first</span></li>
+      <li><span class="n n--dead">15</span><span class="t">Benchmark-led agent selection</span><span class="p p--dead">obsolete first</span></li>
+      <li><span class="n n--dead">16</span><span class="t">Prompt engineering as a role</span><span class="p p--dead">obsolete first</span></li>
+      <li><span class="n n--mid">17</span><span class="t">Record-and-replay test generation from traffic</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--mid">18</span><span class="t">Automated diff classification</span><span class="p p--mid">2&ndash;5 mo</span></li>
+      <li><span class="n n--near">19</span><span class="t">Spec-driven development</span><span class="p p--near">&lt; 2 mo</span></li>
+      <li><span class="n n--near">20</span><span class="t">Shadow-run / parallel-run verification</span><span class="p p--near">&lt; 2 mo</span></li>
+      <li><span class="n n--near">21</span><span class="t">Agent trace observability &amp; evals</span><span class="p p--near">&lt; 2 mo</span></li>
+      <li><span class="n n--near">22</span><span class="t">microVM sandboxing of generated code</span><span class="p p--near">&lt; 2 mo</span></li>
+      <li><span class="n n--near">23</span><span class="t">AI code review</span><span class="p p--near">&lt; 2 mo</span></li>
+      <li><span class="n n--here">24</span><span class="t">MCP as ordinary tool plumbing</span><span class="p p--here">already</span></li>
+      <li><span class="n n--here">25</span><span class="t">LLM gateways &amp; model routing</span><span class="p p--here">already</span></li>
+      <li><span class="n n--here">26</span><span class="t">Deterministic rule-based refactoring</span><span class="p p--here">already</span></li>
+      <li><span class="n n--here">27</span><span class="t">Inline completion</span><span class="p p--here">already</span></li>
+    </ol>
+
+    <h2 class="category-heading">The calls worth arguing about</h2>
+    <p><strong>The genuinely new work is on the far left, and it is about proof, not generation (1&ndash;3).</strong> Learned world-models of a codebase, proof-carrying agent output, and auto-formalisation of legacy code into machine-checkable specifications are all early &mdash; papers, prototypes, and internal experiments. They share a direction that is worth noticing: every one attacks <em>verification</em> rather than authorship. That is the tell for where the field's remaining hard problems actually are, and it is why these are the ones to watch even though none is deployable today.</p>
+    <p><strong>Continuous shadow production (4) is the sleeper.</strong> Shadow running is currently framed as a migration technique &mdash; you stand it up, you cut over, you tear it down. The interesting move is to never tear it down: keep a permanent parallel-run of the service so every change, human or agent, is differentially compared against the incumbent before promotion. That converts verification from a project into infrastructure, and it is the single change that would most widen what agents can be trusted to do unsupervised.</p>
+    <p><strong>Fully unattended ticket-to-PR (12) is over the peak, not through it.</strong> The capability is real and the demos are honest; what has not held is the economics at organizational scale. Independent evaluation keeps landing well below benchmark headlines, and the cost that matters is not inference &mdash; it is senior review time spent on plausible-looking output. It arrives, but as a governed subset of tickets rather than the default intake path.</p>
+    <p><strong>Benchmark-led agent selection (15) will not recover.</strong> Choosing tools by SWE-bench-style scores is being abandoned rather than improved: the benchmarks are saturated, contaminated, and measure a task shape that does not match legacy estates. What replaces it is not a better benchmark &mdash; it is evaluation on your own code, which is technique 21, and it is why that one is nearly load-bearing.</p>
+    <p><strong>Shadow-run verification (20) is the most under-rated position on this curve.</strong> It never had a peak because it is unglamorous, and it is the closest thing the field has to a solved problem: replay recorded production traffic against old and new implementations and compare. It is the mechanism behind <a href="method.html">The Method</a>, and the reason it matters more than any generation technique is arithmetic &mdash; generation stopped being the constraint some time ago, and judgement never did.</p>
+    <p><strong>Deterministic rule-based refactoring (26) has been load-bearing the whole time.</strong> It is the technique most often skipped because it predates the current cycle and does not involve a model. For everything expressible as a rule, it beats an agent outright: no review budget, no verification harness, no possibility of surprise. The mature stack uses recipes where a rule fits and reserves agents for work that actually needs judgement.</p>
+    <p class="fig-note">Placement is a judgment call about techniques, not a survey. The useful way to read it: things on the right are safe to depend on, things at the peak deserve a bounded pilot rather than a programme, and things in the reckoning phase are where budget quietly disappears. The months are deliberately short &mdash; a technique two months from load-bearing is one you should be staffing for now, not scheduling for next year's roadmap.</p>
+  </div>
+
+  <div class="sep"></div>
+
   <!-- ═══ TAKEAWAY ═══ -->
   <div class="section">
     <div class="section-label">The Takeaway</div>
     <p>Almost every coding agent above bundles the same three layers together: which agents you can use, how they're governed, and which cloud they run on. Pick one and you've usually picked all three. The governance layers &mdash; JetBrains Central and Port.io &mdash; are the clearest sign the market is splitting those apart: control planes that manage whichever agents, models, and clouds you choose. That's exactly the architecture this site argues for: agents, governance, and cloud infrastructure as three independently replaceable layers, not a single vendor's bundle.</p>
+    <p>The layers underneath make that concrete. A gateway like LiteLLM turns "which model" into a config line and puts one budget and one audit trail under every agent in the org. An open sandbox decides whether execution stays on your infrastructure. An open trace store decides whether the record of what agents did to your code is yours. None of these are exciting purchases; all three are the difference between a stack you can change and a stack you are stuck with. <a href="#quadrant">The Secho Quadrant</a> shows why: almost nothing occupies the top-right, so wide coverage and low lock-in are still bought separately.</p>
+    <p><a href="#eye-cycle">The Eye Cycle</a> makes the same point about techniques. The two ideas closest to load-bearing &mdash; model routing and deterministic rule-based refactoring &mdash; are the two that generate the least excitement, and the technique that decides whether any of this is safe to run unattended is not generation at all. It is verification: replaying real traffic and comparing the answers, which is what <a href="method.html">The Method</a> is built on.</p>
     <p>That's the difference between adopting a platform and building the capability yourself. The right platforms above can still be part of your stack &mdash; the question is whether your architecture lets you swap any one of them later without rebuilding the rest.</p>
 
     <div class="closing-links">
