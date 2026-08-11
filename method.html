@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Method | Agentic SDLC</title>
+<meta name="description" content="How a legacy stored-procedure estate gets paid down: triage, spec, oracle, baseline shadow run, diff classification, implement, verdict shadow run — and where the method stops.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ══ RESET ══ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Site tokens — kept identical to index.html / platform-landscape.html */
+    --primary: #7640FF;
+    --primary-dark: #5e2de6;
+    --primary-soft: rgba(118, 64, 255, 0.08);
+    --primary-mid: rgba(118, 64, 255, 0.15);
+
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ══ NEW — the only two semantic colours this page adds ══
+       match  : agreement, ═, proven
+       differ : difference, ≠, unproven
+       Meaning is carried by the glyph first; colour is reinforcement. */
+    --match: #2dd4bf;          /* on the dark panel  — 9.9:1 */
+    --differ: #fbbf24;         /* on the dark panel  — 10.5:1 */
+    --match-ink: #0f766e;      /* on white           — 4.9:1 */
+    --differ-ink: #92400e;     /* on white           — 6.5:1 */
+
+    /* Panel (the artefact) — the site's terminal treatment, reused */
+    --p-bg: #0f172a;
+    --p-line: #26374f;
+    --p-ink: #e2e8f0;
+    --p-dim: #94a3b8;          /* on --p-bg — 6.6:1 */
+    --p-accent: #a78bfa;       /* on --p-bg — 6.6:1 */
+
+    --nav-h: 4rem;
+    --rail-h: 2.9rem;
+  }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: var(--font-body);
+    background: #fff;
+    color: var(--slate-600);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  @media (min-width: 1024px) { :root { --nav-h: 5rem; } }
+
+  /* ══ TYPOGRAPHY ══ */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    color: var(--slate-900);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+  }
+  h1 { font-size: clamp(2.1rem, 5.2vw, 3.6rem); font-weight: 300; }
+  h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 600; }
+  h3 { font-size: 1.05rem; font-weight: 600; }
+  p { line-height: 1.75; }
+  strong { color: var(--slate-800); font-weight: 600; }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  em { font-style: italic; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+  @media (min-width: 768px) { .container { padding: 0 2rem; } }
+
+  .label {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 1rem;
+  }
+  .arch-line { height: 1px; background: linear-gradient(90deg, transparent, var(--slate-300), transparent); opacity: 0.6; }
+
+  /* ══ HERO ══ */
+  .hero { padding: 3.5rem 0 2.5rem; }
+  @media (min-width: 1024px) { .hero { padding: 5rem 0 3rem; } }
+  .hero h1 { max-width: 16em; margin-bottom: 1.75rem; }
+  .hero .standfirst {
+    max-width: 46em;
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    color: var(--slate-500);
+    line-height: 1.8;
+  }
+  /* The two-glyph continuity device, introduced before it is used. */
+  .glyph-legend {
+    margin-top: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--slate-500);
+  }
+  .glyph-legend .eq { color: var(--match-ink); font-size: 1.05rem; }
+  .glyph-legend .ne { color: var(--differ-ink); font-size: 1.05rem; }
+  .glyph-legend .sep { color: var(--slate-300); padding: 0 0.7rem; }
+
+  /* ══ STAGE RAIL — the below-the-fold cue, which becomes the progress rail ══ */
+  .rail {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 40;
+    background: #fff;
+    border-top: 1px solid var(--slate-200);
+    border-bottom: 1px solid var(--slate-200);
+    transition: box-shadow 0.2s var(--ease);
+  }
+  .rail.pinned { box-shadow: 0 8px 20px -14px rgba(15,23,42,0.35); }
+  .rail-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;
+    display: flex; align-items: center;
+    height: var(--rail-h);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rail-inner::-webkit-scrollbar { display: none; }
+  @media (min-width: 768px) { .rail-inner { padding: 0 2rem; } }
+  .rail ol { list-style: none; display: flex; align-items: center; gap: 0; }
+  .rail li { display: flex; align-items: center; white-space: nowrap; }
+  .rail li + li::before {
+    content: "·";
+    color: var(--slate-300);
+    padding: 0 0.15rem;
+  }
+  .rail a {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--slate-500);
+    padding: 0.5rem 0.7rem;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s var(--ease), border-color 0.15s var(--ease);
+  }
+  .rail a:hover { color: var(--slate-900); text-decoration: none; }
+  .rail li.current a { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* ══ STAGE LAYOUT ══ */
+  .stage { scroll-margin-top: calc(var(--nav-h) + var(--rail-h) + 1rem); }
+  /* Longhand only — .stage-inner shares an element with .container, and a
+     `padding` shorthand here would wipe out the container's side gutters. */
+  .stage-inner { padding-top: 3rem; padding-bottom: 3rem; }
+  @media (min-width: 1024px) {
+    .stage-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      grid-template-areas: "head fig" "body fig";
+      /* The figure spans both rows. Row 2 must be the flexible one, or a tall
+         figure's slack is shared and opens a gap under the heading. */
+      grid-template-rows: auto 1fr;
+      column-gap: 3.5rem;
+      padding-top: 5rem;
+      padding-bottom: 6rem;
+    }
+    .stage-head { grid-area: head; }
+    .stage-body { grid-area: body; min-height: 22rem; padding-bottom: 2rem; }
+    .stage-figure {
+      grid-area: fig;
+      position: sticky;
+      top: calc(var(--nav-h) + var(--rail-h) + 1.75rem);
+      align-self: start;
+    }
+  }
+  .stage-tag {
+    display: inline-flex; align-items: baseline; gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--slate-400);
+    margin-bottom: 0.9rem;
+  }
+  .stage-tag .num { color: var(--primary); font-weight: 600; }
+  .stage-head h2 { margin-bottom: 1.5rem; max-width: 14em; }
+  .stage-body p { margin-bottom: 1.15rem; max-width: 34em; }
+  .stage-body p:last-child { margin-bottom: 0; }
+  .stage-figure { margin: 0 0 2rem; }
+  @media (min-width: 1024px) { .stage-figure { margin-bottom: 0; } }
+
+  /* ══ THE ARTEFACT PANEL ══ */
+  .panel { margin: 0; }
+  .panel-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    background: var(--slate-800);
+    border: 1px solid var(--p-line);
+    border-bottom: none;
+    padding: 0.6rem 0.9rem;
+  }
+  .panel-name {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--p-ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .panel-state {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--p-dim);
+  }
+  .panel-state::before { content: "· "; }
+  .panel-state.is-accent { color: var(--p-accent); }
+  .panel-state.is-match  { color: var(--match); }
+  .panel-state.is-differ { color: var(--differ); }
+  .panel-body {
+    background: var(--p-bg);
+    border: 1px solid var(--p-line);
+    padding: 1rem;
+    overflow: hidden;
+  }
+  .panel figcaption {
+    font-size: 0.78rem;
+    color: var(--slate-500);
+    line-height: 1.6;
+    padding-top: 0.7rem;
+  }
+  .panel figcaption b { color: var(--slate-700); font-weight: 600; }
+
+  /* ══ CODE INSIDE THE PANEL ══ */
+  .code {
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    line-height: 1.62;
+    color: var(--p-ink);
+    white-space: pre;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (min-width: 480px) { .code { font-size: 0.68rem; } }
+  .code .k { color: var(--p-dim); }
+  .code .c { color: #7c8ea8; font-style: italic; }
+  .code .s { color: var(--match); }
+  .code .n { color: var(--p-accent); }
+  .code .hl { background: rgba(251,191,36,0.14); }
+
+  /* ══ PANEL: SVG FIGURES ══ */
+  .fig-svg { display: block; width: 100%; height: auto; }
+  .fig-svg text { font-family: var(--font-mono); fill: var(--p-dim); }
+  .t-ink   { fill: var(--p-ink) !important; }
+  .t-match { fill: var(--match) !important; }
+  .t-differ{ fill: var(--differ) !important; }
+  .t-accent{ fill: var(--p-accent) !important; }
+  .t-lbl   { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .t-sm    { font-size: 10px; }
+  .t-md    { font-size: 12px; }
+  .t-big   { font-size: 21px; }
+  .t-glyph { font-size: 15px; }
+  .s-line  { stroke: var(--p-line); fill: none; }
+  .s-box   { stroke: var(--p-line); fill: none; }
+
+  /* ══ ESTATE SORT (stage 1) ══ */
+  .m { transform-box: fill-box; transform-origin: center; }
+  .m--a { fill: var(--match); }
+  .m--b { fill: var(--p-accent); }
+  .m--c { fill: var(--differ); }
+  .m--d { fill: #64748b; }
+
+  /* ══ SPEC SHEET (stage 2) ══ */
+  .spec-split { display: flex; gap: 0.7rem; align-items: stretch; }
+  .spec-strip {
+    flex: 0 0 46px;
+    font-family: var(--font-mono);
+    font-size: 3.2px;
+    line-height: 1.9;
+    color: #64748b;
+    white-space: pre;
+    overflow: hidden;
+    border-right: 1px solid var(--p-line);
+    padding-right: 0.6rem;
+  }
+  .spec-sheet {
+    flex: 1 1 auto; min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1.75;
+    color: var(--p-ink);
+  }
+  @media (min-width: 480px) { .spec-sheet { font-size: 0.65rem; } }
+  .spec-row { display: flex; gap: 0.7rem; margin-bottom: 0.35rem; }
+  .spec-row:last-child { margin-bottom: 0; }
+  .spec-row dt {
+    flex: 0 0 4.6rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--p-dim);
+    padding-top: 0.15rem;
+  }
+  .spec-row dd { flex: 1 1 auto; min-width: 0; }
+  .spec-row.is-open dt { color: var(--differ); }
+  .spec-row.is-open dd { color: var(--differ); }
+
+  /* ══ DECISION CARD (stage 7) ══ */
+  .decision {
+    margin-top: 0.9rem;
+    border: 1px solid var(--differ);
+    border-left-width: 3px;
+    padding: 0.75rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1.75;
+    color: var(--p-ink);
+  }
+  @media (min-width: 480px) { .decision { font-size: 0.65rem; } }
+  .decision .d-head {
+    display: flex; justify-content: space-between; gap: 0.6rem;
+    color: var(--differ);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .decision .d-row { display: flex; gap: 0.6rem; }
+  .decision .d-row .kk { flex: 0 0 2.4rem; color: var(--p-dim); }
+  .decision .d-note { color: var(--p-dim); margin-top: 0.45rem; }
+  .decision .d-choice { margin-top: 0.6rem; border-top: 1px solid var(--p-line); padding-top: 0.5rem; }
+  .decision .d-choice span { display: block; color: #7c8ea8; }
+  .decision .d-choice span.chosen { color: var(--match); }
+  .decision .d-choice span.chosen::before { content: "▸ "; }
+  .decision .d-choice span:not(.chosen)::before { content: "\00a0\00a0"; }
+
+  /* ══ TWO-CODE SPLIT (stage 6) ══ */
+  .lane-split { display: grid; gap: 0.85rem; }
+  @media (min-width: 560px) { .lane-split { grid-template-columns: 1fr 1fr; } }
+  .lane-head {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--p-dim);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--p-line);
+    margin-bottom: 0.6rem;
+    display: flex; justify-content: space-between; gap: 0.5rem;
+  }
+  .lane-new .lane-head { color: var(--p-accent); border-bottom-color: var(--p-accent); }
+  .lane-split .code { font-size: 0.55rem; line-height: 1.7; }
+  @media (min-width: 768px) { .lane-split .code { font-size: 0.585rem; } }
+
+  /* ══ PROSE COMPONENTS ══ */
+  .classes { margin: 1.6rem 0 1.6rem; max-width: 34em; }
+  .classes > div {
+    border-left: 3px solid var(--slate-200);
+    padding: 0.15rem 0 0.15rem 0.95rem;
+    margin-bottom: 0.85rem;
+  }
+  .classes dt {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--slate-900);
+    margin-bottom: 0.1rem;
+  }
+  .classes dd { font-size: 0.92rem; color: var(--slate-500); }
+  .classes .cls-a { border-left-color: var(--match-ink); }
+  .classes .cls-a dt { color: var(--match-ink); }
+  .classes .cls-b { border-left-color: var(--primary); }
+  .classes .cls-b dt { color: var(--primary); }
+  .classes .cls-c { border-left-color: var(--differ-ink); }
+  .classes .cls-c dt { color: var(--differ-ink); }
+  .classes .cls-d { border-left-color: var(--slate-400); }
+  .classes .cls-d dt { color: var(--slate-600); }
+
+  .callout {
+    max-width: 34em;
+    margin: 2rem 0;
+    background: var(--slate-50);
+    border-left: 3px solid var(--primary);
+    padding: 1.3rem 1.4rem;
+  }
+  .callout .callout-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 0.7rem;
+  }
+  .callout p { font-size: 1rem; color: var(--slate-700); margin-bottom: 0; }
+
+  .pivot-lede {
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    color: var(--slate-700);
+    line-height: 1.8;
+    max-width: 34em;
+  }
+
+  /* ══ LIMITS ══ */
+  .limits { background: var(--slate-50); border-top: 1px solid var(--slate-200); border-bottom: 1px solid var(--slate-200); }
+  .limits .container { padding-top: 4.5rem; padding-bottom: 4.5rem; }
+  @media (min-width: 1024px) { .limits .container { padding-top: 6rem; padding-bottom: 6rem; } }
+  .limits h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); font-weight: 600; margin-bottom: 1.5rem; }
+  .limits .limits-lede {
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    font-weight: 400;
+    color: var(--slate-800);
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+    max-width: 22em;
+    margin-bottom: 2.5rem;
+  }
+  .limits-prose { max-width: 40em; }
+  .limits-prose p { font-size: 1.02rem; line-height: 1.85; margin-bottom: 1.6rem; }
+  .limits-prose p:last-child { margin-bottom: 0; }
+  .limits-prose strong { color: var(--slate-900); }
+
+  /* ══ CLOSE ══ */
+  .close { background: var(--slate-900); color: var(--slate-400); padding: 5rem 0; }
+  @media (min-width: 1024px) { .close { padding: 7rem 0; } }
+  .close h2 { color: #fff; margin-bottom: 1.75rem; max-width: 14em; }
+  .close .label { color: var(--p-accent); }
+  .close p { max-width: 38em; font-size: 1.02rem; line-height: 1.85; margin-bottom: 1.2rem; }
+  .close .metric {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 2.8vw, 1.9rem);
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+    margin-bottom: 1.6rem;
+    max-width: 18em;
+  }
+  .close .metric .strike { color: var(--slate-500); text-decoration: line-through; text-decoration-thickness: 1px; }
+  .close-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2.5rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.8rem 1.8rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem; font-weight: 600;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s var(--ease);
+  }
+  .btn:hover { text-decoration: none; }
+  .btn--primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn--primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); }
+  .btn--outline { background: transparent; color: #fff; border-color: var(--slate-600); }
+  .btn--outline:hover { border-color: var(--p-accent); color: var(--p-accent); }
+  @media (max-width: 480px) {
+    .close-actions { flex-direction: column; }
+    .close-actions .btn { width: 100%; justify-content: center; }
+  }
+
+  footer { border-top: 1px solid var(--slate-200); padding: 2rem; text-align: center; }
+  footer p { font-size: 0.78rem; color: var(--slate-400); }
+
+  @media print {
+    .rail { position: static; }
+    .stage-figure { position: static !important; }
+    .close { background: #fff; color: var(--slate-600); }
+    .close h2, .close .metric { color: var(--slate-900); }
+  }
+
+  /* ══ SCROLL REVEAL (same as index.html) ══ */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s var(--ease), transform 0.6s var(--ease); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+  /* ══════════════════════════════════════════════════════════════════
+     MOTION
+     Every rule below is additive. The un-animated state of every figure
+     IS its end state, so: JS disabled → end state; reduced motion → end
+     state; observer never fires → end state. Nothing is ever hidden by
+     default. `.play` is added once, on entry, and never removed.
+     ══════════════════════════════════════════════════════════════════ */
+  @media (prefers-reduced-motion: no-preference) {
+    .play .a-rise  { animation: aRise 0.55s var(--ease) both; }
+    .play .a-fade  { animation: aFade 0.5s var(--ease) both; }
+    .play .a-pop   { animation: aPop 0.34s var(--ease) both; }
+    .play .a-rain  { animation: aRain 0.3s var(--ease) both; animation-delay: calc(var(--i, 0) * 6ms); }
+    .play .a-drop  { animation: aDrop 0.9s var(--ease) both; }
+    .play .a-shrink { animation: aShrink 0.7s var(--ease) both; }
+    .play .a-slide { animation: aSlide 0.6s var(--ease) both; }
+
+    /* generic stagger hooks */
+    .d1 { animation-delay: 0.12s; } .d2 { animation-delay: 0.24s; }
+    .d3 { animation-delay: 0.36s; } .d4 { animation-delay: 0.48s; }
+    .d5 { animation-delay: 0.62s; } .d6 { animation-delay: 0.76s; }
+    .d7 { animation-delay: 0.9s; }  .d8 { animation-delay: 1.05s; }
+    .d9 { animation-delay: 1.2s; }  .d10 { animation-delay: 1.35s; }
+    .stg { animation-delay: calc(var(--i, 0) * 26ms) !important; }
+  }
+  @keyframes aRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes aFade { from { opacity: 0; } }
+  @keyframes aPop  { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+  @keyframes aRain { from { opacity: 0; transform: translateY(-16px) scale(0.35); } to { opacity: 1; transform: none; } }
+  @keyframes aDrop { from { opacity: 0; transform: translateY(-118px); } 18% { opacity: 1; } 92% { opacity: 1; } to { opacity: 1; transform: none; } }
+  @keyframes aSlide { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: none; } }
+  /* The code slab collapsing to a strip — the one thing a still cannot show. */
+  @keyframes aShrink {
+    from { flex-basis: 100%; font-size: 0.62rem; line-height: 1.62; }
+    to   { flex-basis: 46px; font-size: 3.2px;  line-height: 1.9; }
+  }
+
+  /* Dissolved noise marks: their natural state is already faded. */
+  .noise-mark { opacity: 0.24; }
+
+  /* ══ MOBILE ══ */
+  @media (max-width: 480px) {
+    .container { padding: 0 1rem; }
+    .rail-inner { padding: 0 1rem; }
+    .hero { padding: 2.5rem 0 2rem; }
+    .stage-inner { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+    .stage-body p, .classes dd { font-size: 0.95rem; }
+    .callout { padding: 1.1rem 1.2rem; }
+    .callout p { font-size: 0.95rem; }
+    .limits .container { padding-top: 3rem; padding-bottom: 3rem; }
+    .limits-prose p { font-size: 0.97rem; }
+    .close { padding: 3.5rem 0; }
+    .panel-body { padding: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+<script src="nav.js" defer></script>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════ HERO ═══ -->
+<header class="hero">
+  <div class="container">
+    <span class="label">The Method</span>
+    <h1>Ten thousand procedures nobody dares to touch</h1>
+    <p class="standfirst">Every large company has a core it is afraid of. Code that has been accreting for fifteen years, written by people who have left, with no documentation and no tests. The usual advice is a multi-year modernisation programme. There is a faster route, and it starts somewhere unexpected: not with rewriting anything, but with working out what you are able to prove.</p>
+    <p class="glyph-legend"><span class="eq">═</span> two things match<span class="sep">·</span><span class="ne">≠</span> two things differ</p>
+  </div>
+</header>
+
+<!-- ═══ STAGE RAIL — the below-the-fold cue, and the progress indicator ═══ -->
+<div id="railSentinel" aria-hidden="true"></div>
+<nav class="rail" id="rail" aria-label="The seven stages">
+  <div class="rail-inner">
+    <ol>
+      <li data-stage="triage"><a href="#triage">triage</a></li>
+      <li data-stage="spec"><a href="#spec">spec</a></li>
+      <li data-stage="oracle"><a href="#oracle">oracle</a></li>
+      <li data-stage="baseline"><a href="#baseline">baseline</a></li>
+      <li data-stage="diff"><a href="#diff">diff</a></li>
+      <li data-stage="implement"><a href="#implement">implement</a></li>
+      <li data-stage="verdict"><a href="#verdict">verdict</a></li>
+    </ol>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════ 0 · THE PIVOT ═══ -->
+<section class="stage" id="pivot" aria-labelledby="h-pivot">
+  <div class="container stage-inner">
+
+    <div class="stage-head reveal">
+      <span class="stage-tag"><span class="num">00</span> the pivot</span>
+      <h2 id="h-pivot">You don't need to know what it should do</h2>
+    </div>
+
+    <figure class="panel stage-figure" data-fig>
+      <div class="panel-bar">
+        <span class="panel-name">dbo.usp_CalcCommission</span>
+        <span class="panel-state">unknown</span>
+      </div>
+      <div class="panel-body">
+        <pre class="code a-fade"><code><span class="k">CREATE PROCEDURE</span> dbo.usp_CalcCommission
+  @SalesRepID <span class="k">int</span>, @PeriodEnd <span class="k">datetime</span> = <span class="k">NULL</span>, @Recalc <span class="k">bit</span> = <span class="n">0</span>
+<span class="k">AS BEGIN</span>
+<span class="k">SET NOCOUNT ON</span>
+<span class="k">IF</span> @PeriodEnd <span class="k">IS NULL SET</span> @PeriodEnd = <span class="k">GETDATE</span>()
+<span class="k">DECLARE</span> @Tier <span class="k">int</span>, @Rate <span class="k">decimal</span>(<span class="n">9</span>,<span class="n">4</span>), @Base <span class="k">money</span>, @Adj <span class="k">money</span> = <span class="n">0</span>
+<span class="k">SELECT</span> @Base = <span class="k">SUM</span>(o.NetAmount) <span class="k">FROM</span> dbo.Orders o <span class="k">WITH</span> (<span class="k">NOLOCK</span>)
+ <span class="k">WHERE</span> o.RepID = @SalesRepID <span class="k">AND</span> o.ClosedOn &lt;= @PeriodEnd
+   <span class="k">AND</span> o.StatusCode <span class="k">NOT IN</span> (<span class="n">7</span>, <span class="n">9</span>, <span class="n">14</span>)   <span class="c">-- 14 added 2011, ask Dave</span>
+<span class="k">IF</span> @Base <span class="k">IS NULL SET</span> @Base = <span class="n">0</span>
+<span class="k">SELECT</span> @Tier = <span class="k">CASE WHEN</span> @Base &gt; <span class="n">250000</span> <span class="k">THEN</span> <span class="n">3</span>
+                    <span class="k">WHEN</span> @Base &gt;  <span class="n">90000</span> <span class="k">THEN</span> <span class="n">2</span> <span class="k">ELSE</span> <span class="n">1</span> <span class="k">END</span>
+<span class="k">SELECT TOP</span> <span class="n">1</span> @Rate = r.RateValue <span class="k">FROM</span> dbo.CommRates r
+ <span class="k">WHERE</span> r.TierID = @Tier <span class="k">AND</span> r.EffectiveFrom &lt;= @PeriodEnd
+ <span class="k">ORDER BY</span> r.EffectiveFrom <span class="k">DESC</span>
+<span class="k">IF</span> @Recalc = <span class="n">1</span> <span class="k">DELETE FROM</span> dbo.CommissionLedger
+ <span class="k">WHERE</span> RepID = @SalesRepID <span class="k">AND</span> PeriodEnd = @PeriodEnd
+<span class="k">EXEC</span> dbo.usp_ApplyLegacyAdjustment @SalesRepID, @Base, @Adj <span class="k">OUTPUT</span>
+<span class="c">-- 2014: do not touch, breaks Q4 close  (rt)</span>
+<span class="k">INSERT</span> dbo.CommissionLedger (RepID, PeriodEnd, Amount, CalcedOn)
+<span class="k">VALUES</span> (@SalesRepID, @PeriodEnd,
+        <span class="k">ROUND</span>(@Base * @Rate, <span class="n">2</span>) + @Adj, <span class="k">GETDATE</span>())
+<span class="k">END</span></code></pre>
+      </div>
+      <figcaption>The artefact this page follows. <b>41 lines, no tests, last meaningful change 2018.</b> Nothing about it will change until stage 6.</figcaption>
+    </figure>
+
+    <div class="stage-body reveal">
+      <p class="pivot-lede">The reason legacy modernisation is slow is not that the code is hard to read. It is that nobody can say whether a rewrite is correct. There is no specification to check against — the specification left the company in 2016.</p>
+      <p>The pivot that makes the whole thing tractable is this: <strong>when you are modernising, you don't need to know what the code should do. You only need to know what it did.</strong> Correctness stops meaning "matches the intent" and starts meaning "behaves exactly as it behaved yesterday". And that is knowable, because the old code is running in production right now and can be watched.</p>
+      <p>Everything below follows from that one move.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══════════════════════════════════════════════════ 1 · TRIAGE ═══ -->
+<section class="stage" id="triage" aria-labelledby="h-triage">
+  <div class="container stage-inner">
+
+    <div class="stage-head reveal">
+      <span class="stage-tag"><span class="num">01</span> triage</span>
+      <h2 id="h-triage">Sort by what you can prove, not by what looks hard</h2>
+    </div>
+
+    <figure class="panel stage-figure" data-fig>
+      <div class="panel-bar">
+        <span class="panel-name">dbo.usp_CalcCommission</span>
+        <span class="panel-state is-accent">classified</span>
+      </div>
+      <div class="panel-body">
+        <svg class="fig-svg" viewBox="0 0 476 318" role="img" aria-labelledby="tri-t tri-d">
+          <title id="tri-t">The estate sorted into four verifiability classes</title>
+          <desc id="tri-d">This procedure is classified as a deterministic write with two clock reads, pinned at replay. Across the wider estate of 10,412 procedures: 6,041 pure read, 2,706 deterministic write, 1,248 non-deterministic, 417 external effect. Each mark represents about 50 procedures.</desc>
+
+          <!-- classification chip for the artefact -->
+          <g class="a-rise">
+            <rect class="s-box" x="0" y="0" width="476" height="42" stroke="#a78bfa"/>
+            <text class="t-lbl" x="12" y="17">this procedure</text>
+            <text class="t-sm t-accent" x="12" y="33">deterministic write</text>
+            <text class="t-sm" x="464" y="33" text-anchor="end">2 clock reads · pinned at replay</text>
+          </g>
+
+          <g class="a-fade d2">
+            <text class="t-lbl" x="0" y="66">the estate · 10,412 procedures</text>
+            <text class="t-sm" x="476" y="66" text-anchor="end">1 mark ≈ 50</text>
+          </g>
+
+          <g transform="translate(0,12)">
+            <!-- band A -->
+            <text class="t-sm t-match" x="0" y="94">pure read</text>
+            <text class="t-sm" x="476" y="94" text-anchor="end">6,041</text>
+            <!-- band B -->
+            <text class="t-sm t-accent" x="0" y="179">deterministic write</text>
+            <text class="t-sm" x="476" y="179" text-anchor="end">2,706</text>
+            <!-- band C -->
+            <text class="t-sm t-differ" x="0" y="236">non-deterministic</text>
+            <text class="t-sm" x="476" y="236" text-anchor="end">1,248</text>
+            <!-- band D -->
+            <text class="t-sm" x="0" y="279">external effect</text>
+            <text class="t-sm" x="476" y="279" text-anchor="end">417</text>
+
+            <g class="marks" transform="translate(0,86)">
+<rect class="m a-rain m--a" x="0" y="20" width="9" height="9" style="--i:0"/>
+<rect class="m a-rain m--a" x="14" y="20" width="9" height="9" style="--i:1"/>
+<rect class="m a-rain m--a" x="28" y="20" width="9" height="9" style="--i:2"/>
+<rect class="m a-rain m--a" x="42" y="20" width="9" height="9" style="--i:3"/>
+<rect class="m a-rain m--a" x="56" y="20" width="9" height="9" style="--i:4"/>
+<rect class="m a-rain m--a" x="70" y="20" width="9" height="9" style="--i:5"/>
+<rect class="m a-rain m--a" x="84" y="20" width="9" height="9" style="--i:6"/>
+<rect class="m a-rain m--a" x="98" y="20" width="9" height="9" style="--i:7"/>
+<rect class="m a-rain m--a" x="112" y="20" width="9" height="9" style="--i:8"/>
+<rect class="m a-rain m--a" x="126" y="20" width="9" height="9" style="--i:9"/>
+<rect class="m a-rain m--a" x="140" y="20" width="9" height="9" style="--i:10"/>
+<rect class="m a-rain m--a" x="154" y="20" width="9" height="9" style="--i:11"/>
+<rect class="m a-rain m--a" x="168" y="20" width="9" height="9" style="--i:12"/>
+<rect class="m a-rain m--a" x="182" y="20" width="9" height="9" style="--i:13"/>
+<rect class="m a-rain m--a" x="196" y="20" width="9" height="9" style="--i:14"/>
+<rect class="m a-rain m--a" x="210" y="20" width="9" height="9" style="--i:15"/>
+<rect class="m a-rain m--a" x="224" y="20" width="9" height="9" style="--i:16"/>
+<rect class="m a-rain m--a" x="238" y="20" width="9" height="9" style="--i:17"/>
+<rect class="m a-rain m--a" x="252" y="20" width="9" height="9" style="--i:18"/>
+<rect class="m a-rain m--a" x="266" y="20" width="9" height="9" style="--i:19"/>
+<rect class="m a-rain m--a" x="280" y="20" width="9" height="9" style="--i:20"/>
+<rect class="m a-rain m--a" x="294" y="20" width="9" height="9" style="--i:21"/>
+<rect class="m a-rain m--a" x="308" y="20" width="9" height="9" style="--i:22"/>
+<rect class="m a-rain m--a" x="322" y="20" width="9" height="9" style="--i:23"/>
+<rect class="m a-rain m--a" x="336" y="20" width="9" height="9" style="--i:24"/>
+<rect class="m a-rain m--a" x="350" y="20" width="9" height="9" style="--i:25"/>
+<rect class="m a-rain m--a" x="364" y="20" width="9" height="9" style="--i:26"/>
+<rect class="m a-rain m--a" x="378" y="20" width="9" height="9" style="--i:27"/>
+<rect class="m a-rain m--a" x="392" y="20" width="9" height="9" style="--i:28"/>
+<rect class="m a-rain m--a" x="406" y="20" width="9" height="9" style="--i:29"/>
+<rect class="m a-rain m--a" x="420" y="20" width="9" height="9" style="--i:30"/>
+<rect class="m a-rain m--a" x="434" y="20" width="9" height="9" style="--i:31"/>
+<rect class="m a-rain m--a" x="448" y="20" width="9" height="9" style="--i:32"/>
+<rect class="m a-rain m--a" x="462" y="20" width="9" height="9" style="--i:33"/>
+<rect class="m a-rain m--a" x="0" y="34" width="9" height="9" style="--i:34"/>
+<rect class="m a-rain m--a" x="14" y="34" width="9" height="9" style="--i:35"/>
+<rect class="m a-rain m--a" x="28" y="34" width="9" height="9" style="--i:36"/>
+<rect class="m a-rain m--a" x="42" y="34" width="9" height="9" style="--i:37"/>
+<rect class="m a-rain m--a" x="56" y="34" width="9" height="9" style="--i:38"/>
+<rect class="m a-rain m--a" x="70" y="34" width="9" height="9" style="--i:39"/>
+<rect class="m a-rain m--a" x="84" y="34" width="9" height="9" style="--i:40"/>
+<rect class="m a-rain m--a" x="98" y="34" width="9" height="9" style="--i:41"/>
+<rect class="m a-rain m--a" x="112" y="34" width="9" height="9" style="--i:42"/>
+<rect class="m a-rain m--a" x="126" y="34" width="9" height="9" style="--i:43"/>
+<rect class="m a-rain m--a" x="140" y="34" width="9" height="9" style="--i:44"/>
+<rect class="m a-rain m--a" x="154" y="34" width="9" height="9" style="--i:45"/>
+<rect class="m a-rain m--a" x="168" y="34" width="9" height="9" style="--i:46"/>
+<rect class="m a-rain m--a" x="182" y="34" width="9" height="9" style="--i:47"/>
+<rect class="m a-rain m--a" x="196" y="34" width="9" height="9" style="--i:48"/>
+<rect class="m a-rain m--a" x="210" y="34" width="9" height="9" style="--i:49"/>
+<rect class="m a-rain m--a" x="224" y="34" width="9" height="9" style="--i:50"/>
+<rect class="m a-rain m--a" x="238" y="34" width="9" height="9" style="--i:51"/>
+<rect class="m a-rain m--a" x="252" y="34" width="9" height="9" style="--i:52"/>
+<rect class="m a-rain m--a" x="266" y="34" width="9" height="9" style="--i:53"/>
+<rect class="m a-rain m--a" x="280" y="34" width="9" height="9" style="--i:54"/>
+<rect class="m a-rain m--a" x="294" y="34" width="9" height="9" style="--i:55"/>
+<rect class="m a-rain m--a" x="308" y="34" width="9" height="9" style="--i:56"/>
+<rect class="m a-rain m--a" x="322" y="34" width="9" height="9" style="--i:57"/>
+<rect class="m a-rain m--a" x="336" y="34" width="9" height="9" style="--i:58"/>
+<rect class="m a-rain m--a" x="350" y="34" width="9" height="9" style="--i:59"/>
+<rect class="m a-rain m--a" x="364" y="34" width="9" height="9" style="--i:60"/>
+<rect class="m a-rain m--a" x="378" y="34" width="9" height="9" style="--i:61"/>
+<rect class="m a-rain m--a" x="392" y="34" width="9" height="9" style="--i:62"/>
+<rect class="m a-rain m--a" x="406" y="34" width="9" height="9" style="--i:63"/>
+<rect class="m a-rain m--a" x="420" y="34" width="9" height="9" style="--i:64"/>
+<rect class="m a-rain m--a" x="434" y="34" width="9" height="9" style="--i:65"/>
+<rect class="m a-rain m--a" x="448" y="34" width="9" height="9" style="--i:66"/>
+<rect class="m a-rain m--a" x="462" y="34" width="9" height="9" style="--i:67"/>
+<rect class="m a-rain m--a" x="0" y="48" width="9" height="9" style="--i:68"/>
+<rect class="m a-rain m--a" x="14" y="48" width="9" height="9" style="--i:69"/>
+<rect class="m a-rain m--a" x="28" y="48" width="9" height="9" style="--i:70"/>
+<rect class="m a-rain m--a" x="42" y="48" width="9" height="9" style="--i:71"/>
+<rect class="m a-rain m--a" x="56" y="48" width="9" height="9" style="--i:72"/>
+<rect class="m a-rain m--a" x="70" y="48" width="9" height="9" style="--i:73"/>
+<rect class="m a-rain m--a" x="84" y="48" width="9" height="9" style="--i:74"/>
+<rect class="m a-rain m--a" x="98" y="48" width="9" height="9" style="--i:75"/>
+<rect class="m a-rain m--a" x="112" y="48" width="9" height="9" style="--i:76"/>
+<rect class="m a-rain m--a" x="126" y="48" width="9" height="9" style="--i:77"/>
+<rect class="m a-rain m--a" x="140" y="48" width="9" height="9" style="--i:78"/>
+<rect class="m a-rain m--a" x="154" y="48" width="9" height="9" style="--i:79"/>
+<rect class="m a-rain m--a" x="168" y="48" width="9" height="9" style="--i:80"/>
+<rect class="m a-rain m--a" x="182" y="48" width="9" height="9" style="--i:81"/>
+<rect class="m a-rain m--a" x="196" y="48" width="9" height="9" style="--i:82"/>
+<rect class="m a-rain m--a" x="210" y="48" width="9" height="9" style="--i:83"/>
+<rect class="m a-rain m--a" x="224" y="48" width="9" height="9" style="--i:84"/>
+<rect class="m a-rain m--a" x="238" y="48" width="9" height="9" style="--i:85"/>
+<rect class="m a-rain m--a" x="252" y="48" width="9" height="9" style="--i:86"/>
+<rect class="m a-rain m--a" x="266" y="48" width="9" height="9" style="--i:87"/>
+<rect class="m a-rain m--a" x="280" y="48" width="9" height="9" style="--i:88"/>
+<rect class="m a-rain m--a" x="294" y="48" width="9" height="9" style="--i:89"/>
+<rect class="m a-rain m--a" x="308" y="48" width="9" height="9" style="--i:90"/>
+<rect class="m a-rain m--a" x="322" y="48" width="9" height="9" style="--i:91"/>
+<rect class="m a-rain m--a" x="336" y="48" width="9" height="9" style="--i:92"/>
+<rect class="m a-rain m--a" x="350" y="48" width="9" height="9" style="--i:93"/>
+<rect class="m a-rain m--a" x="364" y="48" width="9" height="9" style="--i:94"/>
+<rect class="m a-rain m--a" x="378" y="48" width="9" height="9" style="--i:95"/>
+<rect class="m a-rain m--a" x="392" y="48" width="9" height="9" style="--i:96"/>
+<rect class="m a-rain m--a" x="406" y="48" width="9" height="9" style="--i:97"/>
+<rect class="m a-rain m--a" x="420" y="48" width="9" height="9" style="--i:98"/>
+<rect class="m a-rain m--a" x="434" y="48" width="9" height="9" style="--i:99"/>
+<rect class="m a-rain m--a" x="448" y="48" width="9" height="9" style="--i:100"/>
+<rect class="m a-rain m--a" x="462" y="48" width="9" height="9" style="--i:101"/>
+<rect class="m a-rain m--a" x="0" y="62" width="9" height="9" style="--i:102"/>
+<rect class="m a-rain m--a" x="14" y="62" width="9" height="9" style="--i:103"/>
+<rect class="m a-rain m--a" x="28" y="62" width="9" height="9" style="--i:104"/>
+<rect class="m a-rain m--a" x="42" y="62" width="9" height="9" style="--i:105"/>
+<rect class="m a-rain m--a" x="56" y="62" width="9" height="9" style="--i:106"/>
+<rect class="m a-rain m--a" x="70" y="62" width="9" height="9" style="--i:107"/>
+<rect class="m a-rain m--a" x="84" y="62" width="9" height="9" style="--i:108"/>
+<rect class="m a-rain m--a" x="98" y="62" width="9" height="9" style="--i:109"/>
+<rect class="m a-rain m--a" x="112" y="62" width="9" height="9" style="--i:110"/>
+<rect class="m a-rain m--a" x="126" y="62" width="9" height="9" style="--i:111"/>
+<rect class="m a-rain m--a" x="140" y="62" width="9" height="9" style="--i:112"/>
+<rect class="m a-rain m--a" x="154" y="62" width="9" height="9" style="--i:113"/>
+<rect class="m a-rain m--a" x="168" y="62" width="9" height="9" style="--i:114"/>
+<rect class="m a-rain m--a" x="182" y="62" width="9" height="9" style="--i:115"/>
+<rect class="m a-rain m--a" x="196" y="62" width="9" height="9" style="--i:116"/>
+<rect class="m a-rain m--a" x="210" y="62" width="9" height="9" style="--i:117"/>
+<rect class="m a-rain m--a" x="224" y="62" width="9" height="9" style="--i:118"/>
+<rect class="m a-rain m--a" x="238" y="62" width="9" height="9" style="--i:119"/>
+<rect class="m a-rain m--a" x="252" y="62" width="9" height="9" style="--i:120"/>
+<rect class="m a-rain m--b" x="0" y="105" width="9" height="9" style="--i:121"/>
+<rect class="m a-rain m--b" x="14" y="105" width="9" height="9" style="--i:122"/>
+<rect class="m a-rain m--b" x="28" y="105" width="9" height="9" style="--i:123"/>
+<rect class="m a-rain m--b" x="42" y="105" width="9" height="9" style="--i:124"/>
+<rect class="m a-rain m--b" x="56" y="105" width="9" height="9" style="--i:125"/>
+<rect class="m a-rain m--b" x="70" y="105" width="9" height="9" style="--i:126"/>
+<rect class="m a-rain m--b" x="84" y="105" width="9" height="9" style="--i:127"/>
+<rect class="m a-rain m--b" x="98" y="105" width="9" height="9" style="--i:128"/>
+<rect class="m a-rain m--b" x="112" y="105" width="9" height="9" style="--i:129"/>
+<rect class="m a-rain m--b" x="126" y="105" width="9" height="9" style="--i:130"/>
+<rect class="m a-rain m--b" x="140" y="105" width="9" height="9" style="--i:131"/>
+<rect class="m a-rain m--b" x="154" y="105" width="9" height="9" style="--i:132"/>
+<rect class="m a-rain m--b" x="168" y="105" width="9" height="9" style="--i:133"/>
+<rect class="m a-rain m--b" x="182" y="105" width="9" height="9" style="--i:134"/>
+<rect class="m a-rain m--b" x="196" y="105" width="9" height="9" style="--i:135"/>
+<rect class="m a-rain m--b" x="210" y="105" width="9" height="9" style="--i:136"/>
+<rect class="m a-rain m--b" x="224" y="105" width="9" height="9" style="--i:137"/>
+<rect class="m a-rain m--b" x="238" y="105" width="9" height="9" style="--i:138"/>
+<rect class="m a-rain m--b" x="252" y="105" width="9" height="9" style="--i:139"/>
+<rect class="m a-rain m--b" x="266" y="105" width="9" height="9" style="--i:140"/>
+<rect class="m a-rain m--b" x="280" y="105" width="9" height="9" style="--i:141"/>
+<rect class="m a-rain m--b" x="294" y="105" width="9" height="9" style="--i:142"/>
+<rect class="m a-rain m--b" x="308" y="105" width="9" height="9" style="--i:143"/>
+<rect class="m a-rain m--b" x="322" y="105" width="9" height="9" style="--i:144"/>
+<rect class="m a-rain m--b" x="336" y="105" width="9" height="9" style="--i:145"/>
+<rect class="m a-rain m--b" x="350" y="105" width="9" height="9" style="--i:146"/>
+<rect class="m a-rain m--b" x="364" y="105" width="9" height="9" style="--i:147"/>
+<rect class="m a-rain m--b" x="378" y="105" width="9" height="9" style="--i:148"/>
+<rect class="m a-rain m--b" x="392" y="105" width="9" height="9" style="--i:149"/>
+<rect class="m a-rain m--b" x="406" y="105" width="9" height="9" style="--i:150"/>
+<rect class="m a-rain m--b" x="420" y="105" width="9" height="9" style="--i:151"/>
+<rect class="m a-rain m--b" x="434" y="105" width="9" height="9" style="--i:152"/>
+<rect class="m a-rain m--b" x="448" y="105" width="9" height="9" style="--i:153"/>
+<rect class="m a-rain m--b" x="462" y="105" width="9" height="9" style="--i:154"/>
+<rect class="m a-rain m--b" x="0" y="119" width="9" height="9" style="--i:155"/>
+<rect class="m a-rain m--b" x="14" y="119" width="9" height="9" style="--i:156"/>
+<rect class="m a-rain m--b" x="28" y="119" width="9" height="9" style="--i:157"/>
+<rect class="m a-rain m--b" x="42" y="119" width="9" height="9" style="--i:158"/>
+<rect class="m a-rain m--b" x="56" y="119" width="9" height="9" style="--i:159"/>
+<rect class="m a-rain m--b" x="70" y="119" width="9" height="9" style="--i:160"/>
+<rect class="m a-rain m--b" x="84" y="119" width="9" height="9" style="--i:161"/>
+<rect class="m a-rain m--b" x="98" y="119" width="9" height="9" style="--i:162"/>
+<rect class="m a-rain m--b" x="112" y="119" width="9" height="9" style="--i:163"/>
+<rect class="m a-rain m--b" x="126" y="119" width="9" height="9" style="--i:164"/>
+<rect class="m a-rain m--b" x="140" y="119" width="9" height="9" style="--i:165"/>
+<rect class="m a-rain m--b" x="154" y="119" width="9" height="9" style="--i:166"/>
+<rect class="m a-rain m--b" x="168" y="119" width="9" height="9" style="--i:167"/>
+<rect class="m a-rain m--b" x="182" y="119" width="9" height="9" style="--i:168"/>
+<rect class="m a-rain m--b" x="196" y="119" width="9" height="9" style="--i:169"/>
+<rect class="m a-rain m--b" x="210" y="119" width="9" height="9" style="--i:170"/>
+<rect class="m a-rain m--b" x="224" y="119" width="9" height="9" style="--i:171"/>
+<rect class="m a-rain m--b" x="238" y="119" width="9" height="9" style="--i:172"/>
+<rect class="m a-rain m--b" x="252" y="119" width="9" height="9" style="--i:173"/>
+<rect class="m a-rain m--b" x="266" y="119" width="9" height="9" style="--i:174"/>
+<rect class="m a-rain m--c" x="0" y="162" width="9" height="9" style="--i:175"/>
+<rect class="m a-rain m--c" x="14" y="162" width="9" height="9" style="--i:176"/>
+<rect class="m a-rain m--c" x="28" y="162" width="9" height="9" style="--i:177"/>
+<rect class="m a-rain m--c" x="42" y="162" width="9" height="9" style="--i:178"/>
+<rect class="m a-rain m--c" x="56" y="162" width="9" height="9" style="--i:179"/>
+<rect class="m a-rain m--c" x="70" y="162" width="9" height="9" style="--i:180"/>
+<rect class="m a-rain m--c" x="84" y="162" width="9" height="9" style="--i:181"/>
+<rect class="m a-rain m--c" x="98" y="162" width="9" height="9" style="--i:182"/>
+<rect class="m a-rain m--c" x="112" y="162" width="9" height="9" style="--i:183"/>
+<rect class="m a-rain m--c" x="126" y="162" width="9" height="9" style="--i:184"/>
+<rect class="m a-rain m--c" x="140" y="162" width="9" height="9" style="--i:185"/>
+<rect class="m a-rain m--c" x="154" y="162" width="9" height="9" style="--i:186"/>
+<rect class="m a-rain m--c" x="168" y="162" width="9" height="9" style="--i:187"/>
+<rect class="m a-rain m--c" x="182" y="162" width="9" height="9" style="--i:188"/>
+<rect class="m a-rain m--c" x="196" y="162" width="9" height="9" style="--i:189"/>
+<rect class="m a-rain m--c" x="210" y="162" width="9" height="9" style="--i:190"/>
+<rect class="m a-rain m--c" x="224" y="162" width="9" height="9" style="--i:191"/>
+<rect class="m a-rain m--c" x="238" y="162" width="9" height="9" style="--i:192"/>
+<rect class="m a-rain m--c" x="252" y="162" width="9" height="9" style="--i:193"/>
+<rect class="m a-rain m--c" x="266" y="162" width="9" height="9" style="--i:194"/>
+<rect class="m a-rain m--c" x="280" y="162" width="9" height="9" style="--i:195"/>
+<rect class="m a-rain m--c" x="294" y="162" width="9" height="9" style="--i:196"/>
+<rect class="m a-rain m--c" x="308" y="162" width="9" height="9" style="--i:197"/>
+<rect class="m a-rain m--c" x="322" y="162" width="9" height="9" style="--i:198"/>
+<rect class="m a-rain m--c" x="336" y="162" width="9" height="9" style="--i:199"/>
+<rect class="m a-rain m--d" x="0" y="205" width="9" height="9" style="--i:200"/>
+<rect class="m a-rain m--d" x="14" y="205" width="9" height="9" style="--i:201"/>
+<rect class="m a-rain m--d" x="28" y="205" width="9" height="9" style="--i:202"/>
+<rect class="m a-rain m--d" x="42" y="205" width="9" height="9" style="--i:203"/>
+<rect class="m a-rain m--d" x="56" y="205" width="9" height="9" style="--i:204"/>
+<rect class="m a-rain m--d" x="70" y="205" width="9" height="9" style="--i:205"/>
+<rect class="m a-rain m--d" x="84" y="205" width="9" height="9" style="--i:206"/>
+<rect class="m a-rain m--d" x="98" y="205" width="9" height="9" style="--i:207"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <figcaption>The sort is mechanical: class is a property of the code, not an opinion about it. <b>Each mark stands for roughly 50 procedures</b>; the counts are exact.</figcaption>
+    </figure>
+
+    <div class="stage-body reveal">
+      <p>The first pass over the estate does not read for meaning. It reads for <strong>verifiability</strong>: for each procedure, what kind of evidence could ever tell you that a replacement behaves the same?</p>
+      <p>Four answers, and they are properties of the code, not opinions about it. Does it only read? Does it write, but deterministically? Does its result depend on the clock, on generated identifiers, on unstable ordering? Does it call something outside the database?</p>
+
+      <dl class="classes">
+        <div class="cls-a"><dt>pure read</dt><dd>returns data, writes nothing. The easy case.</dd></div>
+        <div class="cls-b"><dt>deterministic write</dt><dd>same inputs, same writes. Verifiable with effort.</dd></div>
+        <div class="cls-c"><dt>non-deterministic</dt><dd>depends on time, generated IDs, or ordering. Needs a seam before anything else is possible.</dd></div>
+        <div class="cls-d"><dt>external effect</dt><dd>reaches outside the database. Cannot be replayed safely.</dd></div>
+      </dl>
+
+      <p>This is the pass that no human does across ten thousand procedures, and it is the one that decides everything afterwards — because a procedure's class determines how much autonomy an agent can ever be given over it.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══════════════════════════════════════════════════════ 2 · SPEC ═══ -->
+<section class="stage" id="spec" aria-labelledby="h-spec">
+  <div class="container stage-inner">
+
+    <div class="stage-head reveal">
+      <span class="stage-tag"><span class="num">02</span> spec</span>
+      <h2 id="h-spec">Make it legible before you make it different</h2>
+    </div>
+
+    <figure class="panel stage-figure" data-fig>
+      <div class="panel-bar">
+        <span class="panel-name">dbo.usp_CalcCommission</span>
+        <span class="panel-state is-accent">described</span>
+      </div>
+      <div class="panel-body">
+        <div class="spec-split">
+          <div class="spec-strip a-shrink" aria-hidden="true">CREATE PROCEDURE dbo.usp_CalcCommission
+  @SalesRepID int, @PeriodEnd datetime = NULL
+AS BEGIN
+SET NOCOUNT ON
+IF @PeriodEnd IS NULL SET @PeriodEnd = GETDATE()
+DECLARE @Tier int, @Rate decimal(9,4), @Base money
+SELECT @Base = SUM(o.NetAmount) FROM dbo.Orders o
+ WHERE o.RepID = @SalesRepID AND o.ClosedOn <=
+   AND o.StatusCode NOT IN (7, 9, 14)
+IF @Base IS NULL SET @Base = 0
+SELECT @Tier = CASE WHEN @Base > 250000 THEN 3
+                    WHEN @Base > 90000 THEN 2 ELSE 1
+SELECT TOP 1 @Rate = r.RateValue FROM dbo.CommRates
+ WHERE r.TierID = @Tier AND r.EffectiveFrom <=
+ ORDER BY r.EffectiveFrom DESC
+IF @Recalc = 1 DELETE FROM dbo.CommissionLedger
+ WHERE RepID = @SalesRepID AND PeriodEnd = @Period
+EXEC dbo.usp_ApplyLegacyAdjustment @SalesRepID
+INSERT dbo.CommissionLedger (RepID, PeriodEnd, Amo
+VALUES (@SalesRepID, @PeriodEnd,
+        ROUND(@Base * @Rate, 2) + @Adj, GETDATE())
+END</div>
+          <dl class="spec-sheet a-slide d5">
+            <div class="spec-row"><dt>purpose</dt><dd>Calculate and book one sales rep's commission for a period, into dbo.CommissionLedger.</dd></div>
+            <div class="spec-row"><dt>inputs</dt><dd>@SalesRepID int · @PeriodEnd datetime (defaults to now) · @Recalc bit</dd></div>
+            <div class="spec-row"><dt>behaviour</dt><dd>1 · sum NetAmount over closed orders up to @PeriodEnd, excluding StatusCode 7, 9, 14<br>2 · map the total to tier 1/2/3 at 90k and 250k<br>3 · read the rate effective on or before @PeriodEnd<br>4 · if @Recalc, delete existing ledger rows for the period, then insert<br>5 · apply an adjustment from usp_ApplyLegacyAdjustment</dd></div>
+            <div class="spec-row"><dt>reads</dt><dd>Orders · CommRates</dd></div>
+            <div class="spec-row"><dt>writes</dt><dd>CommissionLedger — delete + insert</dd></div>
+            <div class="spec-row"><dt>invariants</dt><dd>Amount = round(base × rate, 2) + adjustment<br>one ledger row per (RepID, PeriodEnd) after a run</dd></div>
+            <div class="spec-row is-open"><dt>open</dt><dd>StatusCode 14 excluded since 2011 — intentional?<br>the recalculation delete is not filtered by IsManual<br>tier thresholds are literals, not table-driven</dd></div>
+          </dl>
+        </div>
+      </div>
+      <figcaption>The code has not gone anywhere — it is the thin strip at the left, still the source of truth. <b>The spec is a lens, not a replacement.</b></figcaption>
+    </figure>
+
+    <div class="stage-body reveal">
+      <p>An agent reads the procedure and writes down what it does, in plain language: purpose, inputs, behaviour branch by branch, the invariants that appear to hold, which tables and columns it touches — and, most valuably, <strong>the open questions</strong>. The behaviour it cannot tell is intentional from the behaviour that looks like a mistake.</p>
+      <p>Nothing has changed yet. But for the first time the whole estate is readable at once, rather than only where somebody has time to look.</p>
+      <p>Morgan Stanley did exactly this at scale in 2025: their internal tool read roughly nine million lines of legacy code and translated it into plain-English specifications, which the company estimated saved around 280,000 developer hours. Not a rewrite. A translation, so that a rewrite became possible.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══════════════════════════════════════════════════════ 3 · ORACLE ═══ -->
+<section class="stage" id="oracle" aria-labelledby="h-oracle">
+  <div class="container stage-inner">
+
+    <div class="stage-head reveal">
+      <span class="stage-tag"><span class="num">03</span> oracle</span>
+      <h2 id="h-oracle">The word for the thing that tells you it's right</h2>
+    </div>
+
+    <figure class="panel stage-figure" data-fig>
+      <div class="panel-bar">
+        <span class="panel-name">dbo.usp_CalcCommission</span>
+        <span class="panel-state is-accent">measured</span>
+      </div>
+      <div class="panel-body">
+        <svg class="fig-svg" viewBox="0 0 460 300" role="img" aria-labelledby="or-t or-d">
+          <title id="or-t">Production traffic becomes a test suite</title>
+          <desc id="or-d">18,442 calls captured over 14 days reduce to 2,190 distinct test cases. Each case carries its inputs, the rows returned, and the rows written. Three invariants are asserted alongside them.</desc>
+
+          <g class="a-rise">
+            <text class="t-lbl" x="0" y="12">captured</text>
+            <rect class="s-box" x="0" y="22" width="190" height="66"/>
+            <text class="t-big t-ink" x="95" y="54" text-anchor="middle" data-count="18442">18,442</text>
+            <text class="t-sm" x="95" y="74" text-anchor="middle">calls over 14 days</text>
+          </g>
+
+          <g class="a-fade d3">
+            <path class="s-line" d="M200 55 H236" stroke-width="1"/>
+            <path class="s-line" d="M230 50 l7 5 -7 5" stroke-width="1"/>
+          </g>
+
+          <g class="a-rise d4">
+            <text class="t-lbl" x="250" y="12">becomes</text>
+            <rect class="s-box" x="262" y="10" width="190" height="66" opacity="0.35"/>
+            <rect class="s-box" x="256" y="16" width="190" height="66" opacity="0.6" fill="#0f172a"/>
+            <rect class="s-box" x="250" y="22" width="190" height="66" fill="#0f172a"/>
+            <text class="t-big t-ink" x="345" y="54" text-anchor="middle" data-count="2190">2,190</text>
+            <text class="t-sm" x="345" y="74" text-anchor="middle">distinct test cases</text>
+          </g>
+
+          <g class="a-fade d5">
+            <text class="t-lbl" x="0" y="122">every case carries</text>
+            <rect class="s-box" x="0" y="132" width="128" height="26"/>
+            <text class="t-sm" x="64" y="149" text-anchor="middle">inputs</text>
+            <rect class="s-box" x="140" y="132" width="146" height="26"/>
+            <text class="t-sm" x="213" y="149" text-anchor="middle">rows returned</text>
+            <rect class="s-box" x="298" y="132" width="162" height="26"/>
+            <text class="t-sm" x="379" y="149" text-anchor="middle">rows written</text>
+          </g>
+
+          <g class="a-fade d7">
+            <text class="t-lbl" x="0" y="196">invariants asserted alongside every case</text>
+            <rect x="0" y="214" width="5" height="5" fill="#2dd4bf"/>
+            <text class="t-sm" x="16" y="222">Amount = round(base × rate, 2) + adjustment</text>
+            <rect x="0" y="240" width="5" height="5" fill="#2dd4bf"/>
+            <text class="t-sm" x="16" y="248">one ledger row per (RepID, PeriodEnd) after a run</text>
+            <rect x="0" y="266" width="5" height="5" fill="#2dd4bf"/>
+            <text class="t-sm" x="16" y="274">no ledger row for a rep with no closed orders</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Not invented cases. <b>Real ones, in real proportions</b> — including the situations nobody would have thought to write down.</figcaption>
+    </figure>
+
+    <div class="stage-body reveal">
+      <p>A test is two parts: an input, and something that decides whether the answer is correct. That second part is called an <strong>oracle</strong>, and it is the expensive half. Anyone can invent inputs.</p>
+      <p>An agent can write a replacement procedure in a minute. It cannot tell you whether you may deploy it. Only an oracle can. This is why raw code-generation speed changes so little on its own: <strong>generation was never the bottleneck. Judgement was.</strong></p>
+      <p>For legacy code the oracle is built from what the system already does. Every call in production is recorded — inputs, results, and the full set of rows it wrote. Those recordings become test cases. Not invented cases: real ones, in real proportions, including the situations nobody would have thought to write down.</p>
+
+      <div class="callout">
+        <span class="callout-label">The bookkeeper</span>
+        <p>A bookkeeper of fifteen years is leaving. She calculates commissions by rules that were never written down. You don't ask the new hire whether she can do it — you have her work in parallel for a month and compare the numbers. That parallel run is the oracle. You never needed the rules. You needed a reference and a way to compare.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══════════════════════════════════════════════════ 4 · BASELINE ═══ -->
+<section class="stage" id="baseline" aria-labelledby="h-baseline">
+  <div class="container stage-inner">
+
+    <div class="stage-head reveal">
+      <span class="stage-tag"><span class="num">04</span> baseline shadow run</span>
+      <h2 id="h-baseline">Prove the harness before you trust the verdict</h2>
+    </div>
+
+    <figure class="panel stage-figure" data-fig>
+      <div class="panel-bar">
+        <span class="panel-name">dbo.usp_CalcCommission</span>
+        <span class="panel-state is-match">replayed</span>
+      </div>
+      <div class="panel-body">
+        <svg class="fig-svg" viewBox="0 0 460 316" role="img" aria-labelledby="bl-t bl-d">
+          <title id="bl-t">The same procedure replayed against its own recording</title>
+          <desc id="bl-d">Two lanes hold the same procedure — the recorded production run on the left, the replay on the right. All 2,190 cases arrive as matches, with zero differences. This proves the harness, not the code.</desc>
+
+          <g class="a-fade">
+            <text class="t-lbl" x="120" y="12" text-anchor="middle">recorded</text>
+            <text class="t-lbl" x="340" y="12" text-anchor="middle">replayed</text>
+            <rect class="s-box" x="40" y="22" width="160" height="40"/>
+            <rect class="s-box" x="260" y="22" width="160" height="40"/>
+            <text class="t-sm t-ink" x="120" y="47" text-anchor="middle">usp_CalcCommission</text>
+            <text class="t-sm t-ink" x="340" y="47" text-anchor="middle">usp_CalcCommission</text>
+            <text class="t-lbl" x="230" y="47" text-anchor="middle">same</text>
+          </g>
+
+          <g class="a-fade d2">
+            <path class="s-line" d="M120 62 V196" stroke-width="1" stroke-dasharray="2 4"/>
+            <path class="s-line" d="M340 62 V196" stroke-width="1" stroke-dasharray="2 4"/>
+            <text class="t-lbl" x="12" y="104">clock</text><text class="t-lbl t-match" x="12" y="118">pinned</text>
+            <text class="t-lbl" x="12" y="150">ids</text><text class="t-lbl t-match" x="12" y="164">pinned</text>
+            <text class="t-lbl" x="392" y="104">order</text><text class="t-lbl t-match" x="392" y="118">normalised</text>
+          </g>
+
+          <g fill="#94a3b8">
+            <circle class="a-drop d3" cx="120" cy="188" r="3.5"/>
+            <circle class="a-drop d3" cx="340" cy="188" r="3.5"/>
+            <circle class="a-drop d4" cx="120" cy="156" r="3.5" opacity="0.8"/>
+            <circle class="a-drop d4" cx="340" cy="156" r="3.5" opacity="0.8"/>
+            <circle class="a-drop d5" cx="120" cy="124" r="3.5" opacity="0.6"/>
+            <circle class="a-drop d5" cx="340" cy="124" r="3.5" opacity="0.6"/>
+            <circle class="a-drop d6" cx="120" cy="92" r="3.5" opacity="0.4"/>
+            <circle class="a-drop d6" cx="340" cy="92" r="3.5" opacity="0.4"/>
+          </g>
+
+          <g class="a-fade d7">
+            <path class="s-line" d="M120 196 V214 H340 V196" stroke-width="1"/>
+            <path class="s-line" d="M230 214 V234" stroke-width="1"/>
+          </g>
+
+          <g class="t-match">
+            <text class="t-glyph a-pop d7"  x="118" y="262" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d8"  x="174" y="262" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d9"  x="230" y="262" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d10" x="286" y="262" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d10" x="342" y="262" text-anchor="middle">═</text>
+          </g>
+
+          <g class="a-fade d10">
+            <text class="t-md t-match" x="222" y="296" text-anchor="end" data-count="2190" data-suffix=" ═">2,190 ═</text>
+            <text class="t-md" x="238" y="296" text-anchor="start">·  0 ≠</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Both lanes hold the <b>same</b> procedure. The lanes are the structure every stage after this one reuses.</figcaption>
+    </figure>
+
+    <div class="stage-body reveal">
+      <p>Before replacing anything, the recorded calls are replayed against <strong>the existing procedure</strong> — the one already in production.</p>
+      <p>This sounds redundant and is the step most often skipped. Its purpose is to prove the machinery itself is sound: that replay reproduces reality, that the clock and generated identifiers are properly pinned, that ordering is normalised, that the comparison is not producing noise of its own.</p>
+      <p>If the old code cannot be shown to match itself, no verdict about new code means anything.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══════════════════════════════════════════════════════ 5 · DIFF ═══ -->
+<section class="stage" id="diff" aria-labelledby="h-diff">
+  <div class="container stage-inner">
+
+    <div class="stage-head reveal">
+      <span class="stage-tag"><span class="num">05</span> diff classification</span>
+      <h2 id="h-diff">Thousands of differences, twelve that matter</h2>
+    </div>
+
+    <figure class="panel stage-figure" data-fig>
+      <div class="panel-bar">
+        <span class="panel-name">dbo.usp_CalcCommission</span>
+        <span class="panel-state is-differ">compared</span>
+      </div>
+      <div class="panel-body">
+        <svg class="fig-svg" viewBox="0 0 460 300" role="img" aria-labelledby="df-t df-d">
+          <title id="df-t">1,847 raw differences classified down to 12</title>
+          <desc id="df-d">A replay produces 1,847 raw differences. Mechanical normalisation and an agent classifier label 1,835 of them as noise, each with a stated reason. Twelve are real changes in behaviour and go to a human.</desc>
+
+          <g class="a-fade">
+            <text class="t-lbl" x="0" y="12">raw differences from replay</text>
+            <text class="t-md t-differ" x="460" y="14" text-anchor="end" data-count="1847">1,847</text>
+          </g>
+
+          <g class="t-differ">
+            <g class="a-pop stg" style="--i:0"><text class="t-sm" x="4"   y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:1"><text class="t-sm" x="32"  y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:2"><text class="t-sm" x="60"  y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:3"><text class="t-sm" x="88"  y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:4"><text class="t-sm" x="116" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:5"><text class="t-sm" x="144" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:6"><text class="t-sm" x="172" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:7"><text class="t-sm" x="200" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:8"><text class="t-sm" x="228" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:9"><text class="t-sm" x="256" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:10"><text class="t-sm" x="284" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:11"><text class="t-sm" x="312" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:12"><text class="t-sm" x="340" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:13"><text class="t-sm" x="368" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:14"><text class="t-sm" x="396" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:15"><text class="t-sm" x="424" y="40">≠</text></g>
+            <g class="a-pop stg" style="--i:2"><text class="t-sm" x="4"   y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:3"><text class="t-sm" x="32"  y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:4"><text class="t-sm" x="60"  y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:5"><text class="t-sm" x="88"  y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:6"><text class="t-sm" x="116" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:7"><text class="t-sm" x="144" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:8"><text class="t-sm" x="172" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:9"><text class="t-sm" x="200" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:10"><text class="t-sm" x="228" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:11"><text class="t-sm" x="256" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:12"><text class="t-sm" x="284" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:13"><text class="t-sm" x="312" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:14"><text class="t-sm" x="340" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:15"><text class="t-sm" x="368" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:16"><text class="t-sm" x="396" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:17"><text class="t-sm" x="424" y="62">≠</text></g>
+            <g class="a-pop stg" style="--i:4"><text class="t-sm" x="4"   y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:5"><text class="t-sm" x="32"  y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:6"><text class="t-sm" x="60"  y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:7"><text class="t-sm" x="88"  y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:8"><text class="t-sm" x="116" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:9"><text class="t-sm" x="144" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:10"><text class="t-sm" x="172" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:11"><text class="t-sm" x="200" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:12"><text class="t-sm" x="228" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:13"><text class="t-sm" x="256" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:14"><text class="t-sm" x="284" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:15"><text class="t-sm" x="312" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:16"><text class="t-sm" x="340" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:17"><text class="t-sm" x="368" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:18"><text class="t-sm" x="396" y="84">≠</text></g>
+            <g class="a-pop stg" style="--i:19"><text class="t-sm" x="424" y="84">≠</text></g>
+          </g>
+
+          <g class="a-fade d7">
+            <rect class="s-box" x="0" y="104" width="460" height="46" fill="#1e293b"/>
+            <text class="t-sm t-ink" x="230" y="124" text-anchor="middle">normalise · then classify</text>
+            <text class="t-sm" x="230" y="141" text-anchor="middle">mechanical rules first; an agent labels whatever survives</text>
+          </g>
+
+          <g class="a-fade d8">
+            <path class="s-line" d="M230 150 V166 H96 V180" stroke-width="1"/>
+            <path class="s-line" d="M230 166 H366 V180" stroke-width="1"/>
+          </g>
+
+          <!-- noise -->
+          <g class="a-fade d9">
+            <text class="t-lbl" x="96" y="196" text-anchor="middle">noise</text>
+            <g class="t-differ noise-mark">
+              <text class="t-sm" x="12"  y="220">≠</text><text class="t-sm" x="36"  y="220">≠</text>
+              <text class="t-sm" x="60"  y="220">≠</text><text class="t-sm" x="84"  y="220">≠</text>
+              <text class="t-sm" x="108" y="220">≠</text><text class="t-sm" x="132" y="220">≠</text>
+              <text class="t-sm" x="156" y="220">≠</text><text class="t-sm" x="180" y="220">≠</text>
+              <text class="t-sm" x="12"  y="240">≠</text><text class="t-sm" x="36"  y="240">≠</text>
+              <text class="t-sm" x="60"  y="240">≠</text><text class="t-sm" x="84"  y="240">≠</text>
+              <text class="t-sm" x="108" y="240">≠</text><text class="t-sm" x="132" y="240">≠</text>
+              <text class="t-sm" x="156" y="240">≠</text><text class="t-sm" x="180" y="240">≠</text>
+            </g>
+            <text class="t-big t-ink" x="96" y="274" text-anchor="middle" data-count="1835">1,835</text>
+            <text class="t-sm" x="96" y="292" text-anchor="middle">each with a stated reason</text>
+          </g>
+
+          <!-- real -->
+          <g class="a-pop d10">
+            <text class="t-lbl t-differ" x="366" y="196" text-anchor="middle">real change in behaviour</text>
+            <rect class="s-box" x="278" y="204" width="176" height="46" stroke="#fbbf24"/>
+            <g class="t-differ">
+              <text class="t-sm" x="292" y="222">≠</text><text class="t-sm" x="318" y="222">≠</text>
+              <text class="t-sm" x="344" y="222">≠</text><text class="t-sm" x="370" y="222">≠</text>
+              <text class="t-sm" x="396" y="222">≠</text><text class="t-sm" x="422" y="222">≠</text>
+              <text class="t-sm" x="292" y="242">≠</text><text class="t-sm" x="318" y="242">≠</text>
+              <text class="t-sm" x="344" y="242">≠</text><text class="t-sm" x="370" y="242">≠</text>
+              <text class="t-sm" x="396" y="242">≠</text><text class="t-sm" x="422" y="242">≠</text>
+            </g>
+            <text class="t-big t-differ" x="366" y="274" text-anchor="middle" data-count="12">12</text>
+            <text class="t-sm" x="366" y="292" text-anchor="middle">to a human</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><b>1,847 raw → 1,835 noise → 12 to a human.</b> The twelve are drawn individually because twelve is a number a person can actually work through.</figcaption>
+    </figure>
+
+    <div class="stage-body reveal">
+      <p>Replaying production traffic produces a lot of differences, and most of them mean nothing: a timestamp, a generated identifier, two rows that came back in a different order, a floating-point tail.</p>
+      <p>Mechanical normalisation removes what it can. Whatever survives goes to an agent that labels it <strong>noise</strong> — with a stated reason — or <strong>a real change in behaviour</strong>, with an explanation of what changed and what it would mean for the business.</p>
+      <p>This step is the reason the method scales. Without it you have not removed the bottleneck, you have moved it: from writing code to reading diffs. With it, a person sees only the handful that genuinely need a human.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══════════════════════════════════════════════════ 6 · IMPLEMENT ═══ -->
+<section class="stage" id="implement" aria-labelledby="h-implement">
+  <div class="container stage-inner">
+
+    <div class="stage-head reveal">
+      <span class="stage-tag"><span class="num">06</span> implement</span>
+      <h2 id="h-implement">Now, and only now, write the replacement</h2>
+    </div>
+
+    <figure class="panel stage-figure" data-fig>
+      <div class="panel-bar">
+        <span class="panel-name">dbo.usp_CalcCommission → CommissionService</span>
+        <span class="panel-state is-accent">replaced</span>
+      </div>
+      <div class="panel-body">
+        <div class="lane-split">
+          <div class="lane-old a-fade">
+            <div class="lane-head"><span>old</span><span>serving production</span></div>
+            <pre class="code"><code><span class="k">SELECT</span> @Base = <span class="k">SUM</span>(o.NetAmount)
+ <span class="k">FROM</span> dbo.Orders o <span class="k">WITH</span>(<span class="k">NOLOCK</span>)
+ <span class="k">WHERE</span> o.RepID = @SalesRepID
+   <span class="k">AND</span> o.ClosedOn &lt;= @PeriodEnd
+   <span class="k">AND</span> o.StatusCode
+       <span class="k">NOT IN</span> (<span class="n">7</span>, <span class="n">9</span>, <span class="n">14</span>)
+
+<span class="k">SELECT</span> @Tier =
+  <span class="k">CASE WHEN</span> @Base &gt; <span class="n">250000</span> <span class="k">THEN</span> <span class="n">3</span>
+       <span class="k">WHEN</span> @Base &gt;  <span class="n">90000</span> <span class="k">THEN</span> <span class="n">2</span>
+       <span class="k">ELSE</span> <span class="n">1</span> <span class="k">END</span>
+
+<span class="k">IF</span> @Recalc = <span class="n">1</span>
+  <span class="k">DELETE FROM</span> dbo.CommissionLedger
+   <span class="k">WHERE</span> RepID = @SalesRepID
+     <span class="k">AND</span> PeriodEnd = @PeriodEnd
+
+<span class="k">INSERT</span> dbo.CommissionLedger …
+  <span class="k">ROUND</span>(@Base * @Rate, <span class="n">2</span>) + @Adj</code></pre>
+          </div>
+          <div class="lane-new a-slide d3">
+            <div class="lane-head"><span>new</span><span>not deployed</span></div>
+            <pre class="code"><code><span class="k">var</span> baseAmount = orders
+  .ClosedThrough(repId, periodEnd)
+  .Excluding(<span class="n">7</span>, <span class="n">9</span>, <span class="n">14</span>)
+  <span class="c">// 14 since 2011 — preserved,</span>
+  <span class="c">// not fixed. See open questions.</span>
+  .Sum(o =&gt; o.NetAmount);
+
+<span class="k">var</span> tier = Tier.For(baseAmount);
+<span class="k">var</span> rate = rates
+  .EffectiveOn(tier, periodEnd);
+<span class="k">var</span> adj  = legacy
+  .AdjustmentFor(repId, baseAmount);
+
+<span class="k">if</span> (recalc)
+  ledger.DeleteFor(repId, periodEnd);
+
+<span class="k">return</span> ledger.Insert(repId, periodEnd,
+  Money.Round(baseAmount * rate) + adj,
+  clock.Now);</code></pre>
+          </div>
+        </div>
+      </div>
+      <figcaption>The old procedure is <b>unchanged and still serving production.</b> The new service exists but has never answered a customer.</figcaption>
+    </figure>
+
+    <div class="stage-body reveal">
+      <p>With a specification, a test suite drawn from real traffic, invariants, and a comparison harness proven against itself, writing the replacement is the least interesting step. It is also the first step at which the code actually changes.</p>
+      <p>One rule dominates everything here: <strong>preserve behaviour, do not fix bugs.</strong> The specification's open questions will contain things that look wrong, and some of them are wrong. Reproduce them anyway. A behavioural fix bundled into a migration makes the comparison unreadable — nobody can tell whether the new code is broken or better. Fixes come afterwards, as their own change, with their own evidence.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="arch-line"></div>
+
+<!-- ═══════════════════════════════════════════════════ 7 · VERDICT ═══ -->
+<section class="stage" id="verdict" aria-labelledby="h-verdict">
+  <div class="container stage-inner">
+
+    <div class="stage-head reveal">
+      <span class="stage-tag"><span class="num">07</span> verdict shadow run</span>
+      <h2 id="h-verdict">The new code runs dry, next to the real thing</h2>
+    </div>
+
+    <figure class="panel stage-figure" data-fig>
+      <div class="panel-bar">
+        <span class="panel-name">dbo.usp_CalcCommission ═ CommissionService</span>
+        <span class="panel-state is-match">proven</span>
+      </div>
+      <div class="panel-body">
+        <svg class="fig-svg" viewBox="0 0 460 300" role="img" aria-labelledby="vd-t vd-d">
+          <title id="vd-t">The replacement replayed alongside production</title>
+          <desc id="vd-d">The old procedure answers the customer; the new service runs alongside inside a transaction that is always rolled back. Of 2,190 replayed cases, 2,178 match and 12 differ and go to a decision queue.</desc>
+
+          <g class="a-fade">
+            <text class="t-lbl" x="120" y="12" text-anchor="middle">old · answers the customer</text>
+            <text class="t-lbl t-accent" x="340" y="12" text-anchor="middle">new · rolled back</text>
+            <rect class="s-box" x="40" y="22" width="160" height="40"/>
+            <rect class="s-box" x="260" y="22" width="160" height="40" stroke="#a78bfa"/>
+            <text class="t-sm t-ink" x="120" y="47" text-anchor="middle">usp_CalcCommission</text>
+            <text class="t-sm t-accent" x="340" y="47" text-anchor="middle">CommissionService</text>
+          </g>
+
+          <g class="a-fade d2">
+            <path class="s-line" d="M120 62 V180" stroke-width="1" stroke-dasharray="2 4"/>
+            <path class="s-line" d="M340 62 V180" stroke-width="1" stroke-dasharray="2 4"/>
+            <text class="t-lbl" x="356" y="120">production</text>
+            <text class="t-lbl" x="356" y="134">never touched</text>
+          </g>
+
+          <g>
+            <circle class="a-drop d3" cx="120" cy="172" r="3.5" fill="#94a3b8"/>
+            <circle class="a-drop d3" cx="340" cy="172" r="3.5" fill="#a78bfa"/>
+            <circle class="a-drop d4" cx="120" cy="144" r="3.5" fill="#94a3b8" opacity="0.8"/>
+            <circle class="a-drop d4" cx="340" cy="144" r="3.5" fill="#a78bfa" opacity="0.8"/>
+            <circle class="a-drop d5" cx="120" cy="116" r="3.5" fill="#94a3b8" opacity="0.6"/>
+            <circle class="a-drop d5" cx="340" cy="116" r="3.5" fill="#a78bfa" opacity="0.6"/>
+            <circle class="a-drop d6" cx="120" cy="88" r="3.5" fill="#94a3b8" opacity="0.4"/>
+            <circle class="a-drop d6" cx="340" cy="88" r="3.5" fill="#a78bfa" opacity="0.4"/>
+          </g>
+
+          <g class="a-fade d6">
+            <path class="s-line" d="M120 180 V196 H340 V180" stroke-width="1"/>
+            <path class="s-line" d="M230 196 V212" stroke-width="1"/>
+            <path class="s-line" d="M230 206 H396 V222" stroke-width="1" stroke-dasharray="2 3"/>
+          </g>
+
+          <g class="t-match">
+            <text class="t-glyph a-pop d7" x="56"  y="240" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d8" x="100" y="240" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d8" x="144" y="240" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d9" x="188" y="240" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d9" x="232" y="240" text-anchor="middle">═</text>
+            <text class="t-glyph a-pop d10" x="276" y="240" text-anchor="middle">═</text>
+          </g>
+          <g class="a-fade d10">
+            <text class="t-big t-match" x="166" y="278" text-anchor="middle" data-count="2178">2,178</text>
+            <text class="t-sm" x="166" y="294" text-anchor="middle">result and writes both match</text>
+          </g>
+
+          <g class="a-pop d10">
+            <rect class="s-box" x="330" y="222" width="130" height="42" stroke="#fbbf24"/>
+            <text class="t-big t-differ" x="395" y="250" text-anchor="middle" data-count="12" data-suffix=" ≠">12 ≠</text>
+            <text class="t-sm t-differ" x="395" y="280" text-anchor="middle">decision queue</text>
+          </g>
+        </svg>
+
+        <div class="decision a-rise d10">
+          <div class="d-head"><span>case 1174 · rep 8830 · 2025-09-30</span><span>@Recalc = 1</span></div>
+          <div class="d-row"><span class="kk">old</span><span>CommissionLedger &nbsp;1 row &nbsp;— manual correction -412.00 deleted</span></div>
+          <div class="d-row"><span class="kk">new</span><span>CommissionLedger &nbsp;2 rows — manual correction kept</span></div>
+          <div class="d-note">The recalculation delete is not filtered by IsManual. Corrections keyed by finance have been silently discarded on every recalculation since 2011. 12 cases in this replay.</div>
+          <div class="d-choice">
+            <span class="chosen">preserve old behaviour — delete the manual rows</span>
+            <span>adopt new behaviour</span>
+            <span>raised separately as PLAT-2291, with this evidence attached</span>
+          </div>
+        </div>
+      </div>
+      <figcaption>The system finds what the old code has been doing for years — and <b>does not quietly fix it. It asks.</b></figcaption>
+    </figure>
+
+    <div class="stage-body reveal">
+      <p>The same recorded calls now replay against the replacement. The customer only ever sees the old procedure's answer; the new one runs alongside inside a transaction that is always rolled back. <strong>Production is never touched.</strong></p>
+      <p>Both the returned result and the full set of intended writes are compared. Matches accumulate. Real differences go to the queue.</p>
+      <p>And here is the part worth pausing on: the differences that reach a human are frequently not defects in the new code. They are things the old code has been doing for years that nobody knew about. The system finds them — and does not quietly fix them. It asks.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ 8 · LIMITS ═══ -->
+<section class="limits" id="limits" aria-labelledby="h-limits">
+  <div class="container">
+    <div class="reveal">
+      <span class="label">The limits</span>
+      <h2 id="h-limits">Where it stops</h2>
+      <p class="limits-lede">A method that claims no limits should not be believed.</p>
+      <div class="limits-prose">
+        <p><strong>Knowledge that was never written down is gone.</strong> If a rule lived only in the head of someone who has left, an agent can read from the code what happens. It cannot read whether that was the intention. The difference between a bug and a feature in fifteen-year-old code is not a question a model can settle.</p>
+        <p><strong>Some changes are irreversible and unverifiable at the same time.</strong> Schema migrations on the core, anything with accounting or regulatory consequences. These stay with people — not because the model is not capable, but because the cost of being wrong is wildly out of proportion to what automation saves.</p>
+        <p><strong>Some code has no oracle at all.</strong> A score computed by rules accreted over a decade, where the correct answer is by definition whatever the current code returns, can be shown to be equivalent — but the moment you want to change it, there is nothing to measure against. Plan for people there. Do not wait for it to solve itself.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ CLOSE ═══ -->
+<section class="close" id="metric" aria-labelledby="h-metric">
+  <div class="container">
+    <div class="reveal">
+      <span class="label">The close</span>
+      <h2 id="h-metric">The metric that actually matters</h2>
+      <p class="metric">Not <span class="strike">procedures migrated</span>. How often a human has to step in.</p>
+      <p>When that number falls, the boundary of what agents may do on their own moves outward, and debt repayment becomes a by-product rather than a programme. It is also the honest measure of whether any of this is working — a system that needs constant correction is telling you its instructions are wrong, not that the model is weak.</p>
+      <div class="close-actions">
+        <a href="index.html#cta" class="btn btn--primary">Book a Strategy Session <span aria-hidden="true">&rarr;</span></a>
+        <a href="method-brief.pdf" class="btn btn--outline" download>Download the Method Brief (PDF)</a>
+        <a href="method-brief.html" class="btn btn--outline">Read the printable brief</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── Scroll reveal (same behaviour as index.html) ──────────────────
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var ro = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function (el) { ro.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('visible'); });
+  }
+
+  // ── Figures: play once on entry, then hold the end state ──────────
+  // Nothing here can hide content: every figure's resting CSS is its
+  // end state, and `.play` is additive and never removed.
+  var figs = document.querySelectorAll('[data-fig]');
+  function runCounters(fig) {
+    var els = fig.querySelectorAll('[data-count]');
+    els.forEach(function (el) {
+      var to = parseInt(el.getAttribute('data-count'), 10);
+      var suffix = el.getAttribute('data-suffix') || '';
+      if (isNaN(to) || reduce) return;
+      var start = null, dur = 850;
+      var final = el.textContent;
+      function tick(ts) {
+        if (start === null) start = ts;
+        var p = Math.min(1, (ts - start) / dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(to * eased).toLocaleString('en-US') + suffix;
+        if (p < 1) requestAnimationFrame(tick); else el.textContent = final;
+      }
+      // Only start rewriting once a frame actually arrives, so the element is
+      // never left showing 0 if the animation never gets to run.
+      requestAnimationFrame(tick);
+    });
+  }
+  if ('IntersectionObserver' in window) {
+    var fo = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('play');
+        fo.unobserve(e.target);
+        setTimeout(function () { runCounters(e.target); }, reduce ? 0 : 400);
+      });
+    }, { threshold: 0.22, rootMargin: '0px 0px -10% 0px' });
+    figs.forEach(function (f) { fo.observe(f); });
+  }
+
+  // ── Stage rail: pinned shadow + current stage ─────────────────────
+  var rail = document.getElementById('rail');
+  var sentinel = document.getElementById('railSentinel');
+  if ('IntersectionObserver' in window && rail && sentinel) {
+    new IntersectionObserver(function (entries) {
+      rail.classList.toggle('pinned', !entries[0].isIntersecting);
+    }, { threshold: 0 }).observe(sentinel);
+  }
+
+  var items = Array.prototype.slice.call(rail ? rail.querySelectorAll('li[data-stage]') : []);
+  var stages = items.map(function (li) { return document.getElementById(li.getAttribute('data-stage')); });
+  function setCurrent(idx) {
+    items.forEach(function (li, i) { li.classList.toggle('current', i === idx); });
+    var inner = rail.querySelector('.rail-inner');
+    if (idx > -1 && inner.scrollWidth > inner.clientWidth) {
+      var li = items[idx];
+      var target = li.offsetLeft - (inner.clientWidth - li.offsetWidth) / 2;
+      inner.scrollLeft = Math.max(0, target);
+    }
+  }
+  function onScroll() {
+    var line = (rail ? rail.getBoundingClientRect().bottom : 0) + 8;
+    var idx = -1;
+    for (var i = 0; i < stages.length; i++) {
+      var s = stages[i];
+      if (!s) continue;
+      var r = s.getBoundingClientRect();
+      if (r.top <= line && r.bottom > line) { idx = i; break; }
+    }
+    if (idx !== last) { last = idx; setCurrent(idx); }
+  }
+  var last = -2, ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { onScroll(); ticking = false; });
+  }, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

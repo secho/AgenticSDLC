@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Method Brief: Verified Migration of a Legacy Stored-Procedure Estate</title>
+<meta name="description" content="A technical brief on replay-based behavioural equivalence for legacy migration — the oracle problem, normalisation of non-determinism, diff classification and its failure modes, and what the method does and does not prove.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #7640FF;
+    --primary-dark: #5e2de6;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --match-ink: #0f766e;
+    --differ-ink: #92400e;
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  body {
+    font-family: var(--font-body);
+    background: #fff;
+    color: var(--slate-600);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1000px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+  @media (min-width: 768px) { .page { padding: 4rem 2.5rem 5rem; } }
+
+  h1, h2, h3, h4 { font-family: var(--font-display); color: var(--slate-900); letter-spacing: -0.03em; line-height: 1.2; }
+  h1 { font-size: clamp(1.7rem, 3.4vw, 2.3rem); font-weight: 700; }
+  h2 { font-size: clamp(1.15rem, 2vw, 1.4rem); font-weight: 600; }
+  h3 { font-size: 1rem; font-weight: 600; }
+  h4 { font-size: 0.9rem; font-weight: 600; }
+  p { margin-bottom: 1rem; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--slate-800); font-weight: 600; }
+  em.term { font-style: normal; font-weight: 600; color: var(--slate-900); }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+
+  .section-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--primary); padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary);
+    display: inline-block; margin-bottom: 1.5rem;
+  }
+  .section { margin-bottom: 3.25rem; }
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--slate-300), transparent); margin: 2.5rem 0; opacity: 0.5; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.8rem; font-weight: 500; color: var(--slate-400);
+    text-decoration: none; margin-bottom: 2.5rem;
+  }
+  .back-link:hover { color: var(--primary); text-decoration: none; }
+
+  /* Hero + abstract */
+  .hero-section { margin-bottom: 2.5rem; }
+  .hero-section h1 { margin-bottom: 0.9rem; }
+  .subtitle { font-family: var(--font-display); font-size: 1.05rem; font-weight: 400; color: var(--slate-500); letter-spacing: -0.01em; margin-bottom: 1.75rem; }
+  .abstract { border-left: 3px solid var(--slate-300); padding: 0.1rem 0 0.1rem 1.2rem; }
+  .abstract .k { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate-400); margin-bottom: 0.5rem; }
+  .abstract p { font-size: 0.95rem; }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem;
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--slate-400);
+    margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--slate-200);
+  }
+  .meta-row .eq { color: var(--match-ink); } .meta-row .ne { color: var(--differ-ink); }
+
+  /* Formal boxes */
+  .formal {
+    border: 1px solid var(--slate-300); padding: 1.15rem 1.3rem; margin: 1.35rem 0;
+  }
+  .formal .k {
+    font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--primary); margin-bottom: 0.7rem;
+  }
+  .formal p { font-size: 0.92rem; margin-bottom: 0.7rem; }
+  .formal p:last-child { margin-bottom: 0; }
+  .formal .expr {
+    font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.9;
+    background: var(--slate-50); padding: 0.75rem 0.9rem; margin: 0.75rem 0;
+    color: var(--slate-800); overflow-x: auto;
+  }
+  .formal.warn { border-color: var(--differ-ink); }
+  .formal.warn .k { color: var(--differ-ink); }
+  .formal.good { border-color: var(--match-ink); }
+  .formal.good .k { color: var(--match-ink); }
+
+  .pivot { background: var(--slate-50); border-left: 3px solid var(--primary); padding: 1.3rem 1.4rem; margin: 1.25rem 0 0; }
+  .pivot p { font-size: 0.98rem; color: var(--slate-700); }
+
+  /* Tables */
+  .tbl { width: 100%; border-collapse: collapse; margin: 1.2rem 0 0; font-size: 0.83rem; }
+  .tbl th, .tbl td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--slate-200); vertical-align: top; }
+  .tbl th { font-family: var(--font-display); font-weight: 600; color: var(--slate-900); font-size: 0.8rem; }
+  .tbl td.m, .tbl th.m { font-family: var(--font-mono); font-size: 0.76rem; }
+  .tbl td.m { color: var(--slate-700); }
+  .tbl .no { color: var(--differ-ink); font-weight: 500; }
+  .tbl .yes { color: var(--match-ink); font-weight: 500; }
+  .glance td:first-child { font-family: var(--font-mono); font-size: 0.76rem; color: var(--primary); width: 3.4rem; white-space: nowrap; }
+  .glance td:nth-child(2) { font-weight: 600; color: var(--slate-800); width: 19%; }
+  @media (max-width: 680px) {
+    .tbl { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tbl th, .tbl td { min-width: 115px; font-size: 0.76rem; padding: 0.5rem 0.6rem; }
+  }
+  .tbl-note { font-size: 0.8rem; color: var(--slate-500); margin-top: 0.7rem; }
+
+  /* Stage blocks */
+  .stage { padding: 1.4rem 0; border-bottom: 1px solid var(--slate-100); }
+  .stage:last-child { border-bottom: none; }
+  .stage-no { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; color: var(--slate-400); margin-bottom: 0.35rem; }
+  .stage-no b { color: var(--primary); font-weight: 600; }
+  .stage h3 { margin-bottom: 0.6rem; }
+  .stage p { font-size: 0.92rem; margin-bottom: 0.75rem; }
+  .stage .artifact {
+    font-family: var(--font-mono); font-size: 0.73rem; line-height: 1.65;
+    color: var(--slate-600); background: var(--slate-50);
+    border-left: 2px solid var(--slate-300); padding: 0.6rem 0.8rem; margin-bottom: 0.75rem;
+  }
+  .stage .artifact b { color: var(--slate-800); font-weight: 500; }
+  .stage .artifact:last-child { margin-bottom: 0; }
+
+  /* Verifiability classes */
+  .classes { margin: 1.2rem 0 0; }
+  .classes > div { border-left: 3px solid var(--slate-200); padding: 0.1rem 0 0.1rem 0.9rem; margin-bottom: 0.85rem; }
+  .classes dt { font-family: var(--font-mono); font-size: 0.79rem; font-weight: 500; color: var(--slate-900); }
+  .classes dd { font-size: 0.87rem; color: var(--slate-500); }
+  .cls-a { border-left-color: var(--match-ink) !important; } .cls-a dt { color: var(--match-ink); }
+  .cls-b { border-left-color: var(--primary) !important; }   .cls-b dt { color: var(--primary); }
+  .cls-c { border-left-color: var(--differ-ink) !important; }.cls-c dt { color: var(--differ-ink); }
+  .cls-d { border-left-color: var(--slate-400) !important; } .cls-d dt { color: var(--slate-600); }
+
+  /* Funnel */
+  .funnel { display: grid; gap: 0.85rem; margin: 1.2rem 0 0; }
+  @media (min-width: 560px) { .funnel { grid-template-columns: repeat(3, 1fr); } }
+  .funnel div { border: 1px solid var(--slate-200); padding: 0.85rem 0.95rem; }
+  .funnel .n { font-family: var(--font-mono); font-size: 1.4rem; color: var(--slate-900); line-height: 1.2; }
+  .funnel .k { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--slate-400); margin-bottom: 0.3rem; }
+  .funnel .d { font-size: 0.79rem; color: var(--slate-500); margin-top: 0.25rem; }
+  .funnel .last { border-color: var(--differ-ink); } .funnel .last .n { color: var(--differ-ink); }
+
+  /* Metrics list */
+  .metrics { list-style: none; margin: 1.2rem 0 0; padding: 0; }
+  .metrics li { display: flex; gap: 0.9rem; padding: 0.65rem 0; border-bottom: 1px solid var(--slate-100); font-size: 0.9rem; }
+  .metrics li:last-child { border-bottom: none; }
+  .metrics .mk { flex: 0 0 12rem; font-family: var(--font-mono); font-size: 0.76rem; color: var(--slate-900); font-weight: 500; }
+  @media (max-width: 600px) { .metrics li { flex-direction: column; gap: 0.2rem; } .metrics .mk { flex: none; } }
+
+  .limits-lede { font-family: var(--font-display); font-size: 1.1rem; font-weight: 400; color: var(--slate-800); letter-spacing: -0.02em; line-height: 1.5; margin-bottom: 1.4rem; }
+  .limits p { font-size: 0.93rem; }
+
+  /* References */
+  .refs { list-style: none; counter-reset: r; margin: 1.2rem 0 0; padding: 0; }
+  .refs li { counter-increment: r; position: relative; padding-left: 2.2rem; margin-bottom: 0.75rem; font-size: 0.85rem; line-height: 1.6; }
+  .refs li::before {
+    content: "[" counter(r) "]"; position: absolute; left: 0; top: 0;
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--primary);
+  }
+  .refs .t { color: var(--slate-800); }
+
+  .metric-box { background: var(--slate-900); color: var(--slate-400); padding: 1.9rem; }
+  .metric-box .k { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: #a78bfa; margin-bottom: 0.85rem; }
+  .metric-box .m { font-family: var(--font-display); font-size: 1.3rem; font-weight: 500; color: #fff; letter-spacing: -0.02em; line-height: 1.4; margin-bottom: 0.9rem; }
+  .metric-box .m .strike { color: var(--slate-500); text-decoration: line-through; text-decoration-thickness: 1px; }
+  .metric-box p { font-size: 0.9rem; margin-bottom: 0; }
+
+  .bottom-bar {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    padding-top: 2rem; border-top: 1px solid var(--slate-200); margin-top: 3rem;
+  }
+  .bottom-bar p { font-size: 0.9rem; color: var(--slate-500); margin: 0; }
+  .bottom-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .btn-dark {
+    display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.7rem 1.5rem;
+    background: var(--slate-900); color: #fff; font-family: var(--font-body);
+    font-size: 0.85rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-dark:hover { background: var(--primary); text-decoration: none; }
+  .btn-line {
+    display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.7rem 1.5rem;
+    background: transparent; color: var(--slate-700); font-family: var(--font-body);
+    font-size: 0.85rem; font-weight: 600; text-decoration: none; border: 2px solid var(--slate-200); cursor: pointer;
+  }
+  .btn-line:hover { border-color: var(--primary); color: var(--primary); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .page { padding: 2rem 1rem 3rem; }
+    .bottom-bar { flex-direction: column; text-align: center; }
+    .bottom-actions { width: 100%; flex-direction: column; }
+    .btn-dark, .btn-line { width: 100%; justify-content: center; }
+  }
+
+  /* ══ PRINT ══ */
+  @page { margin: 15mm 14mm; }
+  @media print {
+    .page { padding: 0; max-width: none; }
+    .back-link, .bottom-bar { display: none; }
+    /* Keep individual blocks intact, but let sections flow across pages —
+       avoiding breaks on whole sections leaves half-empty pages. */
+    .section { margin-bottom: 2rem; }
+    .stage, .pivot, .metric-box, .funnel, .artifact, .formal, .classes > div, .refs li, .metrics li { break-inside: avoid; }
+    h1, h2, h3, h4, .section-label, .stage-no, .abstract .k { break-after: avoid; }
+    .metric-box { background: var(--slate-900) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sep { margin: 1.4rem 0; }
+    a { color: var(--slate-900); }
+    body { font-size: 10.5pt; }
+  }
+</style>
+</head>
+<body>
+<script src="nav.js" defer></script>
+<div class="page">
+
+  <a href="method.html" class="back-link">&larr; Back to The Method</a>
+
+  <!-- ═══ HERO ═══ -->
+  <div class="hero-section">
+    <div class="section-label">Method Brief &middot; Technical</div>
+    <h1>Verified migration of a legacy stored-procedure estate</h1>
+    <p class="subtitle">Replay-based behavioural equivalence: what it proves, what it cannot, and the failure modes that decide whether it is safe to run unattended.</p>
+
+    <div class="abstract">
+      <div class="k">Abstract</div>
+      <p>Legacy modernisation is bottlenecked not by code generation but by the <em class="term">oracle problem</em> &mdash; the absence of any procedure that decides whether a candidate replacement is acceptable. This brief sets out a method that sidesteps it by substituting a weaker but decidable criterion: <strong>observational equivalence to the incumbent implementation over the recorded production trace, modulo a declared normalisation</strong>. We give the criterion precisely, enumerate the sources of non-determinism that must be quotiented out and the technique for each, and analyse the two places the method can silently fail &mdash; classifier false negatives, and correlated defects between an implementation and the replacement derived from it. We are explicit throughout that the guarantee obtained is <em>behaviour preservation</em>, not correctness, and that it holds only over the observed input distribution.</p>
+    </div>
+
+    <div class="meta-row">
+      <span>Seven stages &middot; triage &rarr; verdict</span>
+      <span><span class="eq">&#9552;</span> observationally equal</span>
+      <span><span class="ne">&#8800;</span> divergent</span>
+      <span>Est. reading time 15 min</span>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ 1. THE PROBLEM ═══ -->
+  <div class="section">
+    <div class="section-label">1 &middot; The Problem</div>
+    <h2>Why legacy migration is hard, stated precisely</h2>
+
+    <p>The difficulty is usually described as comprehension: the code is old, undocumented, and its authors have gone. That description is wrong, or at least it identifies the wrong bottleneck. Comprehension is expensive but tractable. The binding constraint is <strong>acceptance</strong> &mdash; given a candidate replacement, no one can decide whether it may be deployed.</p>
+
+    <p>This is a specific, named problem. A test consists of an input and an <em class="term">oracle</em>: a mechanism that decides whether the observed output is acceptable. Weyuker's 1982 formulation of <em>non-testable programs</em> <span class="mono">[1]</span> covers exactly this case &mdash; programs for which no oracle exists, either because the correct output is unknown or because checking it is as hard as computing it. Barr et al. <span class="mono">[2]</span> survey the ways the oracle problem is attacked in practice; for a fifteen-year-old procedure with no specification, most of them are unavailable.</p>
+
+    <p>Note what follows. Generating a replacement is cheap and getting cheaper; deciding whether to accept one is neither. Any method that speeds up generation without addressing acceptance moves the bottleneck rather than removing it.</p>
+
+    <div class="pivot">
+      <p><strong>The pivot.</strong> When modernising, you do not need to know what the code <em>should</em> do. You need to know what it <em>did</em>. Replace the unavailable specification oracle with a <em class="term">pseudo-oracle</em>: the incumbent implementation itself, which is running in production and can be observed. Correctness is redefined from "satisfies the intent" to "agrees with the incumbent on observed inputs".</p>
+      <p>This is the same move as differential testing <span class="mono">[3]</span> and back-to-back testing of N-version systems, applied in the one setting where a trustworthy reference implementation is guaranteed to exist &mdash; because it is the thing you are replacing.</p>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ 2. WHAT IS PROVED ═══ -->
+  <div class="section">
+    <div class="section-label">2 &middot; The Criterion</div>
+    <h2>What the method actually decides</h2>
+
+    <p>Making the criterion explicit is what separates this from "we ran it and it looked fine". Everything downstream &mdash; which procedures are eligible, which differences matter, when a migration is done &mdash; is a consequence of the definition below.</p>
+
+    <div class="formal">
+      <div class="k">Definition &mdash; observational equivalence over a trace</div>
+      <p>Let <span class="mono">P</span> be the incumbent procedure and <span class="mono">P&prime;</span> the replacement. A recorded <em class="term">call</em> is a pair <span class="mono">c = (a, &sigma;)</span> of arguments and the pre-state of the data it reads. Define the <em class="term">observation</em></p>
+      <div class="expr">O(P, c) = &lang; returned rows, write-set, raised errors &rang;</div>
+      <p>where the write-set is the complete set of intended row mutations, captured inside a transaction that is rolled back. Let <span class="mono">N</span> be a <em class="term">normalisation</em>: a total function quotienting out declared non-determinism (&sect;5). For a recorded trace <span class="mono">T</span>, the replacement is accepted iff</p>
+      <div class="expr">&forall; c &isin; T .&nbsp; N(O(P, c)) = N(O(P&prime;, c))</div>
+      <p>Each <span class="mono">c</span> for which this fails is a <em class="term">divergence</em> and is adjudicated by a human.</p>
+    </div>
+
+    <p>Three properties of this criterion are worth stating plainly, because each is a limitation that no amount of engineering removes.</p>
+
+    <div class="formal warn">
+      <div class="k">What this does not establish</div>
+      <p><strong>It is not program equivalence.</strong> Equivalence of arbitrary programs is undecidable; this is equality of normalised observations over a <em>finite sample</em>. It says nothing about <span class="mono">c &notin; T</span>.</p>
+      <p><strong>It is not correctness.</strong> If <span class="mono">P</span> is wrong and <span class="mono">P&prime;</span> reproduces the error, the criterion is satisfied. Preserving a defect is a pass, by construction and on purpose (&sect;4, stage 06).</p>
+      <p><strong>Its strength is inversely proportional to <span class="mono">N</span>.</strong> Every field added to the normalisation is a field on which nothing is checked. A growing <span class="mono">N</span> is the clearest early signal that a migration is drifting toward vacuity, and it should be tracked as a first-class metric (&sect;8).</p>
+    </div>
+
+    <div class="formal good">
+      <div class="k">What it does establish</div>
+      <p>For every call in the recorded trace, the replacement returns the same rows, writes the same rows, and raises the same errors as the code currently in production &mdash; up to explicitly declared and individually justified normalisations. Where <span class="mono">T</span> is drawn from real traffic, this covers the input distribution the system actually experiences, in the proportions it experiences it, including states no one would have thought to construct by hand.</p>
+      <p>That is a weaker claim than correctness and a far stronger one than any legacy estate typically has. It is also <em>sufficient</em> for a migration, whose contract is precisely "nothing observable changes".</p>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ 3. AT A GLANCE ═══ -->
+  <div class="section">
+    <div class="section-label">3 &middot; Overview</div>
+    <h2>Seven stages &mdash; the code changes at stage six</h2>
+    <p>Stages 01&ndash;05 change only what is <em>known</em> about the estate. The artefact itself is untouched until 06, and the incumbent continues serving production through 07.</p>
+    <table class="tbl glance">
+      <thead><tr><th>Stage</th><th>Name</th><th>Output</th><th class="m">Establishes</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>Triage</td><td>Every procedure classified by what evidence could ever establish equivalence</td><td class="m">eligibility</td></tr>
+        <tr><td>02</td><td>Spec</td><td>Plain-language behaviour, invariants, and an open-questions register</td><td class="m">legibility</td></tr>
+        <tr><td>03</td><td>Oracle</td><td>Trace <span class="mono">T</span> from recorded production calls, plus asserted invariants</td><td class="m">the pseudo-oracle</td></tr>
+        <tr><td>04</td><td>Baseline run</td><td>Replay of <span class="mono">T</span> against <span class="mono">P</span> itself</td><td class="m">soundness of N</td></tr>
+        <tr><td>05</td><td>Diff classification</td><td>Divergences partitioned into normalisable noise and real change</td><td class="m">tractability</td></tr>
+        <tr><td>06</td><td>Implement</td><td><span class="mono">P&prime;</span> &mdash; the first point at which any code changes</td><td class="m">the candidate</td></tr>
+        <tr><td>07</td><td>Verdict run</td><td>Replay of <span class="mono">T</span> against <span class="mono">P&prime;</span>, rolled back</td><td class="m">acceptance</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ 4. THE MECHANISM ═══ -->
+  <div class="section">
+    <div class="section-label">4 &middot; The Mechanism</div>
+
+    <div class="stage">
+      <div class="stage-no"><b>01</b> &middot; TRIAGE</div>
+      <h3>Sort by what can be proved, not by what looks hard</h3>
+      <p>The first pass does not read for meaning; it reads for <strong>verifiability</strong>. For each procedure it decides a single question: what class of evidence could, even in principle, establish that a replacement is observationally equivalent? The answer is a property of the code &mdash; decidable by static analysis over the parse tree, not a matter of judgement &mdash; and it determines the maximum autonomy any agent can ever be granted over that procedure.</p>
+      <dl class="classes">
+        <div class="cls-a"><dt>pure read</dt><dd>Returns rows, writes nothing. Observation reduces to the result set; replay is side-effect-free and can be run against production directly.</dd></div>
+        <div class="cls-b"><dt>deterministic write</dt><dd>Same inputs, same write-set. Requires transactional capture and rollback, but the criterion of &sect;2 applies unmodified.</dd></div>
+        <div class="cls-c"><dt>non-deterministic</dt><dd>Depends on the clock, generated identifiers, or unstable ordering. Not eligible until a seam exists that makes each such dependency injectable or normalisable (&sect;5).</dd></div>
+        <div class="cls-d"><dt>external effect</dt><dd>Reaches outside the transactional boundary &mdash; message queues, filesystem, network. Cannot be replayed without a side effect escaping, so cannot be verified this way at all.</dd></div>
+      </dl>
+      <p class="tbl-note">This is the pass no human performs across ten thousand procedures, and it is the one that determines everything afterwards. Classification is cheap, mechanical, and total; it should never be sampled.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no"><b>02</b> &middot; SPEC</div>
+      <h3>Make it legible before you make it different</h3>
+      <p>An agent reads each procedure and records what it does: purpose, inputs, behaviour branch by branch, the invariants that appear to hold, the tables and columns touched &mdash; and, most valuably, an <strong>open-questions register</strong>: the behaviour it cannot distinguish as intentional from behaviour that merely looks like a mistake.</p>
+      <p>The register is not commentary. It is the input to stage 06's decision procedure, and later the reference against which stage 07's divergences are triaged: a divergence that corresponds to a logged open question is a different, and much cheaper, conversation than one that does not.</p>
+      <div class="artifact"><b>Precedent.</b> Morgan Stanley applied this at scale in 2025 &mdash; an internal tool read roughly nine million lines of legacy code and produced plain-English specifications, which the company estimated saved on the order of 280,000 developer hours. Note what was produced: not a rewrite, but the artefact that makes a rewrite reviewable.</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no"><b>03</b> &middot; ORACLE</div>
+      <h3>Constructing the pseudo-oracle</h3>
+      <p>Every call in production is recorded: arguments, the returned rows, and the complete set of rows written. These recordings constitute <span class="mono">T</span>. Deduplicated by normalised input shape, a fortnight of traffic on a moderately used procedure typically yields on the order of 10<sup>3</sup> distinct cases from 10<sup>4</sup>&ndash;10<sup>5</sup> calls.</p>
+      <p>The essential property is that <span class="mono">T</span> is <em>sampled from the true input distribution</em> rather than authored. Hand-written suites encode the author's model of the system, which is precisely the artefact that has been lost. Recorded traffic encodes the system's actual behaviour, including the states nobody would have thought to construct &mdash; and, importantly, in their real proportions, so that review effort lands where the volume is.</p>
+      <div class="artifact"><b>Invariants.</b> Alongside <span class="mono">T</span>, assert the properties that should hold on <em>every</em> run, not just recorded ones &mdash; e.g. <span class="mono">amount = round(base &times; rate, 2) + adjustment</span>, or "exactly one ledger row per (rep, period) after a run". These are metamorphic-style relations <span class="mono">[5]</span>: they extend coverage beyond <span class="mono">T</span> and are the only check that applies to inputs never observed.</div>
+      <div class="artifact"><b>The analogy, for non-specialists.</b> A bookkeeper of fifteen years is leaving; she computes commissions by rules that were never written down. You do not ask the new hire whether she can do it. You have her work in parallel for a month and compare the numbers. The parallel run <em>is</em> the oracle. You never needed the rules &mdash; you needed a reference and a comparison.</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no"><b>04</b> &middot; BASELINE SHADOW RUN</div>
+      <h3>Prove the harness before trusting the verdict</h3>
+      <p>Before anything is replaced, <span class="mono">T</span> is replayed against <span class="mono">P</span> &mdash; the incumbent itself. The expected result is total agreement, which is exactly why the step is skipped, and exactly why it must not be.</p>
+      <p>Formally, it discharges the null case of the criterion: it establishes that <span class="mono">N(O(P, c)) = N(O(P, c))</span> holds <em>as executed by the harness</em>, which is not a tautology. It fails whenever replay does not faithfully reconstruct the pre-state, the clock or identifier seams are not properly pinned, ordering is not canonicalised, or the comparator itself is generating spurious differences.</p>
+      <div class="artifact"><b>Interpretation.</b> Baseline divergence rate is a measurement of the harness, not the code. Any non-zero rate is an upper bound on the precision of every subsequent verdict: if <span class="mono">P</span> cannot be shown equal to itself, no statement about <span class="mono">P&prime;</span> carries information.</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no"><b>05</b> &middot; DIFF CLASSIFICATION</div>
+      <h3>Thousands of differences, twelve that matter</h3>
+      <p>Replay produces a large volume of raw field-level differences, the overwhelming majority of which are artefacts of non-determinism rather than behaviour. Reduction proceeds in two stages, and the ordering is not incidental: <strong>mechanical normalisation is applied first and exhaustively</strong>, because every difference resolved by a rule is one not entrusted to a model. Only the residue is passed to a classifier, which labels each as normalisable noise &mdash; with a stated, auditable reason &mdash; or as a real behavioural change, with an account of what changed and its business consequence.</p>
+      <div class="funnel">
+        <div><div class="k">raw differences</div><div class="n">1,847</div><div class="d">from one replay</div></div>
+        <div><div class="k">classified noise</div><div class="n">1,835</div><div class="d">each with a stated reason</div></div>
+        <div class="last"><div class="k">to a human</div><div class="n">12</div><div class="d">real behavioural change</div></div>
+      </div>
+      <p style="margin-top:1.1rem;">This step is what makes the method scale. Without it the bottleneck is not removed but relocated &mdash; from writing code to reading diffs, which is strictly worse, because diff review is less interesting and no faster.</p>
+
+      <div class="formal warn">
+        <div class="k">The method's most dangerous failure mode</div>
+        <p>The classifier's <strong>false negatives</strong> &mdash; a real behavioural change labelled as noise &mdash; are the only errors in the entire method that are silent. A false positive costs a human five minutes. A false negative ships a behaviour change with a certificate saying it did not happen.</p>
+        <p>Three controls follow, and none is optional if the pipeline runs unattended:</p>
+        <p><strong>(i) Hard exclusions.</strong> The classifier is structurally forbidden from suppressing a difference in any field named by a declared invariant or by a primary/foreign key. These route to a human unconditionally.</p>
+        <p><strong>(ii) Machine-checkable reasons.</strong> A suppression citing "clock-dependent field" is verified against the declared clock-dependent field set rather than accepted as prose. Reasons that cannot be checked mechanically are themselves a review queue.</p>
+        <p><strong>(iii) Audited sampling.</strong> A random sample of the noise bucket is reviewed by a human every run, and the measured false-negative rate is published as a running metric. An unaudited classifier has an unknown error rate, and an unknown error rate is not evidence.</p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no"><b>06</b> &middot; IMPLEMENT</div>
+      <h3>Now, and only now, write the replacement</h3>
+      <p>With a specification, a suite drawn from real traffic, asserted invariants, and a harness validated against itself, writing <span class="mono">P&prime;</span> is the least demanding step in the sequence. It is also the first at which any code changes.</p>
+      <div class="artifact"><b>The dominating rule: preserve behaviour, do not fix bugs.</b> The open-questions register will contain things that look wrong, and some of them are. Reproduce them anyway. A behavioural fix bundled into a migration destroys the interpretability of the comparison &mdash; a divergence no longer distinguishes "the new code is broken" from "the new code is better", and the whole apparatus of &sect;2 collapses. Fixes ship afterwards, as their own change, with their own evidence.</div>
+      <div class="formal warn">
+        <div class="k">Correlated failure &mdash; the assumption this method does not make</div>
+        <p>Classical N-version programming assumed that independently developed implementations fail independently. Knight and Leveson's experiment <span class="mono">[4]</span> refuted that assumption: independently written versions failed on correlated inputs far more often than independence predicts.</p>
+        <p>Here the situation is worse and should be stated as such. <span class="mono">P&prime;</span> is derived <em>from</em> <span class="mono">P</span> &mdash; via the specification, and often by a model that read the original directly. Their errors are not merely correlated; shared error is the design intent. A shadow run therefore detects <strong>divergence</strong>, never <strong>shared defect</strong>. This is not a flaw in the method; it is the precise reason its guarantee is stated as behaviour preservation in &sect;2 rather than correctness.</p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no"><b>07</b> &middot; VERDICT SHADOW RUN</div>
+      <h3>The replacement runs dry, beside the real thing</h3>
+      <p><span class="mono">T</span> is replayed against <span class="mono">P&prime;</span>. The customer sees only the incumbent's answer; the replacement executes alongside inside a transaction that is always rolled back, so both the returned rows and the full intended write-set are observable while <strong>production is never mutated</strong>. Industrial precedents for exactly this pattern are well established &mdash; GitHub's Scientist <span class="mono">[7]</span> for in-process refactoring under live traffic, Twitter's Diffy <span class="mono">[8]</span> for service-level response comparison.</p>
+      <p>Matches accumulate; divergences enter the adjudication queue. And here is the empirically interesting part: <strong>divergences reaching a human are frequently not defects in the replacement.</strong> They are behaviours the incumbent has exhibited for years that no one knew about &mdash; a recalculation silently discarding manually entered corrections, a status code excluded since 2011 for reasons no longer recorded.</p>
+      <div class="artifact"><b>Discovery is not licence.</b> The correct response to such a finding is to preserve the behaviour, log it, and raise the fix as a separate change with its own evidence. A system that silently corrects what it finds has quietly reintroduced the acceptance problem the method exists to solve. It surfaces; it does not decide.</div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ 5. NON-DETERMINISM ═══ -->
+  <div class="section">
+    <div class="section-label">5 &middot; Normalisation</div>
+    <h2>Sources of non-determinism, and the technique for each</h2>
+    <p>The normalisation <span class="mono">N</span> is the method's central engineering artefact and its central liability. Each row below is a class of divergence that is not behavioural; each is neutralised by a different mechanism, with a different cost to the strength of the criterion.</p>
+    <table class="tbl">
+      <thead><tr><th class="m">Source</th><th>Technique</th><th>Cost to the criterion</th></tr></thead>
+      <tbody>
+        <tr><td class="m">wall-clock reads</td><td>Virtualise the clock; pin to the recorded timestamp of the call</td><td><span class="yes">None</span> &mdash; exact under injection</td></tr>
+        <tr><td class="m">generated identifiers<br>(sequence, identity, UUID)</td><td>Seed deterministically, or canonicalise to order of first appearance and compare structurally</td><td><span class="yes">None</span> if referential structure is compared rather than literal values</td></tr>
+        <tr><td class="m">unordered result sets</td><td>Impose a total order on the projected tuple before comparison</td><td><span class="no">Masks real ordering changes</span> unless the query declares an ORDER BY contract</td></tr>
+        <tr><td class="m">floating-point and decimal tails</td><td>Compare within a declared tolerance &epsilon;</td><td><span class="no">Real</span> &mdash; any divergence below &epsilon; is invisible; &epsilon; must be justified per column</td></tr>
+        <tr><td class="m">hash/set iteration order</td><td>Canonicalise the collection before serialisation</td><td><span class="yes">None</span></td></tr>
+        <tr><td class="m">isolation-level artifacts<br>(e.g. dirty reads under NOLOCK)</td><td>None available &mdash; the observation is not a function of <span class="mono">(a, &sigma;)</span></td><td><span class="no">Disqualifying</span> &mdash; reclassify as non-deterministic (&sect;4, stage 01)</td></tr>
+        <tr><td class="m">effects outside the transaction</td><td>None available &mdash; rollback does not retract them</td><td><span class="no">Disqualifying</span> &mdash; external-effect class, not eligible</td></tr>
+      </tbody>
+    </table>
+    <p class="tbl-note">The last two rows are the reason triage precedes everything. A procedure whose observation is not a function of its recorded inputs and pre-state cannot be verified by replay at all, and no amount of normalisation changes that &mdash; it changes only whether the failure is visible.</p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ 6. COVERAGE ═══ -->
+  <div class="section">
+    <div class="section-label">6 &middot; Coverage</div>
+    <h2>What the recorded trace does not reach</h2>
+    <p>Because <span class="mono">T</span> is a sample of observed traffic, its coverage is the coverage of production behaviour during the recording window &mdash; no more. Three gaps follow directly, and each has a specific mitigation.</p>
+    <p><strong>Rare branches.</strong> Error handlers, compensation paths, and end-of-period logic may not execute at all in a two-week window. Mitigation: measure statement and branch coverage of <span class="mono">P</span> under replay of <span class="mono">T</span>, and treat uncovered branches as explicitly <em>unverified</em> rather than as passing. This number belongs in the migration's acceptance record.</p>
+    <p><strong>Unreached states.</strong> A branch may be covered while the data states that make it interesting are not. Coverage is necessary, not sufficient; invariants (&sect;4, stage 03) are the check that survives here, because they constrain all runs rather than recorded ones.</p>
+    <p><strong>Distribution shift.</strong> <span class="mono">T</span> characterises past traffic. A migration verified against it is verified against the past; regulatory changes, new integrations, or seasonal load can move the distribution after cut-over. Mitigation: keep the shadow comparator running for a period <em>after</em> promotion, so divergence detection continues against live traffic rather than stopping at the verdict.</p>
+    <div class="formal">
+      <div class="k">Recommended acceptance record</div>
+      <p>A migration is defensible when it publishes, per procedure: the size and window of <span class="mono">T</span>; baseline divergence rate; branch coverage under replay; the full contents of <span class="mono">N</span> with a per-entry justification; the classifier's audited false-negative rate; and every adjudicated divergence with its decision and rationale. Each of these is a number someone can disagree with, which is the point.</p>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ 7. LIMITS ═══ -->
+  <div class="section limits">
+    <div class="section-label">7 &middot; Limits</div>
+    <h2>Where it stops</h2>
+    <p class="limits-lede">A method that claims no limits should not be believed. These are not caveats appended for balance; each one determines work that must be staffed with people.</p>
+    <p><strong>Knowledge never written down is unrecoverable.</strong> If a rule existed only in the head of someone who has left, an agent can read from the code what happens. It cannot read whether that was intended. The bug/feature distinction in fifteen-year-old code is not a question any model can settle, because the evidence required does not exist in the artefact.</p>
+    <p><strong>Some changes are simultaneously irreversible and unverifiable.</strong> Schema migrations against a live core, and anything with accounting or regulatory consequence, fall outside the rollback-and-compare pattern entirely: the observation cannot be taken without committing it. These remain with people &mdash; not because the model is incapable, but because the loss function is asymmetric to a degree that dominates any efficiency argument.</p>
+    <p><strong>Some code admits no oracle at all.</strong> Where the correct answer is <em>by definition</em> whatever the current implementation returns &mdash; a score accreted from a decade of rule changes &mdash; equivalence is provable and improvement is not. You can migrate it; the moment you want to change it, there is nothing to measure against. Plan for people there, and do not expect the situation to improve on its own.</p>
+    <p><strong>And the criterion itself is a floor, not a ceiling.</strong> Everything in &sect;2 concerns preservation. A system that only ever preserves accrues no interest on the investment; the value of the method is that it makes the estate <em>safe to change</em>, which is a precondition for improvement and not a substitute for it.</p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ 8. METRICS ═══ -->
+  <div class="section">
+    <div class="section-label">8 &middot; Instrumentation</div>
+    <h2>What to measure</h2>
+    <p>Procedures migrated is a vanity metric: it measures throughput of a process whose value depends entirely on the trustworthiness of its verdicts. The following measure that.</p>
+    <ul class="metrics">
+      <li><span class="mk">intervention rate</span><span>Human adjudications per hundred procedures completed. The headline number: it is the direct measure of how much of the work the system can actually carry, and the only one that determines whether autonomy can safely widen.</span></li>
+      <li><span class="mk">baseline divergence</span><span>Divergences when replaying <span class="mono">P</span> against itself. Must be zero, or every downstream verdict inherits the noise as an error bar.</span></li>
+      <li><span class="mk">|N| &middot; normalisation surface</span><span>Count of fields quotiented out, and its trend. Rising <span class="mono">|N|</span> means the criterion is weakening; this is the leading indicator of a migration drifting toward vacuous agreement.</span></li>
+      <li><span class="mk">classifier FNR</span><span>False-negative rate from audited sampling of the noise bucket. Unmeasured, the classifier's output is an assertion rather than evidence.</span></li>
+      <li><span class="mk">replay branch coverage</span><span>Fraction of <span class="mono">P</span>'s branches executed under <span class="mono">T</span>. Bounds the scope of the guarantee, and identifies exactly what remains unverified.</span></li>
+      <li><span class="mk">post-promotion divergence</span><span>Divergences detected by the comparator left running after cut-over. The empirical check on distribution shift (&sect;6).</span></li>
+    </ul>
+
+    <div class="metric-box" style="margin-top:2rem;">
+      <div class="k">The metric that actually matters</div>
+      <div class="m">Not <span class="strike">procedures migrated</span>. How often a human has to step in.</div>
+      <p>When that number falls, the boundary of what agents may do unsupervised moves outward, and debt repayment becomes a by-product rather than a programme. It is also the honest measure of whether any of this works &mdash; a system requiring constant correction is telling you its instructions are wrong, not that the model is weak.</p>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ═══ REFERENCES ═══ -->
+  <div class="section">
+    <div class="section-label">Further Reading</div>
+    <ol class="refs">
+      <li><span class="t">E. J. Weyuker.</span> On testing non-testable programs. <em>The Computer Journal</em>, 25(4), 1982. &mdash; The original formulation of the oracle problem.</li>
+      <li><span class="t">E. T. Barr, M. Harman, P. McMinn, M. Shahbaz, S. Yoo.</span> The oracle problem in software testing: a survey. <em>IEEE Transactions on Software Engineering</em>, 41(5), 2015. &mdash; Taxonomy of oracle strategies, including pseudo-oracles.</li>
+      <li><span class="t">W. M. McKeeman.</span> Differential testing for software. <em>Digital Technical Journal</em>, 10(1), 1998. &mdash; Comparison against a reference implementation as an oracle substitute.</li>
+      <li><span class="t">J. C. Knight, N. G. Leveson.</span> An experimental evaluation of the assumption of independence in multiversion programming. <em>IEEE Transactions on Software Engineering</em>, SE-12(1), 1986. &mdash; Why correlated failure must be assumed, not hoped against.</li>
+      <li><span class="t">T. Y. Chen et al.</span> Metamorphic testing: a review of challenges and opportunities. <em>ACM Computing Surveys</em>, 51(1), 2018. &mdash; Invariant-style relations that extend coverage beyond a recorded trace.</li>
+      <li><span class="t">R. O'Callahan, C. Jones, N. Froyd, K. Huey, A. Noll, N. Partush.</span> Engineering record and replay for deployability. <em>USENIX ATC</em>, 2017. &mdash; Practical constraints on faithful record-and-replay.</li>
+      <li><span class="t">GitHub.</span> Scientist: a library for carefully refactoring critical paths, 2016. &mdash; Industrial precedent for running a candidate beside production traffic.</li>
+      <li><span class="t">Twitter.</span> Diffy: testing services without writing tests, 2015. &mdash; Response-level differential comparison of a candidate against an incumbent.</li>
+    </ol>
+  </div>
+
+  <!-- ═══ BOTTOM BAR ═══ -->
+  <div class="bottom-bar">
+    <p>Share this with your engineering leadership.</p>
+    <div class="bottom-actions">
+      <a class="btn-line" href="method.html">Read the full version</a>
+      <a class="btn-line" href="method-brief.pdf" download>Download PDF</a>
+      <button class="btn-dark" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

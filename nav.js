@@ -14,6 +14,7 @@
 
   // ── Menu structure ──────────────────────────────────────────────────
   // Top-level item: { label, href }  OR  { label, dropdown: [ {label, href}, ... ] }
+  // A dropdown child may add `download: true` to save the file instead of opening it.
   var NAV = [
     {
       label: 'The Approach',
@@ -26,10 +27,14 @@
         { label: 'Roadmap', href: 'index.html#roadmap' }
       ]
     },
+    { label: 'The Method', href: 'method.html' },
     { label: 'Platform Landscape', href: 'platform-landscape.html' },
     {
       label: 'Resources',
       dropdown: [
+        { label: 'All resources', href: 'index.html#resources' },
+        { label: 'Method Brief (technical)', href: 'method-brief.html' },
+        { label: 'Method Brief — PDF', href: 'method-brief.pdf', download: true },
         { label: 'Executive Brief', href: 'one-pager.html' }
       ]
     }
@@ -97,7 +102,7 @@
     var active = isActive(item) ? ' active' : '';
     if (item.dropdown) {
       var links = item.dropdown.map(function (c) {
-        return '<a href="' + c.href + '">' + c.label + '</a>';
+        return '<a href="' + c.href + '"' + (c.download ? ' download' : '') + '>' + c.label + '</a>';
       }).join('');
       return '<div class="nav-item has-dropdown' + active + '">' +
         '<button class="nav-top" aria-haspopup="true" aria-expanded="false">' + item.label + caretSVG + '</button>' +
