@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adoption is not impact | Agentic SDLC</title>
+<meta name="description" content="Seats and acceptance rates rise whether or not anything ships faster. A measurement model connecting AI spend to delivery outcomes, with the paired quality metrics that stop you optimising for throughput of defects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="blog.css">
+</head>
+<body>
+<script src="nav.js" defer></script>
+
+<div class="wrap">
+<div class="narrow">
+
+  <a href="blog.html" class="back-link">&larr; All posts</a>
+
+  <article>
+    <header class="post-hero">
+      <span class="label">Measurement</span>
+      <h1>Adoption is not impact</h1>
+      <p class="dek">Seats, acceptance rates and lines generated all go up regardless of whether anything shipped faster or better. Here is a measurement model that connects what you spend to what you deliver &mdash; and the counter-metrics that stop it lying to you.</p>
+      <div class="post-meta">
+        <span>4 August 2026</span>
+        <span>10 min read</span>
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      <p class="lede">Every AI vendor dashboard reports adoption. Seats activated, suggestions accepted, lines of code generated, chats per developer per week. These numbers reliably go up. None of them is evidence that your product got better, cheaper, or faster to change.</p>
+
+      <p>The gap matters because adoption metrics are the ones that reach the board. A slide showing 87% weekly active usage and 34% suggestion acceptance reads as success. It is compatible with delivery being exactly as slow as it was eighteen months ago, and with defect rates being worse.</p>
+
+      <p>This post is about closing that gap: which metrics actually track impact, how to join them to spend, and the specific ways this measurement goes wrong.</p>
+
+      <h2>Why the obvious metrics fail</h2>
+
+      <p><strong>Suggestion acceptance rate</strong> measures whether generated text looked plausible enough to keep. It is a measure of the model's fluency and the developer's tolerance, not of value. It rises when developers get less careful.</p>
+
+      <p><strong>Lines of code generated</strong> is worse than useless. Volume of code is a cost, not an output. A tool that reliably produces more code to achieve the same thing has made your estate more expensive to maintain, and this metric will score it as a triumph.</p>
+
+      <p><strong>Time saved, self-reported</strong> is the most common number in AI business cases and the least reliable. Developers estimating their own savings consistently overstate them, and the estimate is made in the moment of relief after the tool did something impressive &mdash; not after the review, the rework, and the incident.</p>
+
+      <p><strong>Seats and weekly actives</strong> measure procurement, not outcomes.</p>
+
+      <div class="pull">Every one of these can improve while your ability to ship gets worse. That is the definition of a bad metric.</div>
+
+      <h2>The measurement model</h2>
+
+      <p>What you actually want to know is narrow and answerable: <em>did the flow of work through the system get faster, without getting more dangerous, and at what cost?</em> That decomposes into three layers, and the discipline is that you need all three or none of them mean anything.</p>
+
+      <h3>Layer 1 — Flow</h3>
+
+      <p>Standard delivery metrics, which most organisations already have and which have the enormous advantage of predating AI, so you have a baseline that nobody can accuse of being cherry-picked.</p>
+
+      <div class="table-scroll">
+      <table>
+        <thead><tr><th class="m">Metric</th><th>What moves it</th><th>Watch for</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="m">change lead time</td>
+            <td>First commit to production. The headline flow number.</td>
+            <td>Improves if agents write faster <em>and</em> review keeps up; flat if review is the constraint</td>
+          </tr>
+          <tr>
+            <td class="m">deployment frequency</td>
+            <td>How often changes actually reach users.</td>
+            <td>Unmoved by code generation alone &mdash; it is usually gated by process, not typing</td>
+          </tr>
+          <tr>
+            <td class="m">review latency</td>
+            <td>PR opened to first substantive review.</td>
+            <td><strong>The one to watch.</strong> Agents move this in the wrong direction first.</td>
+          </tr>
+          <tr>
+            <td class="m">PR queue depth</td>
+            <td>Open PRs awaiting human attention.</td>
+            <td>Rises sharply when generation scales and review does not</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>Review latency and queue depth are the pair that expose the central failure mode of agentic adoption. Generation capacity is now effectively unbounded; human review capacity is fixed. If you increase the first without addressing the second, work in progress rises, lead time gets <em>worse</em>, and adoption metrics look magnificent throughout.</p>
+
+      <h3>Layer 2 — Quality, as a counter-metric</h3>
+
+      <p>Every flow metric must be paired with a quality metric, reported together, always. Reporting flow alone creates an incentive to ship faster by reviewing less, and that incentive works.</p>
+
+      <ul>
+        <li><strong>Change failure rate</strong> &mdash; proportion of deployments causing a degradation. The primary counterweight to lead time.</li>
+        <li><strong>Rework rate</strong> &mdash; proportion of merged changes modified again within, say, 14 days. This is the sharpest AI-specific signal: code that passed review but did not survive contact with reality.</li>
+        <li><strong>Revert rate</strong> &mdash; the unambiguous version of the same thing.</li>
+        <li><strong>Escaped defect rate</strong> &mdash; defects found in production rather than in review or test.</li>
+      </ul>
+
+      <p>Rework rate is worth instrumenting even if you instrument nothing else. It is cheap to compute from version control, it needs no self-reporting, and it catches the specific pathology of plausible-looking generated code that gets waved through.</p>
+
+      <h3>Layer 3 — Cost, joined to both</h3>
+
+      <p>This is the layer that is usually missing, because the data lives somewhere else entirely &mdash; in an invoice rather than in your delivery tooling. Joining them is the whole point, and it is only possible if your model calls carry organisational identity, which is the argument made in <a href="blog-ai-spend-attribution.html">the previous post</a>.</p>
+
+      <p>With attribution in place, the derived numbers are straightforward and unusually persuasive:</p>
+
+      <ul>
+        <li><strong>Cost per merged change</strong>, segmented by change class.</li>
+        <li><strong>Cost of abandoned work</strong> &mdash; spend on runs that produced nothing merged.</li>
+        <li><strong>Cost per unit of review time saved</strong>, once you are measuring review time.</li>
+        <li><strong>Marginal cost of the last 10% of quality</strong> &mdash; usually a frontier model doing what a cheap one nearly did.</li>
+      </ul>
+
+      <h2>The intervention rate</h2>
+
+      <p>If you keep one number, keep this one: <strong>how often a human has to step in.</strong></p>
+
+      <p>It is the honest measure of autonomy, and it has a property no other metric here has &mdash; it is meaningful without a baseline. Interventions per hundred agent runs tells you directly how much of the work the system carries, and its trend tells you whether your instructions, context and guardrails are improving or decaying. A system needing constant correction is telling you its instructions are wrong, not that the model is weak.</p>
+
+      <p>It is also the number that gates expansion. You do not widen what agents may do unsupervised because a vendor released a better model; you widen it because the intervention rate in the current scope fell and stayed down. This is the metric <a href="method.html#metric">The Method</a> is built to drive.</p>
+
+      <div class="callout">
+        <span class="k">A worked instrumentation</span>
+        <p>Join three sources on a task identifier: the gateway's spend log (cost, model, session), the version control system (PR opened, merged, reverted, modified-again), and the incident record (change failure). One row per unit of work, with cost and outcome on the same row.</p>
+        <p>Everything in this post is a query over that table. If building it seems disproportionate, that is a useful signal in itself: it means you currently cannot answer any question about AI value except by asking people how they feel.</p>
+      </div>
+
+      <h2>The attribution problem nobody solves cleanly</h2>
+
+      <p>Now the honest part, because most writing on this subject skips it.</p>
+
+      <p>You will almost never get a clean causal read. Teams adopt AI at the same time as they change process, tooling, and staffing. Delivery metrics move for a dozen reasons. Anyone presenting "AI improved lead time by 23%" from an uncontrolled before-and-after comparison is presenting a correlation with a confident face.</p>
+
+      <p>The realistic options, in descending order of rigour:</p>
+
+      <ol>
+        <li><strong>Staged rollout by team.</strong> Enable for some teams, not others, for a defined period, and compare. Not a randomised trial &mdash; team composition and workload differ &mdash; but it is the closest thing available in a real organisation, and it is far better than nothing.</li>
+        <li><strong>Within-team, by work class.</strong> Compare the same team's metrics on AI-assisted versus unassisted change types. Controls for team, not for the possibility that easy work gets assigned to agents.</li>
+        <li><strong>Interrupted time series.</strong> Look for a change in trend at the adoption point rather than a change in level, and be explicit about confounders.</li>
+      </ol>
+
+      <p>The practical recommendation: use staged rollout for the decision that matters (do we expand this?), and use the cost-per-outcome numbers for the ongoing operational question (are we spending well?). Do not attempt a single headline ROI figure. It will not survive scrutiny from anyone competent, and reaching for it damages the credibility of the numbers that are solid.</p>
+
+      <div class="callout warn">
+        <span class="k">Two ways this measurement gets gamed</span>
+        <p><strong>Splitting PRs.</strong> Once cost per merged PR is a metric, PRs get smaller. Some of that is genuinely good; some is one change wearing four hats. Segment by change size or you are measuring PR-shaped behaviour.</p>
+        <p><strong>Routing easy work to agents.</strong> If agents are assigned the tractable tickets, their cost per outcome looks excellent and tells you nothing about whether they could carry the hard ones. Track the distribution of work class, not just the aggregate.</p>
+      </div>
+
+      <h2>What the numbers usually say</h2>
+
+      <p>Three patterns recur often enough to predict, and each has a specific response:</p>
+
+      <p><strong>Lead time does not move at first; review latency gets worse.</strong> Generation capacity went up, review capacity did not, work in progress rose. The response is not more generation &mdash; it is automated review as a first pass, and much smaller changes.</p>
+
+      <p><strong>Spend concentrates violently.</strong> Typically a small number of teams and a small number of workflow patterns account for the majority of the bill, usually through fan-out. This is not a problem in itself; it is a problem when nobody knew.</p>
+
+      <p><strong>Abandoned work is the biggest line item nobody budgeted.</strong> Runs that consumed real money and produced nothing merged. Invisible without outcome-level attribution, and often the fastest saving available once visible.</p>
+
+      <div class="takeaways">
+        <div class="k">If you take four things</div>
+        <ol>
+          <li>Adoption metrics rise independently of impact. Do not report them as success.</li>
+          <li>Pair every flow metric with a quality counter-metric, and report them together, always.</li>
+          <li>Rework rate and review latency are the two AI-specific signals worth instrumenting first.</li>
+          <li>Do not chase a single ROI number. Use staged rollout for expansion decisions and cost-per-outcome for operational ones.</li>
+        </ol>
+      </div>
+
+      <div class="operated">
+        <div class="k">Running this in production</div>
+        <h3>The measurement is only as good as the join key</h3>
+        <p>Layers 1 and 2 come from tooling you already have. Layer 3 does not exist unless something records identity, purpose and normalised cost on every model call &mdash; which in practice means a gateway, and means it configured so the identifiers survive into the log.</p>
+        <p>Revolgy runs LiteLLM as a managed service in EU regions, with the spend log shaped to join against your version control and incident data, and monthly reporting built on the cost-per-outcome units in this post rather than on token counts. Metadata only &mdash; volume, model mix, task type, latency, cost &mdash; set out explicitly in the DPA. The software stays open source and the exit path stays yours.</p>
+        <div class="actions">
+          <a href="index.html#cta" class="btn btn--primary">Talk about measurement <span aria-hidden="true">&rarr;</span></a>
+          <a href="method.html" class="btn btn--outline">Read The Method</a>
+        </div>
+      </div>
+
+    </div>
+  </article>
+
+  <div class="related">
+    <div class="k">Related</div>
+    <div class="related-grid">
+      <a href="blog-ai-spend-attribution.html">
+        <span class="t">Your AI spend has no owner</span>
+        <span class="d">The attribution layer this measurement model depends on, and why it can only be built at the call.</span>
+      </a>
+      <a href="blog-shadow-ai.html">
+        <span class="t">Shadow AI is a routing problem</span>
+        <span class="d">Your metrics only cover sanctioned traffic. What the unsanctioned traffic does to them.</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
+</footer>
+
+</body>
+</html>

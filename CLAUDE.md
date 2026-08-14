@@ -32,7 +32,20 @@ python3 -m http.server 8080
 | `method.html` | Scrollytelling explainer for paying down a legacy stored-procedure estate, linked from nav |
 | `method-brief.html` | **Technical** companion to `method.html`, in the `one-pager.html` style — states the equivalence criterion formally, tabulates the non-determinism/normalisation taxonomy, analyses the classifier and correlated-failure failure modes, and carries a references list. Written for a rigorous reader, not a skimmer. |
 | `method-brief.pdf` | Generated from `method-brief.html` — the downloadable offered in `#resources` and the Resources menu |
+| `blog.html` | Blog index — post cards, newest first. Add a card here when adding a post. |
+| `blog-*.html` | One file per post. Slug is the filename: `blog-ai-spend-attribution.html`. |
+| `blog.css` | **The only shared stylesheet on the site** — see below. |
 | `nav.js` | Shared top navigation — injected into every page. Single source of truth for the menu. |
+
+### The blog
+
+`blog.css` is a deliberate exception to the "tokens inline per page" convention below: posts multiply, and duplicating ~350 lines of article CSS into each one is not maintainable. Its `:root` values are identical to every other page so `nav.js` behaves the same.
+
+To add a post: copy an existing `blog-*.html`, change the head/meta/hero, write the body, then add a `.post-card` to `blog.html` and fix up the `.related` blocks in the neighbouring posts. There is no index generation — the list is hand-maintained, which is fine at this volume and should be revisited past ~15 posts.
+
+Article components available in `blog.css`: `.lede`, `.pull` (pull quote), `.callout` (+ `.warn` / `.good`), `.term` (dark config block reusing `index.html`'s terminal treatment, with `.c` `.k` `.s` `.n` spans), `.takeaways`, `.operated` (the commercial block), `.related`.
+
+**Editorial line for the `.operated` block**: sell the operation, not the software. LiteLLM is open source and the posts say so plainly; the offer is SLA-backed running of it, and every post states the honest limits (spend floor below which a gateway is not worth it, single-point-of-failure risk, metadata-not-payloads boundary). Do not write a post whose `.operated` block claims the software itself is the differentiator.
 
 ### Regenerating `method-brief.pdf`
 
@@ -64,7 +77,7 @@ Its figures are one continuous artefact — a dark terminal-style panel reusing 
 
 The top nav is a shared component, not inline per page. Each page includes `<script src="nav.js" defer></script>` right after `<body>`; the script injects its own `<style>`, the `<nav>` markup, and a `.nav-spacer` at the top of `<body>`, then wires up dropdowns + the mobile hamburger drawer.
 
-- **To add/rename/reorder a menu item, edit the `NAV` array (and `CTA`) at the top of `nav.js` only** — every page updates automatically. A top-level entry is either `{label, href}` or `{label, dropdown:[{label,href}, …]}`. A dropdown child may add `download: true` to emit `<a download>` so the file saves instead of opening (used for `method-brief.pdf`).
+- **To add/rename/reorder a menu item, edit the `NAV` array (and `CTA`) at the top of `nav.js` only** — every page updates automatically. A top-level entry is either `{label, href}` or `{label, dropdown:[{label,href}, …]}`. A dropdown child may add `download: true` to emit `<a download>` so the file saves instead of opening (used for `method-brief.pdf`). A top-level entry may add `match: '<prefix>'` to own a whole family of pages for active-state highlighting — Blog uses `match: 'blog'` so every `blog-*.html` post keeps the nav item lit.
 - Active-state highlighting is derived from the current filename; index sections live under the "The Approach" dropdown as `index.html#…` anchors.
 - `nav.js` hard-codes its easing (no dependence on a page-level `--ease` token) but otherwise relies on the shared `--primary` / `--slate-*` / `--font-*` tokens each page defines in `:root`. It hides itself in `@media print` so the one-pager stays printable.
 

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shadow AI is a routing problem, not a policy problem | Agentic SDLC</title>
+<meta name="description" content="Blocking consumer AI tools moves the traffic somewhere you cannot see it. Why the sanctioned path has to be the fastest path, and what it takes to make that true.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="blog.css">
+</head>
+<body>
+<script src="nav.js" defer></script>
+
+<div class="wrap">
+<div class="narrow">
+
+  <a href="blog.html" class="back-link">&larr; All posts</a>
+
+  <article>
+    <header class="post-hero">
+      <span class="label">Governance</span>
+      <h1>Shadow AI is a routing problem, not a policy problem</h1>
+      <p class="dek">People paste source code into consumer chat windows because the sanctioned path is slower, or absent. Blocking does not remove the demand &mdash; it removes your visibility of it.</p>
+      <div class="post-meta">
+        <span>28 July 2026</span>
+        <span>8 min read</span>
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      <p class="lede">Every organisation that has surveyed this honestly has found the same thing: a substantial fraction of employees use AI tools the company has not sanctioned, and a meaningful fraction of those have pasted internal material into one. Developers are not the worst offenders, but they paste the most sensitive material &mdash; source code, stack traces with credentials in them, production data used to reproduce a bug.</p>
+
+      <p>The standard response is a policy and a block. Both are reasonable. Neither works, for a reason worth stating plainly.</p>
+
+      <h2>Why blocking fails</h2>
+
+      <p>Shadow AI is not a discipline problem. It is a latency and friction problem wearing a discipline costume. The person pasting a stack trace into a consumer chat window is not defying policy for entertainment; they are solving a problem in the fastest way available to them. If the sanctioned path requires a ticket, a two-week approval, and a model that is a generation behind, the unsanctioned path wins every single time, and it wins on merit.</p>
+
+      <p>Blocking then produces a predictable sequence:</p>
+
+      <ol>
+        <li>The corporate domain is blocked on the corporate network.</li>
+        <li>Usage moves to personal devices, personal accounts, and phone tethering.</li>
+        <li>The same data leaves, in the same volume, now with no log, no retention control, and no way to answer a regulator's question about where it went.</li>
+      </ol>
+
+      <p>You have not reduced the risk. You have converted a visible, governable risk into an invisible, ungovernable one, and you have done it while believing the opposite.</p>
+
+      <div class="pull">The block does not change the behaviour. It changes whether you can see the behaviour.</div>
+
+      <h2>The reframe</h2>
+
+      <p>Treat it as a routing problem: <strong>make the governed path the fastest path, then the routing decision makes itself.</strong></p>
+
+      <p>This inverts what the security control has to achieve. It is no longer "prevent people reaching model vendors" &mdash; a losing proposition against any determined user with a phone. It becomes "ensure the easiest available route to a good model happens to pass through something we operate". That is winnable, because you control the thing that determines convenience: the default configuration on every developer machine.</p>
+
+      <p>Three properties decide whether the governed path wins:</p>
+
+      <ul>
+        <li><strong>Model parity.</strong> If the sanctioned models are visibly worse, people route around them. This is the requirement that most internal AI platforms fail. A gateway carrying current frontier models removes the main honest reason to defect.</li>
+        <li><strong>Zero friction at the point of use.</strong> Two environment variables, already set, is the bar. Any per-request approval loses to the consumer product instantly.</li>
+        <li><strong>No new credentials.</strong> If getting access means a ticket, the ticket is where adoption dies. Provision on the existing identity, as part of onboarding.</li>
+      </ul>
+
+      <p>Meet those three and shadow usage collapses on its own, because the governed path is genuinely more convenient. Miss any one and you are back to enforcement, which does not work.</p>
+
+      <h2>What the governed path buys you</h2>
+
+      <p>Once traffic is routed through something you operate, several problems become tractable that were previously not:</p>
+
+      <div class="table-scroll">
+      <table>
+        <thead><tr><th class="m">Control</th><th>What it does</th><th>What it does not do</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="m">model allowlist</td>
+            <td>Restricts which models and vendors can be reached, per team</td>
+            <td>Nothing about what is sent to permitted ones</td>
+          </tr>
+          <tr>
+            <td class="m">secret redaction</td>
+            <td>Strips detected credentials and key patterns before egress</td>
+            <td>Catch everything &mdash; it is pattern matching, not comprehension</td>
+          </tr>
+          <tr>
+            <td class="m">audit log</td>
+            <td>Records who called what, when, at what cost</td>
+            <td>Require payload retention &mdash; metadata is enough and usually preferable</td>
+          </tr>
+          <tr>
+            <td class="m">regional routing</td>
+            <td>Pins processing to chosen jurisdictions, with evidence</td>
+            <td>Help if the vendor sub-processes elsewhere &mdash; check the contract</td>
+          </tr>
+          <tr>
+            <td class="m">per-team budgets</td>
+            <td>Caps spend before it is incurred, not after</td>
+            <td>Distinguish valuable from wasteful spend on its own</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>The regional routing row is the one that most often turns a nice-to-have into a purchase. Consumer and edge-routed services are typically distributed across a global network for latency &mdash; excellent engineering, and disqualifying if you need to state which jurisdiction processed a given request. A gateway you deploy in a region you chose can answer that question with a log line.</p>
+
+      <div class="callout warn">
+        <span class="k">A note on regulatory framing</span>
+        <p>It is tempting to sell this on the EU AI Act. Be careful and be current: the Digital Omnibus that entered into force on 27 July 2026 deferred the high-risk obligations (Annex III) from August 2026 to <strong>December 2027</strong>, with Annex I moving to August 2028. Most Article 50 transparency duties did begin in August 2026.</p>
+        <p>So the honest framing is not "you are non-compliant today". It is that the deadline moved <em>because the tooling was not ready</em>, evidence can only be collected from the point you start logging, and you now have a defined window to build the record rather than a scramble. Anyone claiming an emergency here will be corrected by your counsel, and will deserve it.</p>
+      </div>
+
+      <h2>The data boundary, stated precisely</h2>
+
+      <p>This is where deployments succeed or die in regulated accounts, so it is worth being exact rather than reassuring.</p>
+
+      <p>A gateway <em>can</em> log full prompts and responses. In most environments it should not. The distinction that matters:</p>
+
+      <ul>
+        <li><strong>Metadata</strong> &mdash; who called, which model, how many tokens, how long it took, what it cost, which session. Sufficient for attribution, budgets, capacity planning and audit. Low sensitivity, defensible to retain.</li>
+        <li><strong>Payload</strong> &mdash; the prompt and completion. Useful for debugging and evaluation, and it is your source code and potentially customer data sitting in a log store, inheriting every obligation attached to it.</li>
+      </ul>
+
+      <p>The workable default is metadata retained, payloads not retained, with payload capture available as a deliberate, time-boxed, consented exception for a specific debugging need. Put that in configuration, put it in the data processing agreement, and make sure the sentence "we process metadata for cost attribution and operational purposes and do not retain payload content" is literally true of the deployment. It is the sentence that gets you through security review.</p>
+
+      <h2>The failure mode to design for</h2>
+
+      <p>A gateway on the critical path is a single point of failure for every AI-assisted workflow in the organisation. When it degrades, every developer, every agent, and every automated pipeline that depends on a model degrades with it &mdash; simultaneously, and during working hours.</p>
+
+      <p>This is manageable, and it must be managed explicitly:</p>
+
+      <ul>
+        <li>Run it multi-zone with health-checked failover. A single instance is a demo.</li>
+        <li>Configure vendor-level fallback so one provider's outage is not yours.</li>
+        <li>Document a break-glass direct-to-vendor path, with the reduced controls it implies stated in advance, so the decision is not made under pressure.</li>
+        <li>Monitor and alert on it as a tier-one dependency, because that is what it is.</li>
+        <li>Rehearse the upgrade path. Gateways move fast; an upgrade that interrupts every agent in the company is an outage you scheduled yourself.</li>
+      </ul>
+
+      <p>None of this is exotic. It is ordinary operational discipline applied to a component that is often installed as a side project and then quietly becomes load-bearing without anyone deciding it should.</p>
+
+      <div class="takeaways">
+        <div class="k">If you take four things</div>
+        <ol>
+          <li>Blocking converts a visible risk into an invisible one. It does not reduce it.</li>
+          <li>Model parity, zero friction, no new credentials &mdash; miss any one and the governed path loses.</li>
+          <li>Retain metadata, not payloads, and make that boundary explicit in configuration and contract.</li>
+          <li>Anything on the critical path needs multi-zone operation and a documented break-glass route.</li>
+        </ol>
+      </div>
+
+      <div class="operated">
+        <div class="k">Running this in production</div>
+        <h3>The control only works if it never becomes the slow path</h3>
+        <p>Everything above depends on a gateway that is fast, current, and reliably up &mdash; because the moment it is none of those, people route around it and you are back where you started with a worse story to tell.</p>
+        <p>Revolgy runs LiteLLM as a managed service in EU regions: multi-zone deployment, SLA-backed operation, model policy and allowlists, secret redaction, and audit logging scoped to metadata with the boundary set out in the DPA. Software stays open source, the configuration is yours, and the exit path is a config change rather than a migration.</p>
+        <div class="actions">
+          <a href="index.html#cta" class="btn btn--primary">Talk about the governed path <span aria-hidden="true">&rarr;</span></a>
+          <a href="platform-landscape.html#stack" class="btn btn--outline">Compare the gateway options</a>
+        </div>
+      </div>
+
+    </div>
+  </article>
+
+  <div class="related">
+    <div class="k">Related</div>
+    <div class="related-grid">
+      <a href="blog-ai-spend-attribution.html">
+        <span class="t">Your AI spend has no owner</span>
+        <span class="d">Once the traffic routes through you, it can be attributed. Why that is only possible at the call.</span>
+      </a>
+      <a href="blog-measuring-ai-impact.html">
+        <span class="t">Adoption is not impact</span>
+        <span class="d">Connecting the resulting spend data to delivery outcomes, without fooling yourself.</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
+</footer>
+
+</body>
+</html>

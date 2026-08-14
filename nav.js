@@ -29,6 +29,7 @@
     },
     { label: 'The Method', href: 'method.html' },
     { label: 'Platform Landscape', href: 'platform-landscape.html' },
+    { label: 'Blog', href: 'blog.html', match: 'blog' },
     {
       label: 'Resources',
       dropdown: [
@@ -46,6 +47,9 @@
   function fileOf(href) { return (href || '').split('#')[0].split('/').pop() || 'index.html'; }
   var current = location.pathname.split('/').pop() || 'index.html';
   function isActive(item) {
+    // `match` marks a whole family of pages as belonging to one nav entry —
+    // e.g. Blog owns blog.html and every blog-*.html post.
+    if (item.match && current.indexOf(item.match) === 0) return true;
     if (item.href && fileOf(item.href) === current) return true;
     if (item.dropdown) return item.dropdown.some(function (c) { return fileOf(c.href) === current; });
     return false;

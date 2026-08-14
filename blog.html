@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog | Agentic SDLC</title>
+<meta name="description" content="Practitioner notes on AI token economics, measuring the impact of AI on delivery, and running a model gateway in production.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="blog.css">
+</head>
+<body>
+<script src="nav.js" defer></script>
+
+<div class="wrap">
+
+  <header class="blog-hero">
+    <span class="label">Blog</span>
+    <h1>Notes from the gateway</h1>
+    <p>Most writing about AI in engineering is about what the models can do. This is about the part nobody demos: what it costs, who is spending it, whether it made the product better, and how you would know. Written from the operating side &mdash; the numbers, the failure modes, and the configuration that produces them.</p>
+  </header>
+
+  <div class="post-list">
+
+    <a class="post-card" href="blog-ai-spend-attribution.html">
+      <div class="post-meta">
+        <span class="tag">Token economics</span>
+        <span>11 August 2026</span>
+        <span>9 min read</span>
+      </div>
+      <h2>Your AI spend has no owner</h2>
+      <p class="dek">Three invoices, one number, and nobody who can tell you which team, product, or outcome consumed it. Why per-token cost is the wrong unit, what the right units are, and the one architectural change that makes attribution possible at all.</p>
+      <span class="more">Read <span class="arrow">&rarr;</span></span>
+    </a>
+
+    <a class="post-card" href="blog-measuring-ai-impact.html">
+      <div class="post-meta">
+        <span class="tag">Measurement</span>
+        <span>4 August 2026</span>
+        <span>10 min read</span>
+      </div>
+      <h2>Adoption is not impact</h2>
+      <p class="dek">Seats, acceptance rates, and lines generated all go up regardless of whether anything shipped faster. A measurement model that connects token spend to delivery outcomes &mdash; with the paired quality metrics that stop you optimising for throughput of defects.</p>
+      <span class="more">Read <span class="arrow">&rarr;</span></span>
+    </a>
+
+    <a class="post-card" href="blog-shadow-ai.html">
+      <div class="post-meta">
+        <span class="tag">Governance</span>
+        <span>28 July 2026</span>
+        <span>8 min read</span>
+      </div>
+      <h2>Shadow AI is a routing problem, not a policy problem</h2>
+      <p class="dek">People paste source code into consumer chat windows because the sanctioned path is slower, or doesn't exist. Blocking moves the traffic somewhere you can't see it. The only durable fix is making the governed path the fastest one.</p>
+      <span class="more">Read <span class="arrow">&rarr;</span></span>
+    </a>
+
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="narrow" style="text-align:center;padding-bottom:1rem;">
+    <p style="color:var(--slate-500);font-size:0.95rem;">These posts assume you have already decided to use AI in engineering and are now dealing with the consequences. If you are earlier than that, <a href="index.html">the approach</a> and <a href="method.html">the method</a> cover the architecture and the verification problem respectively.</p>
+  </div>
+
+</div>
+
+<footer>
+  <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
+</footer>
+
+</body>
+</html>

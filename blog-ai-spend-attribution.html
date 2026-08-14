@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your AI spend has no owner | Agentic SDLC</title>
+<meta name="description" content="Why per-token cost is the wrong unit for AI spend, what the right units are, and the one architectural change that makes per-team and per-outcome attribution possible.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="blog.css">
+</head>
+<body>
+<script src="nav.js" defer></script>
+
+<div class="wrap">
+<div class="narrow">
+
+  <a href="blog.html" class="back-link">&larr; All posts</a>
+
+  <article>
+    <header class="post-hero">
+      <span class="label">Token economics</span>
+      <h1>Your AI spend has no owner</h1>
+      <p class="dek">Three invoices, one number, and nobody who can say which team, product, or outcome consumed it. The unit you are measuring is wrong, and the reason you cannot fix it is architectural.</p>
+      <div class="post-meta">
+        <span>11 August 2026</span>
+        <span>9 min read</span>
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      <p class="lede">Ask a platform lead what their organisation spent on inference last month and you will usually get a number. Ask which team spent it, and the conversation changes. Ask what it bought, and it ends.</p>
+
+      <p>This is not negligence. It is the predictable result of how AI got adopted: a per-seat subscription here, an API key there, a proof of concept that quietly became load-bearing, and eighteen months later a five-figure monthly line item that reconciles to nothing. The spend is real, the invoices are accurate, and the attribution is fiction.</p>
+
+      <p>The uncomfortable part is that this is about to matter much more than it did. Per-seat assistant licences were a rounding error and behaved like any other SaaS cost. Agentic workloads do not: they are metered, they scale with ambition rather than headcount, and a single enthusiastic team can move the monthly number by a factor of three without anyone approving anything.</p>
+
+      <h2>Why the usual instrumentation fails</h2>
+
+      <p>The instinct is to ask the model vendors for better reporting. It will not help, for a structural reason: <strong>the vendor sees an API key, not an organisation.</strong> Whatever identity your internal work has &mdash; team, service, cost centre, ticket &mdash; is lost at the boundary. The invoice is correct and uninformative by construction.</p>
+
+      <p>The second instinct is to give every team its own key and reconcile from the vendor console. This works for about a quarter, then fails on contact with reality:</p>
+
+      <ul>
+        <li>Keys proliferate faster than anyone tracks them, and the mapping from key to owner lives in someone's spreadsheet.</li>
+        <li>Teams use more than one vendor, so you are reconciling three different billing models with three different token definitions.</li>
+        <li>Rate limits are per-key, so a team that hits one starts borrowing another team's key, and your attribution silently becomes wrong rather than missing &mdash; which is worse.</li>
+        <li>Nobody can revoke anything quickly, because nobody is certain what a given key is still serving.</li>
+      </ul>
+
+      <p>Both instincts share the same flaw. They try to recover attribution <em>after</em> the request has left your control. Attribution is only cheap at the point where the request still carries organisational identity, and that point is inside your own network.</p>
+
+      <div class="pull">You cannot attribute spend at the invoice. You can only attribute it at the call &mdash; which means something of yours has to see the call.</div>
+
+      <h2>Per-token cost is the wrong unit</h2>
+
+      <p>Even with perfect attribution, cost per token tells you almost nothing, because it is a measure of consumption rather than of value. Token prices fall steadily; a chart of your cost per million tokens will trend down while your bill triples. It is the most reassuring metric available and the least informative.</p>
+
+      <p>Worse, it actively misleads on agentic work. A coding agent completing one ticket may make dozens of model calls: planning, reading files, running tools, retrying after a failed test, sub-agents fanning out for a search. Optimising the cost of an individual call in that chain is close to meaningless. The question is what the whole chain cost and whether the ticket got closed.</p>
+
+      <p>The units that survive contact with a CFO are per-outcome, not per-token:</p>
+
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th class="m">Unit</th><th>What it answers</th><th>Where it breaks</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="m">cost per merged PR</td>
+            <td>What does it cost us to land a change, all-in?</td>
+            <td>PR size varies wildly; segment by change type or it is noise</td>
+          </tr>
+          <tr>
+            <td class="m">cost per resolved ticket</td>
+            <td>Is agentic work cheaper than the alternative?</td>
+            <td>Only comparable within a class of ticket</td>
+          </tr>
+          <tr>
+            <td class="m">cost per human review hour saved</td>
+            <td>Is the automation buying back the scarce resource?</td>
+            <td>Requires you to be measuring review time already</td>
+          </tr>
+          <tr>
+            <td class="m">cost per abandoned run</td>
+            <td>What are we paying for work that produced nothing?</td>
+            <td>Usually unmeasured, and usually the biggest surprise</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>That last one deserves emphasis. In most estates the largest single category of waste is not expensive models &mdash; it is <strong>runs that consumed budget and produced nothing that shipped</strong>: agents that looped, retried, hit a context limit, or produced a diff no one merged. It is invisible if you measure tokens and obvious the moment you measure outcomes. Nobody finds it by accident.</p>
+
+      <h2>What attribution actually requires</h2>
+
+      <p>To answer any of the questions above you need three things attached to every model call, at the moment it is made:</p>
+
+      <ol>
+        <li><strong>Identity</strong> &mdash; which human or which service, and which team they belong to.</li>
+        <li><strong>Purpose</strong> &mdash; which task, ticket, repository, or session this call belongs to.</li>
+        <li><strong>Cost</strong> &mdash; normalised across vendors, so a Claude call and a Gemini call land in the same unit.</li>
+      </ol>
+
+      <p>None of these are available from the vendor. All three are available at a gateway, because the request passes through it while it still has organisational context. This is the entire architectural argument for putting one in: not vendor flexibility, which is a nice secondary benefit, but the fact that <strong>it is the only place where the call and the context coexist</strong>.</p>
+
+      <h2>What this looks like in practice</h2>
+
+      <p>Concretely, with an open-source gateway like <a href="platform-landscape.html#stack">LiteLLM</a> sitting between your agents and the model vendors, each team gets a virtual key rather than a vendor key. The key carries the team, a budget, and a model allowlist. Every call is logged with its resolved cost.</p>
+
+      <div class="term">
+        <div class="term-bar"><span>config.yaml</span><span>gateway</span></div>
+<pre><span class="c"># One virtual key per team, with a hard monthly ceiling.</span>
+<span class="c"># The gateway rejects over-budget calls before they cost anything.</span>
+<span class="k">litellm_settings</span>:
+  <span class="k">success_callback</span>: [<span class="s">"langfuse"</span>]      <span class="c"># traces out to observability</span>
+
+<span class="k">model_list</span>:
+  - <span class="k">model_name</span>: <span class="s">"frontier"</span>            <span class="c"># agents ask for a role, not a vendor</span>
+    <span class="k">litellm_params</span>:
+      <span class="k">model</span>: <span class="s">"anthropic/claude-opus-5"</span>
+  - <span class="k">model_name</span>: <span class="s">"frontier"</span>            <span class="c"># same name = automatic fallback</span>
+    <span class="k">litellm_params</span>:
+      <span class="k">model</span>: <span class="s">"vertex_ai/gemini-..."</span>
+  - <span class="k">model_name</span>: <span class="s">"cheap"</span>
+    <span class="k">litellm_params</span>:
+      <span class="k">model</span>: <span class="s">"anthropic/claude-haiku-4-5"</span></pre>
+      </div>
+
+      <p>Pointing an agent at it is two environment variables. Claude Code, Codex, Gemini CLI and the various forks all speak the same way:</p>
+
+      <div class="term">
+        <div class="term-bar"><span>developer machine</span><span>shell</span></div>
+<pre><span class="k">export</span> ANTHROPIC_BASE_URL=<span class="s">"https://llm.internal.example"</span>
+<span class="k">export</span> ANTHROPIC_AUTH_TOKEN=<span class="s">"sk-team-platform-..."</span>   <span class="c"># virtual key, not a vendor key</span></pre>
+      </div>
+
+      <p>The detail that makes this more than accounting: Claude Code attaches session and agent identifiers to every request it makes. A gateway that records them gives you cost per session and per sub-agent &mdash; which is how you find out that a single fan-out pattern in one team's workflow is responsible for a third of the monthly bill. That is not a number you can obtain any other way.</p>
+
+      <div class="callout good">
+        <span class="k">The secondary benefit everyone mentions first</span>
+        <p>Because agents now request a <em>role</em> (<code>frontier</code>, <code>cheap</code>) rather than a vendor model name, swapping the underlying model is a configuration change rather than a migration. That is genuinely valuable &mdash; but it is worth being honest that most organisations install a gateway because of the invoice, not because of portability.</p>
+      </div>
+
+      <h2>When not to do this</h2>
+
+      <p>A gateway is infrastructure, and infrastructure has a floor. Below roughly $2,000 a month of inference, the operational cost of running it &mdash; high availability, upgrades, on-call &mdash; exceeds anything it saves. At that scale, per-team vendor keys and a spreadsheet are the correct engineering decision, and you should revisit when the bill or the number of teams changes.</p>
+
+      <p>There is also a real risk to weigh. A gateway in the request path is a single point of failure for every AI-assisted workflow in the company. If it goes down, so does everything. That is a solvable problem &mdash; run it across zones, keep a documented direct-to-vendor bypass, monitor it like any other tier-one dependency &mdash; but it is not a problem you get to ignore, and anyone who tells you otherwise has not operated one.</p>
+
+      <div class="callout warn">
+        <span class="k">On what the gateway sees</span>
+        <p>A gateway can log prompt and response content. In most regulated environments it should not, and you should not want it to. The valuable and defensible data is <strong>metadata</strong>: volume, model mix, task type, latency, cost, and who spent it. That answers every question in this post without your source code or customer data accumulating in a log store.</p>
+        <p>Make that boundary explicit in configuration, and explicit in whatever data processing agreement covers it. "We store metadata for cost attribution and do not retain payload content" is a sentence that survives a security review. Ambiguity here kills deployments in exactly the accounts where a gateway is most useful.</p>
+      </div>
+
+      <div class="takeaways">
+        <div class="k">If you take four things</div>
+        <ol>
+          <li>Attribution has to happen at the call, not the invoice &mdash; by the time it reaches the vendor, the organisational context is gone.</li>
+          <li>Cost per token trends down while your bill goes up. Measure cost per merged PR, per resolved ticket, per review hour saved.</li>
+          <li>The largest category of waste is usually runs that produced nothing that shipped. You will not find it without outcome-level units.</li>
+          <li>Log metadata, not payloads. It answers the commercial questions and survives a security review.</li>
+        </ol>
+      </div>
+
+      <div class="operated">
+        <div class="k">Running this in production</div>
+        <h3>The software is free. The operation is the work.</h3>
+        <p>LiteLLM is open source and you can have it running in an afternoon. What takes longer is everything that makes it safe to depend on: high availability across zones, upgrade paths that do not interrupt every agent in the company, key lifecycle and rotation, budget policy that finance agrees with, and someone answering the phone when it degrades at 09:00 on a Monday.</p>
+        <p>Revolgy runs it as a managed service in EU regions &mdash; deployment, SLA-backed operation, model policy, and monthly cost attribution reporting, with metadata processing set out explicitly in the DPA. You keep the open-source software and the exit path; we carry the pager.</p>
+        <div class="actions">
+          <a href="index.html#cta" class="btn btn--primary">Talk about your gateway <span aria-hidden="true">&rarr;</span></a>
+          <a href="platform-landscape.html#stack" class="btn btn--outline">Compare the gateway options</a>
+        </div>
+      </div>
+
+    </div>
+  </article>
+
+  <div class="related">
+    <div class="k">Related</div>
+    <div class="related-grid">
+      <a href="blog-measuring-ai-impact.html">
+        <span class="t">Adoption is not impact</span>
+        <span class="d">Once you can attribute spend, the next question is whether it bought anything. A measurement model that connects tokens to delivery outcomes.</span>
+      </a>
+      <a href="blog-shadow-ai.html">
+        <span class="t">Shadow AI is a routing problem</span>
+        <span class="d">Attribution only covers the traffic you can see. What to do about the traffic going around you.</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
+</footer>
+
+</body>
+</html>
