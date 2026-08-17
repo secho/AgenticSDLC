@@ -28,7 +28,12 @@
     --font-display: 'Space Grotesk', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+
+    /* Must track nav.js — it is 4rem, and 5rem from 1024px up. */
+    --nav-h: 4rem;
+    --subnav-h: 2.9rem;
   }
+  @media (min-width: 1024px) { :root { --nav-h: 5rem; } }
   html { scroll-behavior: smooth; }
   body {
     font-family: var(--font-body);
@@ -75,6 +80,54 @@
   }
 
   .section { margin-bottom: 4rem; }
+  /* Anchor jumps must clear both the fixed nav and the sticky sub-nav. */
+  .section[id] { scroll-margin-top: calc(var(--nav-h) + var(--subnav-h) + 1rem); }
+
+  /* ══ SECOND-LEVEL NAV ══
+     Sticky under the main nav; highlights the section in view. Works as
+     plain jump links with JS disabled. */
+  .page--top { padding-bottom: 0; }
+  .page--rest { padding-top: 2.5rem; }
+  .subnav {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 40;
+    background: #fff;
+    border-top: 1px solid var(--slate-200);
+    border-bottom: 1px solid var(--slate-200);
+    transition: box-shadow 0.2s ease;
+  }
+  .subnav.pinned { box-shadow: 0 8px 20px -14px rgba(15, 23, 42, 0.35); }
+  .subnav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: var(--subnav-h);
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .subnav-inner::-webkit-scrollbar { display: none; }
+  @media (min-width: 768px) { .subnav-inner { padding: 0 2.5rem; } }
+  .subnav ol { list-style: none; display: flex; align-items: center; margin: 0; padding: 0; }
+  .subnav li { display: flex; align-items: center; white-space: nowrap; }
+  .subnav li + li::before { content: "·"; color: var(--slate-300); padding: 0 0.15rem; }
+  .subnav a {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--slate-500);
+    text-decoration: none;
+    padding: 0.5rem 0.7rem;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .subnav a:hover { color: var(--slate-900); text-decoration: none; }
+  .subnav li.current a { color: var(--primary); border-bottom-color: var(--primary); }
+  @media print { .subnav { display: none; } }
 
   /* Back link */
   .back-link {
@@ -304,7 +357,7 @@
 </head>
 <body>
 <script src="nav.js" defer></script>
-<div class="page">
+<div class="page page--top">
 
   <!-- ═══ HERO ═══ -->
   <div class="hero-section">
@@ -314,10 +367,28 @@
     <p>Two halves below. First the agents and the control planes that govern them &mdash; the part of the market that gets the attention. Then <a href="#stack">the layers underneath</a>: the model gateway, the sandbox, the observability plane, the review and verification tier. Those are the pieces that decide whether the agent on top is actually replaceable.</p>
   </div>
 
-  <div class="sep"></div>
+</div>
+
+<!-- ═══ SECOND-LEVEL NAV ═══ -->
+<div id="subnavSentinel" aria-hidden="true"></div>
+<nav class="subnav" id="subnav" aria-label="Sections of this page">
+  <div class="subnav-inner">
+    <ol>
+      <li data-target="comparison"><a href="#comparison">comparison</a></li>
+      <li data-target="profiles"><a href="#profiles">profiles</a></li>
+      <li data-target="stack"><a href="#stack">the stack</a></li>
+      <li data-target="gateway-head-to-head"><a href="#gateway-head-to-head">head to head</a></li>
+      <li data-target="quadrant"><a href="#quadrant">quadrant</a></li>
+      <li data-target="eye-cycle"><a href="#eye-cycle">eye cycle</a></li>
+      <li data-target="takeaway"><a href="#takeaway">takeaway</a></li>
+    </ol>
+  </div>
+</nav>
+
+<div class="page page--rest">
 
   <!-- ═══ COMPARISON TABLE ═══ -->
-  <div class="section">
+  <div class="section" id="comparison">
     <div class="section-label">The Comparison</div>
     <table class="comparison-table">
       <thead>
@@ -427,7 +498,7 @@
   <div class="sep"></div>
 
   <!-- ═══ PLATFORM PROFILES ═══ -->
-  <div class="section">
+  <div class="section" id="profiles">
     <div class="section-label">Platform Profiles</div>
 
     <p style="margin-bottom:0.5rem;color:var(--slate-500);">Three groups, doing different jobs. Governance layers manage agents they don't provide. Autonomous coding agents do the work. IDE-native and ecosystem assistants keep a human in the loop. Most real stacks end up combining one from each.</p>
@@ -1142,7 +1213,7 @@
   <div class="sep"></div>
 
   <!-- ═══ TAKEAWAY ═══ -->
-  <div class="section">
+  <div class="section" id="takeaway">
     <div class="section-label">The Takeaway</div>
     <p>Almost every coding agent above bundles the same three layers together: which agents you can use, how they're governed, and which cloud they run on. Pick one and you've usually picked all three. The governance layers &mdash; JetBrains Central and Port.io &mdash; are the clearest sign the market is splitting those apart: control planes that manage whichever agents, models, and clouds you choose. That's exactly the architecture this site argues for: agents, governance, and cloud infrastructure as three independently replaceable layers, not a single vendor's bundle.</p>
     <p>The layers underneath make that concrete. A gateway like LiteLLM turns "which model" into a config line and puts one budget and one audit trail under every agent in the org. An open sandbox decides whether execution stays on your infrastructure. An open trace store decides whether the record of what agents did to your code is yours. None of these are exciting purchases; all three are the difference between a stack you can change and a stack you are stuck with. <a href="#quadrant">The Secho Quadrant</a> shows why: almost nothing occupies the top-right, so wide coverage and low lock-in are still bought separately.</p>
@@ -1163,5 +1234,60 @@
   <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
 </footer>
 
+<script>
+(function () {
+  'use strict';
+  var subnav = document.getElementById('subnav');
+  var sentinel = document.getElementById('subnavSentinel');
+  if (!subnav) return;
+
+  var inner = subnav.querySelector('.subnav-inner');
+  var items = Array.prototype.slice.call(subnav.querySelectorAll('li[data-target]'));
+  var sections = items.map(function (li) { return document.getElementById(li.getAttribute('data-target')); });
+
+  // Drop shadow once the bar has left its resting place.
+  if ('IntersectionObserver' in window && sentinel) {
+    new IntersectionObserver(function (entries) {
+      subnav.classList.toggle('pinned', !entries[0].isIntersecting);
+    }, { threshold: 0 }).observe(sentinel);
+  }
+
+  var last = -2;
+  function setCurrent(idx) {
+    items.forEach(function (li, i) { li.classList.toggle('current', i === idx); });
+    // Keep the active chip visible when the bar overflows on narrow screens.
+    // Scroll the bar itself only — never the page.
+    if (idx > -1 && inner.scrollWidth > inner.clientWidth) {
+      var li = items[idx];
+      inner.scrollLeft = Math.max(0, li.offsetLeft - (inner.clientWidth - li.offsetWidth) / 2);
+    }
+  }
+
+  function onScroll() {
+    // The section that owns the line just under the bar wins. Falling back
+    // to "last section that started above the line" keeps the final item
+    // lit once the page bottoms out.
+    var line = subnav.getBoundingClientRect().bottom + 8;
+    var idx = -1;
+    for (var i = 0; i < sections.length; i++) {
+      var s = sections[i];
+      if (!s) continue;
+      var r = s.getBoundingClientRect();
+      if (r.top <= line) idx = i;
+      if (r.top <= line && r.bottom > line) { idx = i; break; }
+    }
+    if (idx !== last) { last = idx; setCurrent(idx); }
+  }
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { onScroll(); ticking = false; });
+  }, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
 </body>
 </html>

@@ -14,6 +14,9 @@
 
   // ── Menu structure ──────────────────────────────────────────────────
   // Top-level item: { label, href }  OR  { label, dropdown: [ {label, href}, ... ] }
+  //   OR  { label, href, dropdown: [...] } — a link that ALSO opens a menu on
+  //   hover. Use this when the parent is a real page with sections; the plain
+  //   `dropdown` form renders a button that cannot be clicked through to.
   // A dropdown child may add `download: true` to save the file instead of opening it.
   var NAV = [
     {
@@ -28,7 +31,19 @@
       ]
     },
     { label: 'The Method', href: 'method.html' },
-    { label: 'Platform Landscape', href: 'platform-landscape.html' },
+    {
+      label: 'Platform Landscape',
+      href: 'platform-landscape.html',
+      dropdown: [
+        { label: 'The Comparison', href: 'platform-landscape.html#comparison' },
+        { label: 'Platform Profiles', href: 'platform-landscape.html#profiles' },
+        { label: 'The Layers Underneath', href: 'platform-landscape.html#stack' },
+        { label: 'Bifrost vs LiteLLM', href: 'platform-landscape.html#gateway-head-to-head' },
+        { label: 'The Secho Quadrant', href: 'platform-landscape.html#quadrant' },
+        { label: 'Secho&rsquo;s Eye Cycle', href: 'platform-landscape.html#eye-cycle' },
+        { label: 'The Takeaway', href: 'platform-landscape.html#takeaway' }
+      ]
+    },
     { label: 'Blog', href: 'blog.html', match: 'blog' },
     {
       label: 'Resources',
@@ -94,6 +109,8 @@
     .site-nav .nav-top{width:100%;justify-content:space-between;padding:1rem 0;font-size:1rem;}\
     .site-nav .nav-dropdown{display:none;position:static;border:none;box-shadow:none;padding:0 0 0.6rem 0.9rem;min-width:0;}\
     .site-nav .nav-item.open .nav-dropdown{display:block;}\
+    .site-nav .nav-item.has-link .nav-dropdown{display:block;}\
+    .site-nav .nav-item.has-link .nav-caret{display:none;}\
     .site-nav .nav-dropdown a{padding:0.55rem 0;font-size:0.95rem;color:var(--slate-500);}\
     .site-nav .nav-cta{margin:1.2rem 0 0;justify-content:center;padding:0.9rem 1.5rem;}\
   }\
@@ -108,9 +125,14 @@
       var links = item.dropdown.map(function (c) {
         return '<a href="' + c.href + '"' + (c.download ? ' download' : '') + '>' + c.label + '</a>';
       }).join('');
-      return '<div class="nav-item has-dropdown' + active + '">' +
-        '<button class="nav-top" aria-haspopup="true" aria-expanded="false">' + item.label + caretSVG + '</button>' +
-        '<div class="nav-dropdown">' + links + '</div></div>';
+      // With an href the trigger is a real link: it navigates on click and
+      // still opens the menu on hover/focus. Without one it stays a button,
+      // because there is nowhere for it to go.
+      var trigger = item.href
+        ? '<a class="nav-top" href="' + item.href + '" aria-haspopup="true">' + item.label + caretSVG + '</a>'
+        : '<button class="nav-top" aria-haspopup="true" aria-expanded="false">' + item.label + caretSVG + '</button>';
+      return '<div class="nav-item has-dropdown' + (item.href ? ' has-link' : '') + active + '">' +
+        trigger + '<div class="nav-dropdown">' + links + '</div></div>';
     }
     return '<div class="nav-item' + active + '"><a class="nav-top" href="' + item.href + '">' + item.label + '</a></div>';
   }
@@ -154,8 +176,10 @@
     document.body.style.overflow = open ? 'hidden' : '';
   });
 
-  // Dropdown toggles (click/tap — works on desktop and mobile)
-  links.querySelectorAll('.nav-item.has-dropdown > .nav-top').forEach(function (btn) {
+  // Dropdown toggles (click/tap — works on desktop and mobile).
+  // `.has-link` triggers are skipped: they must stay clickable, and in the
+  // mobile drawer their children are shown expanded instead of toggled.
+  links.querySelectorAll('.nav-item.has-dropdown:not(.has-link) > .nav-top').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
       var item = btn.parentElement;
