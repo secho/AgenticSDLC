@@ -122,6 +122,19 @@
     width: 14%;
     font-size: 0.8rem;
   }
+  /* The 14% first column above is sized for the 6-column tables.
+     A 3-column head-to-head needs more room for the row label. */
+  .comparison-table--pair th:first-child,
+  .comparison-table--pair td:first-child { width: 24%; }
+  /* Metric keys carry units — uppercasing them turns "11 µs" into "11 MS",
+     which is wrong by three orders of magnitude. */
+  .platform-facts.platform-facts--metrics li .k {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.8rem;
+    flex-basis: 4rem;
+    padding-top: 0.1rem;
+  }
   .table-note {
     font-size: 0.85rem;
     color: var(--slate-500);
@@ -580,6 +593,14 @@
           <td>None &mdash; you run it</td>
         </tr>
         <tr>
+          <td>Bifrost</td>
+          <td>Model gateway</td>
+          <td>Same job in Go &mdash; native clustering, semantic cache, guardrails</td>
+          <td>Yes &mdash; Apache 2.0</td>
+          <td>Self-hosted binary, Docker or K8s</td>
+          <td>None &mdash; you run it; single-vendor stewardship</td>
+        </tr>
+        <tr>
           <td>OpenRouter</td>
           <td>Model gateway (hosted)</td>
           <td>One key over 400+ models, routing and fallback</td>
@@ -675,6 +696,18 @@
         <li><span class="k">Traction</span><span>~54K GitHub stars, 1,000+ contributors; in production at Netflix, Lemonade, Rocket Money</span></li>
         <li><span class="k">Best for</span><span>Making the model layer swappable and putting one budget and audit trail under every agent</span></li>
         <li><span class="k">Watch for</span><span>You operate it &mdash; needs DevOps capacity, and it becomes a availability-critical hop</span></li>
+      </ul>
+    </div>
+    <div class="platform-block">
+      <h3>Bifrost</h3>
+      <div class="provider">Open-source AI gateway &middot; Maxim AI</div>
+      <p>The same architectural idea as LiteLLM, rebuilt in Go and aimed squarely at it. Apache&nbsp;2.0, ships as a single binary (Docker, Kubernetes, or <code>npx</code>), and covers 23+&nbsp;providers and 1,000+&nbsp;models with drop-in compatibility for the OpenAI, Anthropic, Bedrock and Google GenAI SDKs &mdash; so the same two-environment-variable trick that points a coding agent at a gateway works here too. Governance is comparable: virtual keys, hierarchical budgets, rate limits, plus OIDC/OAuth&nbsp;2.0 with directory sync for teams and roles. What it bundles that LiteLLM leaves to you: <strong>native cluster mode, semantic caching, guardrails, and Prometheus metrics and tracing without an external dependency</strong>.</p>
+      <p>Its marketing leads on being "50x faster than LiteLLM". That claim is more defensible than most vendor benchmarks &mdash; the suite is open source and third parties have reproduced similar magnitudes &mdash; and it is also mostly irrelevant to the workload this site is about. <a href="#gateway-head-to-head">We take it apart below.</a></p>
+      <ul class="platform-facts">
+        <li><span class="k">Pricing</span><span>Free and open source (Apache 2.0); enterprise tier adds private deployment, adaptive load balancing, custom security</span></li>
+        <li><span class="k">Traction</span><span>~7.4K GitHub stars, ~1.1K forks &mdash; young relative to LiteLLM, fewer named production references</span></li>
+        <li><span class="k">Best for</span><span>High-throughput inference where gateway overhead is a real cost, or teams who would rather not operate a Python service</span></li>
+        <li><span class="k">Watch for</span><span>Narrower provider coverage and a single-vendor project &mdash; weigh that against the engineering</span></li>
       </ul>
     </div>
     <div class="platform-block">
@@ -793,6 +826,90 @@
 
   <div class="sep"></div>
 
+  <!-- ═══ BIFROST vs LITELLM ═══ -->
+  <div class="section" id="gateway-head-to-head">
+    <div class="section-label">Head to Head</div>
+    <h2>Bifrost vs LiteLLM</h2>
+
+    <p>If you have decided to run your own gateway rather than route through a hosted intermediary, these two are the realistic shortlist. Both are open source, both put virtual keys and budgets in front of every model call, and both are a two-environment-variable change away from any coding agent. The choice between them is usually made on a benchmark, which is the wrong basis, so it is worth setting out what actually differs.</p>
+
+    <table class="comparison-table comparison-table--pair">
+      <thead>
+        <tr><th>Dimension</th><th>LiteLLM</th><th>Bifrost</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Runtime</td><td>Python service</td><td>Go, single binary</td></tr>
+        <tr><td>Licence</td><td>MIT core; enterprise features behind a licence key</td><td>Apache 2.0; enterprise tier for private deployment</td></tr>
+        <tr><td>Provider coverage</td><td>100+ providers</td><td>23+ providers, 1,000+ models</td></tr>
+        <tr><td>Project scale</td><td>~54K stars, 1,000+ contributors</td><td>~7.4K stars, ~1.1K forks, single vendor</td></tr>
+        <tr><td>Virtual keys, budgets, rate limits</td><td>Yes</td><td>Yes, hierarchical budgets</td></tr>
+        <tr><td>Identity</td><td>SSO/SAML, RBAC, audit logs on enterprise</td><td>OIDC/OAuth 2.0 with directory sync for teams and roles</td></tr>
+        <tr><td>MCP</td><td>Gateway front door added August 2026</td><td>Native MCP tool integration</td></tr>
+        <tr><td>Semantic caching</td><td>Available via cache configuration</td><td>Built in</td></tr>
+        <tr><td>Clustering / HA</td><td>A deployment concern you solve</td><td>Native cluster mode</td></tr>
+        <tr><td>Observability</td><td>Callbacks out to Langfuse, OTel and others</td><td>Native Prometheus metrics and tracing</td></tr>
+        <tr><td>Drop-in SDK compatibility</td><td>OpenAI-compatible endpoint</td><td>OpenAI, Anthropic, Bedrock, Google GenAI</td></tr>
+        <tr><td>Air-gapped deployment</td><td>Supported on enterprise</td><td>Self-hosted binary; no licence call-home</td></tr>
+        <tr><td>Named production references</td><td>Netflix, Lemonade, Rocket Money</td><td>Fewer public references to date</td></tr>
+      </tbody>
+    </table>
+    <p class="table-note">Both projects ship weekly. Verify anything in this table against current documentation before it decides a purchase.</p>
+
+    <h2 class="category-heading">The benchmark question</h2>
+
+    <p>Bifrost's headline is that it is 50&times; faster than LiteLLM. The underlying figures are more specific than the headline, and the difference between them matters:</p>
+
+    <ul class="platform-facts platform-facts--metrics" style="grid-template-columns:1fr;margin-bottom:1.5rem;">
+      <li><span class="k">50&times;</span><span>throughput at sustained load</span></li>
+      <li><span class="k">9.5&times;</span><span>median latency</span></li>
+      <li><span class="k">54&times;</span><span>P99 latency</span></li>
+      <li><span class="k">68%</span><span>less memory</span></li>
+      <li><span class="k">11 &micro;s</span><span>added overhead at 5,000 requests/second</span></li>
+    </ul>
+
+    <p>Credit where it is due: Maxim open-sourced the benchmark suite, third parties have reproduced results of similar magnitude, and the architectural explanation is sound &mdash; compiled Go against CPython has measurably less per-request overhead on a hot path. This is better practice than most vendor benchmarking. The place to be careful is the headline: quoting the throughput multiplier as if it were a latency multiplier is where a legitimate measurement becomes marketing.</p>
+
+    <p>The more useful objection is about relevance. The benchmarks use mocked provider endpoints, which is the correct way to isolate gateway overhead &mdash; and also the configuration that maximises the visible gap, because it removes the provider latency that dominates every real request. Do the arithmetic for an agentic workload:</p>
+
+    <div class="platform-block" style="border-bottom:none;padding-bottom:0.5rem;">
+      <p style="font-family:var(--font-mono);font-size:0.82rem;line-height:2;color:var(--slate-700);">
+        frontier completion for a coding agent &nbsp;&asymp;&nbsp; 2,000&ndash;20,000 ms<br>
+        gateway overhead, Bifrost &nbsp;&asymp;&nbsp; 0.011 ms<br>
+        gateway overhead, LiteLLM &nbsp;&asymp;&nbsp; 1 ms &nbsp;<span style="color:var(--slate-400);">(generous, ~90&times; worse)</span><br>
+        <span style="color:var(--primary);">difference in what a developer perceives &nbsp;&asymp;&nbsp; 0.005%</span>
+      </p>
+    </div>
+
+    <p>A 50&times; faster gateway makes no difference a developer or an agent can feel, because the gateway was never the slow part. Choosing on this number is the same error the <a href="#eye-cycle">Eye Cycle</a> flags as terminal for agent selection: optimising a benchmark that does not match the workload.</p>
+
+    <h2 class="category-heading">Where the difference is real</h2>
+
+    <p>It would be wrong to conclude the engineering does not matter. It matters in three specific regimes, and if you are in one of them the calculus inverts.</p>
+
+    <p><strong>Sustained high request rates.</strong> At thousands of requests per second the gateway's own CPU and memory become a line item. 68% less memory and an order of magnitude more throughput per instance is real infrastructure cost, and it compounds. Note the scale, though: 5,000 requests/second is roughly 430 million calls a day. That is a consumer AI product, not an estate governing three hundred developers' agents.</p>
+
+    <p><strong>Tail latency under load.</strong> The P99 gap is the number worth attention, and not because of speed &mdash; because it indicates queuing. A gateway that degrades badly at its ceiling turns into an availability problem for every AI workflow behind it, which is the one failure mode that actually hurts. If your traffic is spiky, headroom is worth buying.</p>
+
+    <p><strong>Operating a Python service versus a binary.</strong> This is the underrated one. A single static binary with native clustering, metrics and caching has a materially smaller operational surface than a Python service plus Redis plus an external observability stack plus dependency management. For whoever carries the pager, that is a genuine difference, and it does not appear in any benchmark.</p>
+
+    <h2 class="category-heading">Where LiteLLM still wins</h2>
+
+    <p><strong>Provider coverage, by a wide margin.</strong> 100+ against 23+. In a heterogeneous enterprise estate &mdash; a legacy Azure OpenAI deployment here, Bedrock there, a self-hosted vLLM cluster for a data-residency edge case, someone's Cohere contract &mdash; breadth is the feature that decides whether the gateway can actually sit in front of everything. A gateway that covers most of your traffic is not a control point.</p>
+
+    <p><strong>Ecosystem gravity.</strong> Roughly seven times the stars and over a thousand contributors is not a vanity metric here; it is the probability that the integration you need already exists, that your problem is already an answered issue, and that the project outlives any single company's strategy. Bifrost is well engineered and stewarded by one vendor. Weigh that the way you would weigh it for any other dependency.</p>
+
+    <p><strong>Track record under load you can point at.</strong> Named production deployments at Netflix, Lemonade and Rocket Money are evidence of a kind that benchmarks are not.</p>
+
+    <div class="platform-block" style="border-bottom:none;">
+      <h3>How we would choose</h3>
+      <p><strong>Default to LiteLLM</strong> for a governance and attribution control plane in a mixed enterprise estate. Provider breadth and ecosystem maturity are the properties that determine whether the gateway can be the single place every call passes through, and that is the whole point of installing one. Gateway overhead is noise at this scale.</p>
+      <p><strong>Choose Bifrost</strong> if you are serving sustained high-volume inference where per-request overhead is a real cost, if spiky traffic makes tail-latency headroom worth paying for, or if avoiding a Python runtime and its dependency surface materially simplifies who can operate it.</p>
+      <p><strong>Do not migrate on the benchmark alone.</strong> Both expose an OpenAI-compatible surface, so moving between them is genuinely cheap &mdash; which is an argument for deciding on coverage and operations now, and revisiting on evidence from your own traffic rather than someone else's test harness.</p>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
   <!-- ═══ SECHO QUADRANT ═══ -->
   <div class="section" id="quadrant">
     <div class="section-label">The Secho Quadrant</div>
@@ -803,7 +920,7 @@
     <div class="figure-scroll">
       <svg viewBox="0 0 720 560" role="img" aria-labelledby="q-title q-desc">
         <title id="q-title">The Secho Quadrant &mdash; independence against surface area</title>
-        <desc id="q-desc">A scatter plot of 22 platforms. The horizontal axis is independence (how easily the platform can be replaced), the vertical axis is surface area (how much of the delivery lifecycle it owns). Four quadrants: gravity wells (high surface, low independence) contain Claude Code, GitHub Copilot, Devin, Cursor and OpenAI Codex; load-bearing (high surface, high independence) contains Factory.ai, Port.io and Sourcegraph Amp; ecosystem bets (low surface, low independence) contain Google Jules, Amazon Q, Daytona, LangSmith and Braintrust; swappable parts (low surface, high independence) contain LiteLLM, Langfuse, E2B, Moderne, CodeRabbit, Greptile, Portkey and JetBrains Central.</desc>
+        <desc id="q-desc">A scatter plot of 23 platforms. The horizontal axis is independence (how easily the platform can be replaced), the vertical axis is surface area (how much of the delivery lifecycle it owns). Four quadrants: gravity wells (high surface, low independence) contain Claude Code, GitHub Copilot, Devin, Cursor and OpenAI Codex; load-bearing (high surface, high independence) contains Factory.ai, Port.io and Sourcegraph Amp; ecosystem bets (low surface, low independence) contain Google Jules, Amazon Q, Daytona, LangSmith and Braintrust; swappable parts (low surface, high independence) contain LiteLLM, Bifrost, Langfuse, E2B, Moderne, CodeRabbit, Greptile, Portkey and JetBrains Central.</desc>
 
         <!-- plot frame -->
         <rect class="f-rule" x="70" y="40" width="620" height="430"/>
@@ -851,6 +968,7 @@
         <!-- ── infrastructure layers (hollow) ── -->
         <g fill="#fff" stroke="#0f766e" stroke-width="1.6">
           <rect x="654" y="358" width="9" height="9"/>
+          <rect x="611" y="345" width="9" height="9"/>
           <rect x="400" y="401" width="9" height="9"/>
           <rect x="456" y="349" width="9" height="9"/>
           <rect x="611" y="414" width="9" height="9"/>
@@ -863,7 +981,8 @@
           <rect x="555" y="290" width="9" height="9"/>
         </g>
         <g class="f-name-i">
-          <text x="649" y="356" text-anchor="end">LiteLLM</text>
+          <text x="658" y="350" text-anchor="middle">LiteLLM</text>
+          <text x="606" y="354" text-anchor="end">Bifrost</text>
           <text x="395" y="410" text-anchor="end">OpenRouter</text>
           <text x="473" y="358">Portkey</text>
           <text x="606" y="422" text-anchor="end">E2B</text>
@@ -892,7 +1011,7 @@
     <h2 class="category-heading">Reading it</h2>
     <p><strong>Gravity wells</strong> are the most capable products on the page and the most expensive to leave. Claude Code, Copilot, Devin, Cursor and Codex all deliver real autonomy today, and each one assumes something structural in return &mdash; a single model vendor, GitHub as the system of record, vendor-hosted execution, a specific editor. None of that is a reason to avoid them. It is a reason to know which assumption you are accepting, and to keep the layers underneath them yours.</p>
     <p><strong>Load-bearing</strong> is the small set that does a lot without dictating much: Factory.ai, because it is model-agnostic and runs headless in your own CI; Port.io, because it governs agents it does not supply; Sourcegraph Amp, for model-agnostic routing with zero-data-retention deployment. This is the quadrant to prefer for anything you expect to still be running in three years.</p>
-    <p><strong>Swappable parts</strong> is where most of the infrastructure sits, and low surface area is the feature. LiteLLM, Langfuse, E2B and OpenRewrite each do one job, are open source, and cost roughly a day to remove. JetBrains Central sits here rather than in load-bearing for one reason only: it is not generally available yet. Delivered scope is what the vertical axis measures, and an early-access product has not delivered it.</p>
+    <p><strong>Swappable parts</strong> is where most of the infrastructure sits, and low surface area is the feature. LiteLLM, Bifrost, Langfuse, E2B and OpenRewrite each do one job, are open source, and cost roughly a day to remove. Bifrost sits marginally left of LiteLLM on independence for one reason that has nothing to do with its licence, which is more permissive: it is stewarded by a single vendor, where LiteLLM has a thousand contributors. That is the same consideration you would apply to any other dependency. JetBrains Central sits here rather than in load-bearing for one reason only: it is not generally available yet. Delivered scope is what the vertical axis measures, and an early-access product has not delivered it.</p>
     <p><strong>Ecosystem bets</strong> is the quadrant that needs the most honesty. Google Jules and Amazon Q are genuinely good inside Google Cloud and AWS respectively and weak outside them &mdash; correct choices if that commitment is already made, poor ones as a hedge. Daytona and the proprietary observability tools land here on packaging rather than capability: a managed-only sandbox and an Enterprise-gated trace store are fine products that you cannot take with you.</p>
     <p>The diagonal is the actual finding. <strong>Almost nothing sits in the top-right.</strong> The market has not yet produced a platform that does most of the lifecycle without owning most of your architecture &mdash; which is precisely why the working pattern is a load-bearing or gravity-well agent on top, with independent, swappable layers underneath.</p>
   </div>
