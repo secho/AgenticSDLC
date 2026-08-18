@@ -113,7 +113,9 @@
   var css = '\
   .site-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:4rem;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--slate-200);}\
   .site-nav .nav-inner{max-width:1200px;margin:0 auto;padding:0 1.5rem;height:100%;display:flex;align-items:center;justify-content:space-between;}\
-  .site-nav .nav-logo{display:flex;align-items:center;gap:0.75rem;text-decoration:none;}\
+  .site-nav .nav-logo{display:flex;align-items:center;gap:0.55rem;text-decoration:none;}\
+  .site-nav .nav-mark{flex:0 0 auto;width:22px;height:22px;display:block;}\
+  .site-nav .nav-mark svg{display:block;width:100%;height:100%;}\
   .site-nav .nav-logo .sub{font-family:var(--font-display);font-size:0.9rem;font-weight:600;color:var(--slate-800);letter-spacing:-0.02em;}\
   .site-nav .nav-links{display:flex;gap:0.4rem;align-items:center;}\
   .site-nav .nav-item{position:relative;}\
@@ -138,7 +140,7 @@
     .site-nav .nav-item.has-dropdown:focus-within .nav-dropdown,\
     .site-nav .nav-item.has-dropdown.open .nav-dropdown{display:block;}\
   }\
-  @media (min-width:1024px){.site-nav{height:5rem;}.nav-spacer{height:5rem;}}\
+  @media (min-width:1024px){.site-nav{height:5rem;}.nav-spacer{height:5rem;}.site-nav .nav-mark{width:24px;height:24px;}}\
   @media (max-width:768px){\
     .site-nav{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none;}\
     .site-nav .nav-hamburger{display:block;}\
@@ -172,6 +174,13 @@
   @media (min-width:1024px){.subnav{top:5rem;}:root{--subnav-anchor:calc(5rem + 2.9rem + 1rem);}}\
   @media print{.subnav{display:none;}}';
 
+  // Site mark — identical geometry to favicon.svg. Inline so it costs no
+  // request and stays crisp at any density.
+  var MARK = '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+    '<rect width="64" height="64" fill="#7640FF"/>' +
+    '<path d="M20 17 L36 32 L20 47" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>' +
+    '<rect x="38" y="41" width="14" height="6" fill="#fff"/></svg>';
+
   var caretSVG = '<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 
   // ── Build markup ─────────────────────────────────────────────────────
@@ -199,7 +208,9 @@
   var navHTML =
     '<nav class="site-nav">' +
       '<div class="nav-inner">' +
-        '<a class="nav-logo" href="index.html"><span class="sub">Agentic SDLC</span></a>' +
+        '<a class="nav-logo" href="index.html" aria-label="Agentic SDLC — home">' +
+          '<span class="nav-mark" aria-hidden="true">' + MARK + '</span>' +
+          '<span class="sub">Agentic SDLC</span></a>' +
         '<div class="nav-links" id="siteNavLinks">' + linksHTML + '</div>' +
         '<button class="nav-hamburger" id="siteNavHamburger" aria-label="Toggle menu" aria-expanded="false">' +
           '<svg class="icon-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>' +

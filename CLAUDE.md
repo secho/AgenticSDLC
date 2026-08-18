@@ -113,7 +113,7 @@ Canonical base URL is `https://secho.github.io/AgenticSDLC` — it is hard-coded
 
 | File | Purpose |
 |------|---------|
-| `favicon.svg` | Master mark — a terminal prompt `>_` in white on `#7640FF`, sharp-edged to match the site. |
+| `favicon.svg` | Master mark — a terminal prompt `>_` in white on `#7640FF`, sharp-edged to match the site. The same geometry is inlined in `nav.js` as `MARK` and shown beside the wordmark in the header; **if you change one, change both** or the header and the browser tab drift apart. |
 | `favicon-32/96.png`, `apple-touch-icon.png`, `icon-512.png` | Rendered from the SVG via headless Chrome at 512, then downscaled with `sips`. Chrome will not render reliably at tiny window sizes, so never screenshot directly at 32. |
 | `og-image.png` | 1200×630 social card, generated from an HTML template with headless Chrome so it uses the real site fonts. |
 | `robots.txt` | Allows everything, and names AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, …) explicitly rather than relying on the wildcard. |
