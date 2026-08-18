@@ -107,6 +107,25 @@ Behaviour worth knowing before changing it:
 - Highlighting is progressive enhancement. With JS off the bar is still a working set of jump links.
 - `method.html` uses this shared component; its old bespoke `.rail` is gone.
 
+## SEO and site assets
+
+Canonical base URL is `https://secho.github.io/AgenticSDLC` — it is hard-coded in the canonical/OG tags of every page, in `sitemap.xml`, `robots.txt` and `llms.txt`. **Moving to a custom domain means updating all of them.**
+
+| File | Purpose |
+|------|---------|
+| `favicon.svg` | Master mark — a terminal prompt `>_` in white on `#7640FF`, sharp-edged to match the site. |
+| `favicon-32/96.png`, `apple-touch-icon.png`, `icon-512.png` | Rendered from the SVG via headless Chrome at 512, then downscaled with `sips`. Chrome will not render reliably at tiny window sizes, so never screenshot directly at 32. |
+| `og-image.png` | 1200×630 social card, generated from an HTML template with headless Chrome so it uses the real site fonts. |
+| `robots.txt` | Allows everything, and names AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, …) explicitly rather than relying on the wildcard. |
+| `sitemap.xml` | Hand-maintained. Add a `<url>` when adding a page. |
+| `llms.txt` | Summary for AI agents: what each page argues, plus the positions worth citing. Keep it in sync when the argument changes, not just when pages are added. |
+
+Every page carries canonical, Open Graph, Twitter card, keywords, theme-color, favicon links and JSON-LD (`WebSite` + `Organization` on the index, `TechArticle` / `Article` / `BlogPosting` elsewhere). When adding a page, copy the head block from a sibling and change the URL, type and dates.
+
+## Booking CTA
+
+`nav.js` holds a single `BOOKING` constant and rewrites every `a[href="index.html#cta"]` to it at load. Pages keep that href as the marker so they still land somewhere sensible with JS off. **To change where every "book a session" button on the site points, edit that one line.**
+
 ## Design system
 
 All design tokens are CSS custom properties defined in `:root` of each HTML file. The pages share the same token names but define them independently (no shared stylesheet); `nav.js` consumes these tokens, so keep them consistent across pages.

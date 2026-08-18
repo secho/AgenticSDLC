@@ -87,7 +87,12 @@
       ]
     }
   ];
-  var CTA = { label: 'Book a Strategy Session', href: 'index.html#cta' };
+  // ── Booking ─────────────────────────────────────────────────────────
+  // Single source of truth for every "book a session" call to action on the
+  // site. Pages use href="index.html#cta"; the script below rewrites those to
+  // BOOKING at load, so changing this one line changes every CTA everywhere.
+  var BOOKING = 'mailto:jas@revolgy.com?subject=Agentic%20SDLC%20%E2%80%94%20strategy%20session';
+  var CTA = { label: 'Book a Strategy Session', href: BOOKING };
 
   // ── Helpers ──────────────────────────────────────────────────────────
   var EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
@@ -338,6 +343,17 @@
     window.addEventListener('resize', onScroll, { passive: true });
     onScroll();
   })();
+
+  // Point every booking CTA at BOOKING, wherever it lives on the page.
+  // Pages keep href="index.html#cta" as the marker so they still work with
+  // JS off (it lands on the CTA section, which is a reasonable fallback).
+  Array.prototype.forEach.call(
+    document.querySelectorAll('a[href="index.html#cta"], a[href="#cta"]'),
+    function (a) {
+      a.href = BOOKING;
+      if (BOOKING.indexOf('http') === 0) { a.target = '_blank'; a.rel = 'noopener'; }
+    }
+  );
 
   // Click outside closes any open desktop dropdown
   document.addEventListener('click', function (e) {
