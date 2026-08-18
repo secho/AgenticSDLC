@@ -91,8 +91,10 @@
   // Single source of truth for every "book a session" call to action on the
   // site. Pages use href="index.html#cta"; the script below rewrites those to
   // BOOKING at load, so changing this one line changes every CTA everywhere.
-  var BOOKING = 'mailto:jas@revolgy.com?subject=Agentic%20SDLC%20%E2%80%94%20strategy%20session';
+  var BOOKING = 'https://calendar.app.google/p7VpgPPBZJFPcCPz7';
   var CTA = { label: 'Book a Strategy Session', href: BOOKING };
+  // Booking opens in a new tab so the reader keeps the site open behind it.
+  var EXT = BOOKING.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '';
 
   // ── Helpers ──────────────────────────────────────────────────────────
   var EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
@@ -192,7 +194,7 @@
   }
 
   var linksHTML = NAV.map(itemHTML).join('') +
-    '<a class="nav-cta" href="' + CTA.href + '">' + CTA.label + '</a>';
+    '<a class="nav-cta" href="' + CTA.href + '"' + EXT + '>' + CTA.label + '</a>';
 
   var navHTML =
     '<nav class="site-nav">' +
