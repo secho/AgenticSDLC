@@ -28,7 +28,7 @@ python3 -m http.server 8080
 |------|---------|
 | `index.html` | Full landing page with nav, animations, and all sections |
 | `one-pager.html` | Printable executive brief linked from the landing page |
-| `platform-landscape.html` | Comparison of third-party AI SDLC platforms, linked from nav. Two halves: agents/control planes (JetBrains Central, Port.io, Factory.ai, Devin, Copilot, …) and the layers underneath them (`#stack` — LiteLLM, Bifrost, OpenRouter, Portkey, E2B, Daytona, Langfuse, LangSmith, Braintrust, CodeRabbit, Greptile, Moderne). Then a head-to-head (`#gateway-head-to-head`) comparing **Bifrost vs LiteLLM**, which takes apart Bifrost's "50× faster" claim: the benchmark is credible (open-sourced suite, third-party reproduction) but measured against mocked endpoints, and the arithmetic shows gateway overhead is ~0.005% of a real agentic request. Ends with two analysis figures: the **Secho Quadrant** (`#quadrant`, independence × surface area, 23 platforms) and **Secho's Eye Cycle** (`#eye-cycle`, a hype curve over techniques, not vendors).<br><br>This page carries a **second-level nav**: a sticky bar (`#subnav`) below the main nav that scroll-spies the seven sections. Its ids are mirrored in the nav.js "Platform Landscape" dropdown, so renaming a section id means editing both. The page body is split into `.page--top` (hero) and `.page--rest` so the bar can sit full-bleed between them. |
+| `platform-landscape.html` | Comparison of third-party AI SDLC platforms, linked from nav. Two halves: agents/control planes (JetBrains Central, Port.io, Factory.ai, Devin, Copilot, …) and the layers underneath them (`#stack` — LiteLLM, Bifrost, OpenRouter, Portkey, E2B, Daytona, Langfuse, LangSmith, Braintrust, CodeRabbit, Greptile, Moderne). Then a head-to-head (`#gateway-head-to-head`) comparing **Bifrost vs LiteLLM**, which takes apart Bifrost's "50× faster" claim: the benchmark is credible (open-sourced suite, third-party reproduction) but measured against mocked endpoints, and the arithmetic shows gateway overhead is ~0.005% of a real agentic request. Ends with two analysis figures: the **Secho Quadrant** (`#quadrant`, independence × surface area, 23 platforms) and **Secho's Eye Cycle** (`#eye-cycle`, a hype curve over techniques, not vendors).<br><br>The page body is split into `.page--top` (hero) and `.page--rest` so the second-level nav can sit full-bleed between them. |
 | `method.html` | Scrollytelling explainer for paying down a legacy stored-procedure estate, linked from nav |
 | `method-brief.html` | **Technical** companion to `method.html`, in the `one-pager.html` style — states the equivalence criterion formally, tabulates the non-determinism/normalisation taxonomy, analyses the classifier and correlated-failure failure modes, and carries a references list. Written for a rigorous reader, not a skimmer. |
 | `method-brief.pdf` | Generated from `method-brief.html` — the downloadable offered in `#resources` and the Resources menu |
@@ -80,6 +80,32 @@ The top nav is a shared component, not inline per page. Each page includes `<scr
 - **To add/rename/reorder a menu item, edit the `NAV` array (and `CTA`) at the top of `nav.js` only** — every page updates automatically. A top-level entry is `{label, href}`, `{label, dropdown:[{label,href}, …]}`, or `{label, href, dropdown:[…]}`. The third form renders the trigger as a real `<a>` — it navigates on click and still opens the menu on hover — and is the right shape when the parent is an actual page with sections (Platform Landscape uses it). The plain `dropdown` form renders a `<button>` that cannot be clicked through to, which is correct only when there is no parent page (The Approach, Resources). Items with both get `.has-link`, which skips the click-toggle and, in the mobile drawer, shows their children expanded instead of collapsed. A dropdown child may add `download: true` to emit `<a download>` so the file saves instead of opening (used for `method-brief.pdf`). A top-level entry may add `match: '<prefix>'` to own a whole family of pages for active-state highlighting — Blog uses `match: 'blog'` so every `blog-*.html` post keeps the nav item lit.
 - Active-state highlighting is derived from the current filename; index sections live under the "The Approach" dropdown as `index.html#…` anchors.
 - `nav.js` hard-codes its easing (no dependence on a page-level `--ease` token) but otherwise relies on the shared `--primary` / `--slate-*` / `--font-*` tokens each page defines in `:root`. It hides itself in `@media print` so the one-pager stays printable.
+
+### Second-level navigation
+
+Two coordinated things, both driven from `nav.js`:
+
+1. **A hover dropdown** on the top-level nav item, listing that page's sections.
+2. **A sticky bar on the page itself** (`<nav class="subnav">`) that scroll-spies and highlights the section in view.
+
+`index.html`, `method.html`, `platform-landscape.html` and every `blog-*.html` post have both. `nav.js` owns the `.subnav` CSS and the scroll-spy, so a page only supplies markup:
+
+```html
+<nav class="subnav" aria-label="Sections of this page">
+  <div class="subnav-inner"><ol>
+    <li data-target="section-id"><a href="#section-id">label</a></li>
+  </ol></div>
+</nav>
+```
+
+Set `data-auto="<selector>"` on the `<nav>` instead of listing items and it builds itself from the matching headings, slugifying ids where they are missing — blog posts use `data-auto=".post-body h2"` so a post never needs a hand-maintained table of contents.
+
+Behaviour worth knowing before changing it:
+
+- The active section is the one owning the line just below the bar, **falling back to the last section that started above it**. Without that fallback the highlight drops out in the gaps between sections and never lights the last item at page end.
+- Anchor offset comes from the `--subnav-anchor` custom property (set in `nav.js` with the same breakpoint as the nav height), not from a value measured at init — a measured value freezes at whatever the viewport was when the script ran.
+- Highlighting is progressive enhancement. With JS off the bar is still a working set of jump links.
+- `method.html` uses this shared component; its old bespoke `.rail` is gone.
 
 ## Design system
 

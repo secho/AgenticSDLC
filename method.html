@@ -118,46 +118,7 @@
   .glyph-legend .ne { color: var(--differ-ink); font-size: 1.05rem; }
   .glyph-legend .sep { color: var(--slate-300); padding: 0 0.7rem; }
 
-  /* ══ STAGE RAIL — the below-the-fold cue, which becomes the progress rail ══ */
-  .rail {
-    position: sticky;
-    top: var(--nav-h);
-    z-index: 40;
-    background: #fff;
-    border-top: 1px solid var(--slate-200);
-    border-bottom: 1px solid var(--slate-200);
-    transition: box-shadow 0.2s var(--ease);
-  }
-  .rail.pinned { box-shadow: 0 8px 20px -14px rgba(15,23,42,0.35); }
-  .rail-inner {
-    max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;
-    display: flex; align-items: center;
-    height: var(--rail-h);
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .rail-inner::-webkit-scrollbar { display: none; }
-  @media (min-width: 768px) { .rail-inner { padding: 0 2rem; } }
-  .rail ol { list-style: none; display: flex; align-items: center; gap: 0; }
-  .rail li { display: flex; align-items: center; white-space: nowrap; }
-  .rail li + li::before {
-    content: "·";
-    color: var(--slate-300);
-    padding: 0 0.15rem;
-  }
-  .rail a {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    color: var(--slate-500);
-    padding: 0.5rem 0.7rem;
-    border-bottom: 2px solid transparent;
-    transition: color 0.15s var(--ease), border-color 0.15s var(--ease);
-  }
-  .rail a:hover { color: var(--slate-900); text-decoration: none; }
-  .rail li.current a { color: var(--primary); border-bottom-color: var(--primary); }
+  /* Stage rail: markup here, styling and scroll-spy come from nav.js (.subnav). */
 
   /* ══ STAGE LAYOUT ══ */
   .stage { scroll-margin-top: calc(var(--nav-h) + var(--rail-h) + 1rem); }
@@ -473,7 +434,6 @@
   footer p { font-size: 0.78rem; color: var(--slate-400); }
 
   @media print {
-    .rail { position: static; }
     .stage-figure { position: static !important; }
     .close { background: #fff; color: var(--slate-600); }
     .close h2, .close .metric { color: var(--slate-900); }
@@ -526,7 +486,6 @@
   /* ══ MOBILE ══ */
   @media (max-width: 480px) {
     .container { padding: 0 1rem; }
-    .rail-inner { padding: 0 1rem; }
     .hero { padding: 2.5rem 0 2rem; }
     .stage-inner { padding-top: 2.5rem; padding-bottom: 2.5rem; }
     .stage-body p, .classes dd { font-size: 0.95rem; }
@@ -555,17 +514,16 @@
 </header>
 
 <!-- ═══ STAGE RAIL — the below-the-fold cue, and the progress indicator ═══ -->
-<div id="railSentinel" aria-hidden="true"></div>
-<nav class="rail" id="rail" aria-label="The seven stages">
-  <div class="rail-inner">
+<nav class="subnav" id="subnav" aria-label="The seven stages">
+  <div class="subnav-inner">
     <ol>
-      <li data-stage="triage"><a href="#triage">triage</a></li>
-      <li data-stage="spec"><a href="#spec">spec</a></li>
-      <li data-stage="oracle"><a href="#oracle">oracle</a></li>
-      <li data-stage="baseline"><a href="#baseline">baseline</a></li>
-      <li data-stage="diff"><a href="#diff">diff</a></li>
-      <li data-stage="implement"><a href="#implement">implement</a></li>
-      <li data-stage="verdict"><a href="#verdict">verdict</a></li>
+      <li data-target="triage"><a href="#triage">triage</a></li>
+      <li data-target="spec"><a href="#spec">spec</a></li>
+      <li data-target="oracle"><a href="#oracle">oracle</a></li>
+      <li data-target="baseline"><a href="#baseline">baseline</a></li>
+      <li data-target="diff"><a href="#diff">diff</a></li>
+      <li data-target="implement"><a href="#implement">implement</a></li>
+      <li data-target="verdict"><a href="#verdict">verdict</a></li>
     </ol>
   </div>
 </nav>
@@ -1524,44 +1482,6 @@ END</div>
     figs.forEach(function (f) { fo.observe(f); });
   }
 
-  // ── Stage rail: pinned shadow + current stage ─────────────────────
-  var rail = document.getElementById('rail');
-  var sentinel = document.getElementById('railSentinel');
-  if ('IntersectionObserver' in window && rail && sentinel) {
-    new IntersectionObserver(function (entries) {
-      rail.classList.toggle('pinned', !entries[0].isIntersecting);
-    }, { threshold: 0 }).observe(sentinel);
-  }
-
-  var items = Array.prototype.slice.call(rail ? rail.querySelectorAll('li[data-stage]') : []);
-  var stages = items.map(function (li) { return document.getElementById(li.getAttribute('data-stage')); });
-  function setCurrent(idx) {
-    items.forEach(function (li, i) { li.classList.toggle('current', i === idx); });
-    var inner = rail.querySelector('.rail-inner');
-    if (idx > -1 && inner.scrollWidth > inner.clientWidth) {
-      var li = items[idx];
-      var target = li.offsetLeft - (inner.clientWidth - li.offsetWidth) / 2;
-      inner.scrollLeft = Math.max(0, target);
-    }
-  }
-  function onScroll() {
-    var line = (rail ? rail.getBoundingClientRect().bottom : 0) + 8;
-    var idx = -1;
-    for (var i = 0; i < stages.length; i++) {
-      var s = stages[i];
-      if (!s) continue;
-      var r = s.getBoundingClientRect();
-      if (r.top <= line && r.bottom > line) { idx = i; break; }
-    }
-    if (idx !== last) { last = idx; setCurrent(idx); }
-  }
-  var last = -2, ticking = false;
-  window.addEventListener('scroll', function () {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(function () { onScroll(); ticking = false; });
-  }, { passive: true });
-  onScroll();
 })();
 </script>
 </body>
