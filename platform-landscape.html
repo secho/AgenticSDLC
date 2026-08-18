@@ -197,6 +197,16 @@
     padding-top: 0.28rem;
   }
 
+  /* Vendor name links — calm inside a dense table, obvious on hover. */
+  .vlink {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid var(--slate-300);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .vlink:hover { color: var(--primary); border-bottom-color: var(--primary); text-decoration: none; }
+  h3 .vlink { border-bottom-color: var(--slate-200); }
+
   .category-heading {
     margin: 2.5rem 0 0.5rem;
   }
@@ -360,7 +370,7 @@
       </thead>
       <tbody>
         <tr>
-          <td>JetBrains Central</td>
+          <td><a class="vlink" href="https://blog.jetbrains.com/blog/2026/03/24/introducing-jetbrains-central-an-open-system-for-agentic-software-development/" target="_blank" rel="noopener">JetBrains Central</a></td>
           <td>Governance &amp; orchestration layer</td>
           <td>Model-agnostic</td>
           <td>Orchestrates other vendors' agents</td>
@@ -368,7 +378,7 @@
           <td>None by design</td>
         </tr>
         <tr>
-          <td>Port.io</td>
+          <td><a class="vlink" href="https://www.port.io/" target="_blank" rel="noopener">Port.io</a></td>
           <td>Governance &amp; orchestration (IDP)</td>
           <td>Model-agnostic</td>
           <td>Governs &amp; orchestrates other agents</td>
@@ -376,7 +386,7 @@
           <td>None by design</td>
         </tr>
         <tr>
-          <td>Factory.ai</td>
+          <td><a class="vlink" href="https://factory.ai/" target="_blank" rel="noopener">Factory.ai</a></td>
           <td>Multi-surface agent platform ("Droids")</td>
           <td>Model-agnostic (GPT-5.x, Claude, Gemini)</td>
           <td>Autonomous, task-specialized agents</td>
@@ -384,7 +394,7 @@
           <td>Low</td>
         </tr>
         <tr>
-          <td>Devin</td>
+          <td><a class="vlink" href="https://devin.ai/" target="_blank" rel="noopener">Devin</a></td>
           <td>Autonomous coding agent</td>
           <td>Cognition + partner models</td>
           <td>Unattended, parallel VM sessions</td>
@@ -392,7 +402,7 @@
           <td>Vendor-hosted execution</td>
         </tr>
         <tr>
-          <td>GitHub Copilot</td>
+          <td><a class="vlink" href="https://github.com/features/copilot" target="_blank" rel="noopener">GitHub Copilot</a></td>
           <td>In-editor agent + async cloud agent</td>
           <td>Multi-model picker</td>
           <td>Supervised (Agent Mode) / unattended (Coding Agent)</td>
@@ -400,7 +410,7 @@
           <td>GitHub ecosystem</td>
         </tr>
         <tr>
-          <td>Claude Code</td>
+          <td><a class="vlink" href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a></td>
           <td>Terminal/IDE agent + enterprise platform</td>
           <td>Claude only</td>
           <td>Interactive up to hundreds of parallel sub-agents</td>
@@ -408,7 +418,7 @@
           <td>Single-model vendor, flexible cloud</td>
         </tr>
         <tr>
-          <td>Google Jules</td>
+          <td><a class="vlink" href="https://jules.google/" target="_blank" rel="noopener">Google Jules</a></td>
           <td>Async autonomous coding agent</td>
           <td>Gemini only</td>
           <td>Fully unattended, fire-and-forget</td>
@@ -416,7 +426,7 @@
           <td>Google Cloud + Gemini</td>
         </tr>
         <tr>
-          <td>OpenAI Codex</td>
+          <td><a class="vlink" href="https://developers.openai.com/codex/" target="_blank" rel="noopener">OpenAI Codex</a></td>
           <td>CLI + cloud coding agent</td>
           <td>GPT-5.x-Codex router</td>
           <td>Unattended (cloud) / supervised (CLI)</td>
@@ -424,7 +434,7 @@
           <td>OpenAI models; CLI is self-hostable</td>
         </tr>
         <tr>
-          <td>Cursor</td>
+          <td><a class="vlink" href="https://cursor.com/" target="_blank" rel="noopener">Cursor</a></td>
           <td>AI-native IDE</td>
           <td>Multiple, user-selectable</td>
           <td>Supervised multi-file + background cloud agents</td>
@@ -432,7 +442,7 @@
           <td>Cursor's own editor</td>
         </tr>
         <tr>
-          <td>Amazon Q Developer</td>
+          <td><a class="vlink" href="https://aws.amazon.com/q/developer/" target="_blank" rel="noopener">Amazon Q Developer</a></td>
           <td>Cloud-native assistant</td>
           <td>Routed via Amazon Bedrock</td>
           <td>Supervised, AWS-task focused</td>
@@ -440,7 +450,7 @@
           <td>AWS / Bedrock, IAM-bound</td>
         </tr>
         <tr>
-          <td>Sourcegraph Cody / Amp</td>
+          <td><a class="vlink" href="https://sourcegraph.com/" target="_blank" rel="noopener">Sourcegraph</a> Cody / <a class="vlink" href="https://ampcode.com/" target="_blank" rel="noopener">Amp</a></td>
           <td>Search-backed assistant + agent</td>
           <td>Enterprise LLMs (Cody) / model-agnostic (Amp)</td>
           <td>Supervised (Cody) / multi-agent (Amp)</td>
@@ -463,7 +473,7 @@
     <h2 class="category-heading">Governance &amp; orchestration</h2>
     <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">These don't write code themselves &mdash; they sit above the agents that do, adding the context, policy, identity, and cost control an organization needs before it lets agents loose at scale.</p>
     <div class="platform-block">
-      <h3>JetBrains Central</h3>
+      <h3><a class="vlink" href="https://blog.jetbrains.com/blog/2026/03/24/introducing-jetbrains-central-an-open-system-for-agentic-software-development/" target="_blank" rel="noopener">JetBrains Central</a></h3>
       <div class="provider">Governance layer &middot; Model-agnostic</div>
       <p>Not an IDE or a model &mdash; an orchestration and governance layer that sits above whichever agents a team already runs (Claude Agent, Codex, Gemini CLI, or custom). It adds policy enforcement, identity, cost attribution, and cloud execution infrastructure across the tools a team already uses, and lets agents collaborate with humans through Slack, Atlassian, and Linear. JetBrains frames it around a survey finding it published in early 2026: ~90% of developers use AI, but only ~22% use coding agents &mdash; the bottleneck has moved from generating code to governing it. It manages agents; it doesn't replace the need to select and pay for them separately.</p>
       <ul class="platform-facts">
@@ -474,7 +484,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Port.io</h3>
+      <h3><a class="vlink" href="https://www.port.io/" target="_blank" rel="noopener">Port.io</a></h3>
       <div class="provider">Agentic engineering platform (IDP) &middot; Model-agnostic</div>
       <p>An internal developer portal that repositioned in 2026 as an agentic engineering platform. Rather than ship its own coding agent, it becomes the control plane: a <strong>Context Lake</strong> (a pre-joined catalog of services, ownership, and standards) that agents query, workflow orchestration, an <strong>AI Registry</strong> cataloguing every agent, skill, and MCP server in the org, and governance that scopes what each agent can read and do via RBAC. Claude, Cursor, and Copilot reach it through Port's MCP server. Its pitch is taming "agentic chaos" &mdash; and cost: Port reports its Context Lake cut per-query token spend 56&ndash;80% versus agents hitting raw MCP connections, by not re-deriving system relationships on every run.</p>
       <ul class="platform-facts">
@@ -488,7 +498,7 @@
     <h2 class="category-heading">Autonomous coding agents</h2>
     <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">These do the actual work &mdash; plan a task, execute it in a sandbox, and hand back a pull request. They range from fully unattended to human-supervised.</p>
     <div class="platform-block">
-      <h3>Factory.ai</h3>
+      <h3><a class="vlink" href="https://factory.ai/" target="_blank" rel="noopener">Factory.ai</a></h3>
       <div class="provider">Multi-surface Droids &middot; Model-agnostic</div>
       <p>Organizes agents by job function rather than shipping one general-purpose assistant &mdash; a Code Droid ships changes, a Reliability Droid investigates incidents, a Knowledge Droid writes docs, a Product Droid drafts PRDs. They run from a terminal, desktop app, SDK, or headless in CI/CD, and work against any leading frontier or open-weight model. Factory commits to not training on customer code and operates under SOC 2 Type II. Its broad "run agents across the whole delivery workflow" framing is the ambition; the caveat is cost predictability under heavy use.</p>
       <ul class="platform-facts">
@@ -499,7 +509,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Devin (Cognition)</h3>
+      <h3><a class="vlink" href="https://devin.ai/" target="_blank" rel="noopener">Devin</a> (<a class="vlink" href="https://www.cognition.ai/" target="_blank" rel="noopener">Cognition</a>)</h3>
       <div class="provider">Autonomous coding agent &middot; Cognition</div>
       <p>Popularized the "assign it a ticket" model: it plans, executes inside an isolated VM with its own browser, terminal, and editor, and opens a PR with no supervision during the run &mdash; several tickets in parallel, each in its own sandbox. Pricing moved from a flat $500/seat to usage-based billing (ACUs, a normalized measure of VM time and inference), which drove rapid growth. Cognition also acquired the Windsurf IDE. Independent testing consistently puts real-world success rates well below its benchmark headline, so budget review time on anything non-trivial.</p>
       <ul class="platform-facts">
@@ -510,7 +520,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>GitHub Copilot &mdash; Agent Mode &amp; Coding Agent</h3>
+      <h3><a class="vlink" href="https://github.com/features/copilot" target="_blank" rel="noopener">GitHub Copilot</a> &mdash; Agent Mode &amp; Coding Agent</h3>
       <div class="provider">In-editor + async cloud agent &middot; Multi-model</div>
       <p>Two tiers span the workflow. <strong>Agent Mode</strong> makes supervised multi-file edits inside the IDE (VS Code, Visual Studio, JetBrains, Eclipse, Xcode); the separate <strong>Coding Agent</strong> takes a GitHub Issue and returns a PR asynchronously from a GitHub Actions sandbox. Every PR the Coding Agent opens triggers CodeQL, secret scanning, and Dependabot automatically, and MCP lets it pull context from databases, Confluence, or Figma mid-task. The tradeoff is ecosystem gravity &mdash; it assumes GitHub as the system of record &mdash; and a known gap: <code>.copilotignore</code> exclusions don't apply to the Coding Agent.</p>
       <ul class="platform-facts">
@@ -521,7 +531,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Anthropic Claude Code</h3>
+      <h3>Anthropic <a class="vlink" href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a></h3>
       <div class="provider">Terminal/IDE agent + enterprise platform &middot; Claude only</div>
       <p>Started as a terminal coding assistant and grew an enterprise layer on top: <strong>Dynamic Workflows</strong> fan a single request out to dozens or hundreds of parallel sub-agents for codebase-scale refactors and migrations; <strong>Managed Agents</strong> provide hosted infrastructure for stateful, long-running agents so teams don't build the execution loop themselves; an open <strong>Skills</strong> standard and plugin marketplace let orgs package and deploy reusable capabilities; and admin controls add spend caps, analytics, and model routing &mdash; much of what JetBrains Central and Port aim to standardize across vendors, but for Claude specifically. Deployable on Anthropic's cloud, Azure, or self-hosted, with a US data zone for residency.</p>
       <ul class="platform-facts">
@@ -532,7 +542,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Google Jules</h3>
+      <h3><a class="vlink" href="https://jules.google/" target="_blank" rel="noopener">Google Jules</a></h3>
       <div class="provider">Async coding agent &middot; Gemini only</div>
       <p>Built for fire-and-forget review: no editor, no local mode &mdash; everything clones into a Google Cloud VM, where Jules drafts a plan, executes, adds tests alongside the implementation, and opens a PR. Strong on scoped, well-defined tasks; weaker on architectural judgment and large-codebase context, matching its reputation as a capable junior developer that still needs oversight. Teams often pair it with an interactive tool &mdash; Jules for long-running or overnight work, something like Claude Code or Cursor for the in-the-loop engineering.</p>
       <ul class="platform-facts">
@@ -543,7 +553,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>OpenAI Codex</h3>
+      <h3><a class="vlink" href="https://developers.openai.com/codex/" target="_blank" rel="noopener">OpenAI Codex</a></h3>
       <div class="provider">CLI + cloud coding agent &middot; GPT-5.x-Codex</div>
       <p>Covers the same asynchronous issue-to-PR pattern as Jules, but spans the terminal, the ChatGPT app, and the cloud, routing over coding-specific GPT-5.x variants. Its differentiator is an <strong>open-source CLI</strong> (Apache-2.0) that teams can audit and run locally &mdash; useful where the cloud agents' code upload or Jules' Google-VM-only model is a non-starter on data residency. Switch to the local CLI when you need strict control; use the cloud when you want fire-and-forget.</p>
       <ul class="platform-facts">
@@ -557,7 +567,7 @@
     <h2 class="category-heading">IDE-native &amp; ecosystem-specific assistants</h2>
     <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">These keep a developer in the driver's seat &mdash; agentic help delivered inside an editor or tied to a specific ecosystem, rather than run unattended.</p>
     <div class="platform-block">
-      <h3>Cursor</h3>
+      <h3><a class="vlink" href="https://cursor.com/" target="_blank" rel="noopener">Cursor</a></h3>
       <div class="provider">AI-native IDE &middot; Multiple models</div>
       <p>An IDE first &mdash; a VS Code fork with agentic editing built in rather than bolted on: Composer for multi-file changes, Rules/Commands for repeatable behavior, and background cloud agents for parallel work. It embeds code chunks for retrieval (a RAG approach to codebase context) and lets developers pick the underlying model. The fastest path for someone who wants high-autonomy editing without leaving a familiar editor shell, but tuned for solo and small-team speed rather than org-wide governance.</p>
       <ul class="platform-facts">
@@ -568,7 +578,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Amazon Q Developer</h3>
+      <h3><a class="vlink" href="https://aws.amazon.com/q/developer/" target="_blank" rel="noopener">Amazon Q Developer</a></h3>
       <div class="provider">Cloud-native assistant &middot; Amazon Bedrock</div>
       <p>An AWS modernization accelerator more than a general coding agent &mdash; built on Amazon Bedrock, IAM-aware, and integrated across IDEs and the AWS Console with chat in Slack and Teams. It's strongest on tasks tied to AWS infrastructure: migrations, modernization, and console automation. Analysts frame it as complementary to editor-native tools rather than a replacement &mdash; the AWS operations layer alongside your IDE. Off an AWS-centric stack, the model-agnostic options on this list are a stronger general-purpose choice.</p>
       <ul class="platform-facts">
@@ -579,7 +589,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Sourcegraph Cody &amp; Amp</h3>
+      <h3><a class="vlink" href="https://sourcegraph.com/" target="_blank" rel="noopener">Sourcegraph</a> Cody &amp; <a class="vlink" href="https://ampcode.com/" target="_blank" rel="noopener">Amp</a></h3>
       <div class="provider">Search-backed assistant + agent &middot; Enterprise LLMs / model-agnostic</div>
       <p>Sourcegraph split its offering in two. <strong>Cody</strong> leans on Sourcegraph's code-search graph &mdash; a structural advantage in sprawling, multi-repo estates &mdash; but went enterprise-only in 2025 (its free and pro tiers were retired), lags newer tools on raw agentic capability, and can be slow on multi-million-line monorepos. <strong>Amp</strong> is the separate, more agentic product: model-agnostic routing, multi-agent orchestration, shared team threads, and zero-data-retention deployment for compliance-sensitive teams. Many orgs keep Sourcegraph for search and pair it with a separate agent for execution.</p>
       <ul class="platform-facts">
@@ -613,7 +623,7 @@
       </thead>
       <tbody>
         <tr>
-          <td>LiteLLM</td>
+          <td><a class="vlink" href="https://github.com/BerriAI/litellm" target="_blank" rel="noopener">LiteLLM</a></td>
           <td>Model gateway</td>
           <td>One endpoint over 100+ providers; virtual keys, budgets, guardrails</td>
           <td>Yes &mdash; MIT core</td>
@@ -621,7 +631,7 @@
           <td>None &mdash; you run it</td>
         </tr>
         <tr>
-          <td>Bifrost</td>
+          <td><a class="vlink" href="https://github.com/maximhq/bifrost" target="_blank" rel="noopener">Bifrost</a></td>
           <td>Model gateway</td>
           <td>Same job in Go &mdash; native clustering, semantic cache, guardrails</td>
           <td>Yes &mdash; Apache 2.0</td>
@@ -629,7 +639,7 @@
           <td>None &mdash; you run it; single-vendor stewardship</td>
         </tr>
         <tr>
-          <td>OpenRouter</td>
+          <td><a class="vlink" href="https://openrouter.ai/" target="_blank" rel="noopener">OpenRouter</a></td>
           <td>Model gateway (hosted)</td>
           <td>One key over 400+ models, routing and fallback</td>
           <td>No</td>
@@ -637,7 +647,7 @@
           <td>Hosted marketplace; ~5% on inference</td>
         </tr>
         <tr>
-          <td>Portkey</td>
+          <td><a class="vlink" href="https://portkey.ai/" target="_blank" rel="noopener">Portkey</a></td>
           <td>Model gateway + guardrails</td>
           <td>Routing over 200+ LLMs, 50+ guardrails, observability</td>
           <td>Gateway core yes</td>
@@ -645,7 +655,7 @@
           <td>Governance gated to Enterprise tier</td>
         </tr>
         <tr>
-          <td>E2B</td>
+          <td><a class="vlink" href="https://e2b.dev/" target="_blank" rel="noopener">E2B</a></td>
           <td>Execution sandbox</td>
           <td>Firecracker microVMs for untrusted agent-written code</td>
           <td>Yes</td>
@@ -653,7 +663,7 @@
           <td>Low</td>
         </tr>
         <tr>
-          <td>Daytona</td>
+          <td><a class="vlink" href="https://www.daytona.io/" target="_blank" rel="noopener">Daytona</a></td>
           <td>Execution sandbox</td>
           <td>Stateful container workspaces, ~90&nbsp;ms cold start</td>
           <td>No &mdash; closed mid-2026</td>
@@ -661,7 +671,7 @@
           <td>Managed-only since 2026</td>
         </tr>
         <tr>
-          <td>Langfuse</td>
+          <td><a class="vlink" href="https://langfuse.com/" target="_blank" rel="noopener">Langfuse</a></td>
           <td>Observability &amp; evals</td>
           <td>Tracing, prompt versioning, LLM-as-judge scoring</td>
           <td>Yes &mdash; MIT</td>
@@ -669,7 +679,7 @@
           <td>None</td>
         </tr>
         <tr>
-          <td>LangSmith</td>
+          <td><a class="vlink" href="https://www.langchain.com/langsmith" target="_blank" rel="noopener">LangSmith</a></td>
           <td>Observability &amp; evals</td>
           <td>Tracing and evals tuned to LangChain workflows</td>
           <td>SDKs only</td>
@@ -677,7 +687,7 @@
           <td>LangChain ecosystem</td>
         </tr>
         <tr>
-          <td>Braintrust</td>
+          <td><a class="vlink" href="https://www.braintrust.dev/" target="_blank" rel="noopener">Braintrust</a></td>
           <td>Evaluation-first</td>
           <td>Eval scoring, datasets, regression tracking</td>
           <td>No</td>
@@ -685,7 +695,7 @@
           <td>Vendor-hosted</td>
         </tr>
         <tr>
-          <td>CodeRabbit</td>
+          <td><a class="vlink" href="https://www.coderabbit.ai/" target="_blank" rel="noopener">CodeRabbit</a></td>
           <td>Automated review</td>
           <td>Review on every PR; broadest install base</td>
           <td>No</td>
@@ -693,7 +703,7 @@
           <td>Low</td>
         </tr>
         <tr>
-          <td>Greptile</td>
+          <td><a class="vlink" href="https://www.greptile.com/" target="_blank" rel="noopener">Greptile</a></td>
           <td>Automated review</td>
           <td>Whole-codebase context for architectural impact</td>
           <td>No</td>
@@ -701,7 +711,7 @@
           <td>Low</td>
         </tr>
         <tr>
-          <td>Moderne / OpenRewrite</td>
+          <td><a class="vlink" href="https://moderne.ai/" target="_blank" rel="noopener">Moderne</a> / <a class="vlink" href="https://docs.openrewrite.org/" target="_blank" rel="noopener">OpenRewrite</a></td>
           <td>Deterministic modernization</td>
           <td>Rule-based mass refactoring over a semantic tree</td>
           <td>OpenRewrite yes</td>
@@ -715,7 +725,7 @@
     <h2 class="category-heading">Model gateways &amp; routing</h2>
     <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">One endpoint in front of every model provider. Agents point at it instead of at OpenAI or Anthropic directly, and it becomes the single place you enforce budgets, keys, fallback, and audit &mdash; the layer that makes "swap the model" a config change rather than a migration.</p>
     <div class="platform-block">
-      <h3>LiteLLM</h3>
+      <h3><a class="vlink" href="https://github.com/BerriAI/litellm" target="_blank" rel="noopener">LiteLLM</a></h3>
       <div class="provider">Open-source AI gateway &middot; BerriAI</div>
       <p>The default open-source answer to "how do we stop every team wiring their own provider keys". A proxy that exposes 100+ providers &mdash; Bedrock, Azure, Vertex, Anthropic, OpenAI, vLLM, NVIDIA NIM &mdash; behind one OpenAI-compatible endpoint, with per-key and per-team budgets, model allowlists, rate limits, secret redaction, and spend tracking on every call. The part that matters for an agentic SDLC: <strong>the coding agents already speak to it.</strong> Claude Code points at a gateway with two environment variables (<code>ANTHROPIC_BASE_URL</code> and <code>ANTHROPIC_AUTH_TOKEN</code>), and Codex, Gemini CLI, Roo Code and others route the same way &mdash; so one proxy gives you attributed, budget-capped, auditable spend across every agent in the org, including per-session and per-sub-agent breakdown from the headers Claude Code sends. It added an MCP gateway front door in August 2026, putting tool access behind the same control point as model access. It is infrastructure you operate, which is the tradeoff: below roughly $2K/month of inference the running cost outweighs the saving, and above ~$10K/month it is usually the cheapest option on this page.</p>
       <ul class="platform-facts">
@@ -727,7 +737,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Bifrost</h3>
+      <h3><a class="vlink" href="https://github.com/maximhq/bifrost" target="_blank" rel="noopener">Bifrost</a></h3>
       <div class="provider">Open-source AI gateway &middot; Maxim AI</div>
       <p>The same architectural idea as LiteLLM, rebuilt in Go and aimed squarely at it. Apache&nbsp;2.0, ships as a single binary (Docker, Kubernetes, or <code>npx</code>), and covers 23+&nbsp;providers and 1,000+&nbsp;models with drop-in compatibility for the OpenAI, Anthropic, Bedrock and Google GenAI SDKs &mdash; so the same two-environment-variable trick that points a coding agent at a gateway works here too. Governance is comparable: virtual keys, hierarchical budgets, rate limits, plus OIDC/OAuth&nbsp;2.0 with directory sync for teams and roles. What it bundles that LiteLLM leaves to you: <strong>native cluster mode, semantic caching, guardrails, and Prometheus metrics and tracing without an external dependency</strong>.</p>
       <p>Its marketing leads on being "50x faster than LiteLLM". That claim is more defensible than most vendor benchmarks &mdash; the suite is open source and third parties have reproduced similar magnitudes &mdash; and it is also mostly irrelevant to the workload this site is about. <a href="#gateway-head-to-head">We take it apart below.</a></p>
@@ -739,7 +749,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>OpenRouter</h3>
+      <h3><a class="vlink" href="https://openrouter.ai/" target="_blank" rel="noopener">OpenRouter</a></h3>
       <div class="provider">Hosted model marketplace &middot; Aggregator</div>
       <p>The zero-effort version of the same idea: one API key, 400+ models, routing and fallback handled for you. It removes the operational burden LiteLLM imposes, and in exchange you accept a hosted intermediary in the path of every inference call and roughly a 5% margin on top of provider pricing. Excellent for evaluation and for teams who want to try six models this month without six procurement conversations; harder to justify once spend is material or once inference has to stay inside your own network.</p>
       <ul class="platform-facts">
@@ -750,7 +760,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Portkey</h3>
+      <h3><a class="vlink" href="https://portkey.ai/" target="_blank" rel="noopener">Portkey</a></h3>
       <div class="provider">Managed AI gateway + guardrails &middot; Hybrid open source</div>
       <p>Sits between the two: an open-source gateway core with a managed control plane focused on what happens <em>after</em> you deploy &mdash; observability, retries, caching, and a library of 50+ guardrails applied inline on requests and responses. Deployable into a customer VPC, which is the usual reason it wins over OpenRouter in regulated environments. The catch is packaging: the governance features that justify a gateway in the first place &mdash; RBAC, per-team budgets, SSO, custom retention &mdash; sit behind the Enterprise tier.</p>
       <ul class="platform-facts">
@@ -764,7 +774,7 @@
     <h2 class="category-heading">Execution sandboxes</h2>
     <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">Every autonomous agent above runs code it just wrote. Bundled platforms hide this behind their own cloud; if you want agents on your infrastructure, this is the layer you buy or build.</p>
     <div class="platform-block">
-      <h3>E2B</h3>
+      <h3><a class="vlink" href="https://e2b.dev/" target="_blank" rel="noopener">E2B</a></h3>
       <div class="provider">Firecracker microVM sandboxes &middot; Open source</div>
       <p>Hardware-level isolation for untrusted, model-generated code &mdash; each execution gets its own kernel via Firecracker, the same microVM technology under AWS Lambda, so a kernel-level exploit can't reach the host or a neighbouring run. That distinction matters more than it sounds: container-based sandboxes share the host kernel, which is an acceptable risk for your own code and a harder argument for code an LLM wrote unsupervised. Open source and self-hostable, which keeps the execution layer under your control rather than the agent vendor's.</p>
       <ul class="platform-facts">
@@ -775,7 +785,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Daytona</h3>
+      <h3><a class="vlink" href="https://www.daytona.io/" target="_blank" rel="noopener">Daytona</a></h3>
       <div class="provider">Stateful container workspaces &middot; Managed</div>
       <p>Optimized for the other end of the tradeoff: container-based workspaces with roughly 90&nbsp;ms cold starts &mdash; the fastest in 2026 third-party benchmarks &mdash; and persistent state, so an agent can install dependencies, write files, and return to the same environment on a later turn. That statefulness fits long-running agent sessions well. The significant change is governance, not technology: the codebase went closed-source in mid-2026, so full self-hosting is no longer available, and the isolation boundary is a shared host kernel.</p>
       <ul class="platform-facts">
@@ -789,7 +799,7 @@
     <h2 class="category-heading">Observability &amp; evaluation</h2>
     <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">You cannot govern what you cannot see, and you cannot tell whether a prompt or model change improved anything without a scoring harness. This layer is what turns "the agents seem better" into a number.</p>
     <div class="platform-block">
-      <h3>Langfuse</h3>
+      <h3><a class="vlink" href="https://langfuse.com/" target="_blank" rel="noopener">Langfuse</a></h3>
       <div class="provider">Open-source LLM observability &middot; MIT</div>
       <p>The open-source baseline: tracing across multi-turn agent runs, prompt versioning with a playground, and evaluation via LLM-as-judge, human feedback, or custom metrics. MIT-licensed with self-hosting as a first-class deployment mode rather than an enterprise upsell &mdash; which is the whole argument for it in regulated environments, since traces of agent runs over your source code are exactly the data you least want leaving the building. LiteLLM can route its per-team logs straight into it, making the two a common pairing.</p>
       <ul class="platform-facts">
@@ -800,7 +810,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>LangSmith &amp; Braintrust</h3>
+      <h3><a class="vlink" href="https://www.langchain.com/langsmith" target="_blank" rel="noopener">LangSmith</a> &amp; <a class="vlink" href="https://www.braintrust.dev/" target="_blank" rel="noopener">Braintrust</a></h3>
       <div class="provider">Managed tracing / evaluation-first &middot; Proprietary</div>
       <p><strong>LangSmith</strong> is LangChain's managed surface &mdash; strongest if you already build on LangChain, and it shipped a purpose-built trace store (SmithDB) in 2026 for materially faster queries at volume. Its constraint is structural: the SDKs are open source but the backend, UI, and storage are not, and self-hosting is an Enterprise-only add-on. <strong>Braintrust</strong> attacks the harder half &mdash; rigorous evaluation, with datasets, scorers, and regression tracking as the primary object rather than tracing bolted onto it. If your problem is "did this change make the agent better", that focus is the point; it is also the most vendor-hosted option here.</p>
       <ul class="platform-facts">
@@ -814,7 +824,7 @@
     <h2 class="category-heading">Automated review &amp; verification</h2>
     <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">Once agents open pull requests faster than people can read them, review becomes the bottleneck. This layer is the direct answer &mdash; and it is the commercial version of the argument on <a href="method.html">The Method</a>: generating code was never the constraint, judging it was.</p>
     <div class="platform-block">
-      <h3>CodeRabbit</h3>
+      <h3><a class="vlink" href="https://www.coderabbit.ai/" target="_blank" rel="noopener">CodeRabbit</a></h3>
       <div class="provider">AI pull-request review &middot; SaaS + self-hosted</div>
       <p>The most widely installed review agent on GitHub and GitLab &mdash; over 2M repositories connected and 13M+ pull requests processed &mdash; which matters here mostly as evidence of how quickly this became a real category. It comments line-by-line on every PR, and in comparative testing it flags fewer issues than the most aggressive alternatives but wastes markedly less reviewer time on false positives. Given that the failure mode of automated review is reviewers learning to ignore it, that ratio is the metric to judge on, not raw catch rate.</p>
       <ul class="platform-facts">
@@ -825,7 +835,7 @@
       </ul>
     </div>
     <div class="platform-block">
-      <h3>Greptile</h3>
+      <h3><a class="vlink" href="https://www.greptile.com/" target="_blank" rel="noopener">Greptile</a></h3>
       <div class="provider">Codebase-aware review &middot; SaaS</div>
       <p>Reviews a change against the whole repository rather than the diff in isolation, which is why it is the stronger of the two at architectural impact &mdash; the "this is fine locally and wrong for this system" class of problem that a diff-scoped reviewer structurally cannot see. It also catches the most issues per pass in comparative testing, and generates the most false positives doing it. Whether that trade works depends entirely on whether your reviewers still read the output after two weeks.</p>
       <ul class="platform-facts">
@@ -839,7 +849,7 @@
     <h2 class="category-heading">Deterministic modernization</h2>
     <p style="font-size:0.9rem;color:var(--slate-500);margin-top:0;">The non-probabilistic counterpart to everything above &mdash; and the right tool for a large share of legacy work that teams reflexively hand to an LLM.</p>
     <div class="platform-block">
-      <h3>Moderne &amp; OpenRewrite</h3>
+      <h3><a class="vlink" href="https://moderne.ai/" target="_blank" rel="noopener">Moderne</a> &amp; <a class="vlink" href="https://docs.openrewrite.org/" target="_blank" rel="noopener">OpenRewrite</a></h3>
       <div class="provider">Rule-based mass refactoring &middot; Open-source engine + enterprise platform</div>
       <p>OpenRewrite is an open-source refactoring engine built on a <strong>Lossless Semantic Tree</strong> &mdash; a code model that resolves symbols, tracks relationships, and preserves formatting and intent, so a transformation either applies correctly or does not apply at all. Moderne is the enterprise platform that runs those recipes across thousands of repositories at once, with an audit trail. Java-first, with Python support added in early 2026.</p>
       <p>The reason it belongs on this page: for framework upgrades, API migrations, and CVE remediation, a deterministic recipe is <em>strictly better</em> than an agent &mdash; it needs no review budget, no shadow run, and no oracle, because it cannot produce a surprise. The honest architecture uses both: recipes for anything expressible as a rule, agents for the work that genuinely requires judgement. Reaching for an LLM first on mechanical refactoring is the most common expensive mistake in this space.</p>
@@ -863,7 +873,7 @@
 
     <table class="comparison-table comparison-table--pair">
       <thead>
-        <tr><th>Dimension</th><th>LiteLLM</th><th>Bifrost</th></tr>
+        <tr><th>Dimension</th><th><a class="vlink" href="https://github.com/BerriAI/litellm" target="_blank" rel="noopener">LiteLLM</a></th><th><a class="vlink" href="https://github.com/maximhq/bifrost" target="_blank" rel="noopener">Bifrost</a></th></tr>
       </thead>
       <tbody>
         <tr><td>Runtime</td><td>Python service</td><td>Go, single binary</td></tr>
