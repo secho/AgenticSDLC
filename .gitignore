@@ -1,2 +1,5 @@
 # macOS
 .DS_Store
+
+# JetBrains Junie (the user's IDE setup, not part of the site)
+.junie/

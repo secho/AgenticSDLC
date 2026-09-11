@@ -39,7 +39,7 @@ python3 -m http.server 8080
 
 ### The blog
 
-`blog.css` is a deliberate exception to the "tokens inline per page" convention below: posts multiply, and duplicating ~350 lines of article CSS into each one is not maintainable. Its `:root` values are identical to every other page so `nav.js` behaves the same.
+`blog.css` is a deliberate exception to the "tokens inline per page" convention below: posts multiply, and duplicating ~350 lines of article CSS into each one is not maintainable. The tokens `nav.js` consumes — `--primary`, `--primary-dark`, the whole `--slate-*` scale and the three `--font-*` stacks — are byte-identical to every other page, so `nav.js` behaves the same. The decorative tints are not identical and do not need to be: `--primary-soft` is `0.06` alpha here against `0.08` in `index.html` and `0.05` in `one-pager.html`, and `--good-ink` / `--warn-ink` exist nowhere else. Keep the `nav.js` tokens in lockstep; the tints may differ.
 
 To add a post: copy an existing `blog-*.html`, change the head/meta/hero, write the body, then add a `.post-card` to `blog.html` and fix up the `.related` blocks in the neighbouring posts. There is no index generation — the list is hand-maintained, which is fine at this volume and should be revisited past ~15 posts.
 
@@ -130,7 +130,7 @@ Every page carries canonical, Open Graph, Twitter card, keywords, theme-color, f
 
 All design tokens are CSS custom properties defined in `:root` of each HTML file. The pages share the same token names but define them independently (no shared stylesheet); `nav.js` consumes these tokens, so keep them consistent across pages.
 
-- **Primary color**: `#7640FF` (purple), variants via `--primary`, `--primary-dark`, `--primary-soft`, `--primary-glow`
+- **Primary color**: `#7640FF` (purple). Only `--primary` and `--primary-dark` are defined on every page. `--primary-soft` is on every page except `method-brief.html`. The remaining tints are **page-local, not site-wide**: `--primary-glow` exists only in `index.html`, `--primary-mid` only in `index.html` and `method.html`, and `--primary-border` only in `one-pager.html`, `platform-landscape.html` and `blog.css`. Check `:root` before using a tint — do not assume the page you are editing has it.
 - **Neutral scale**: `--slate-50` through `--slate-900`
 - **Fonts**: Space Grotesk (headings, `--font-display`), Inter (body, `--font-body`), JetBrains Mono (code, `--font-mono`) — all loaded from Google Fonts
 - **Button style**: sharp edges (no `border-radius`); variants `.btn--primary`, `.btn--outline`, `.btn--ghost`
@@ -139,5 +139,5 @@ All design tokens are CSS custom properties defined in `:root` of each HTML file
 ## Positioning / messaging constraints
 
 - Cloud-agnostic: do not hard-code any single cloud provider's product names when describing *this site's own* architecture. This doesn't apply to `platform-landscape.html`, which factually names real third-party products for comparison.
-- No partner branding of any cloud provider in the pages
+- No partner branding of any cloud provider in the pages — **with one deliberate exception**. `one-pager.html` closes with Revolgy's *Google Cloud Premier Partner · AWS Advanced Partner (AI Competency)* credentials, and that is intended: it is the sales-facing brief handed directly to a buyer, where the credentials answer a question the buyer is actually asking. Leave it alone. The rule still binds every other page, `index.html` and `method.html` included — partner branding found anywhere outside `one-pager.html` is drift, not precedent, and should be removed.
 - Tone: direct, IT-practitioner language — not sales-speak

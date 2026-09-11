@@ -551,6 +551,63 @@
   }
   .pillar-feat strong { color: var(--slate-800); font-weight: 600; }
 
+  /* ══ EXTERNAL EVIDENCE ══ */
+  /* Used wherever the page leans on someone else's published work. Kept visually
+     distinct from our own assertions on purpose — a reader should be able to see
+     at a glance which claims we are sourcing rather than making. */
+  .cite {
+    border-left: 2px solid var(--primary);
+    background: var(--slate-50);
+    padding: 1.4rem 1.6rem;
+    margin-top: 2.5rem;
+  }
+  .cite-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 0.8rem;
+  }
+  .cite p { font-size: 0.92rem; color: var(--slate-600); margin-bottom: 0.8rem; }
+  .cite p:last-child { margin-bottom: 0; }
+  .cite strong { color: var(--slate-900); font-weight: 600; }
+  .cite-src { font-size: 0.8rem !important; color: var(--slate-500) !important; }
+  .cite-src a { color: var(--slate-600); text-decoration: underline; text-decoration-color: var(--slate-300); text-underline-offset: 2px; }
+  .cite-src a:hover { color: var(--primary); text-decoration-color: var(--primary); }
+  @media (max-width: 640px) { .cite { padding: 1.1rem 1.2rem; } }
+
+  /* ══ RUN CONTRACT ══ */
+  .contract {
+    border: 1px solid var(--slate-200);
+    background: #fff;
+    margin-top: 3rem;
+  }
+  .contract-head {
+    padding: 1.1rem 1.6rem;
+    border-bottom: 1px solid var(--slate-200);
+    background: var(--slate-50);
+  }
+  .contract-head h3 { margin: 0; font-size: 1.05rem; }
+  .contract-head p { margin: 0.4rem 0 0; font-size: 0.88rem; color: var(--slate-500); }
+  .contract-row {
+    display: grid;
+    gap: 0.3rem 1.5rem;
+    padding: 0.9rem 1.6rem;
+    border-bottom: 1px solid var(--slate-100);
+  }
+  .contract-row:last-child { border-bottom: 0; }
+  @media (min-width: 720px) { .contract-row { grid-template-columns: 190px 1fr; align-items: baseline; } }
+  .contract-key {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--primary);
+  }
+  .contract-val { font-size: 0.9rem; color: var(--slate-600); }
+  .contract-val strong { color: var(--slate-800); font-weight: 600; }
+  @media (max-width: 640px) { .contract-head, .contract-row { padding-left: 1.2rem; padding-right: 1.2rem; } }
+
   /* ══ SWARM SECTION ══ */
   .swarm-section { background: var(--slate-50); }
   .swarm-grid {
@@ -803,6 +860,7 @@
 }</script>
 </head>
 <body>
+<script src="nav.js" defer></script>
 
 <!-- ═══ HERO ═══ -->
 <section class="hero">
@@ -863,6 +921,7 @@
       <li data-target="principles"><a href="#principles">principles</a></li>
       <li data-target="advantage"><a href="#advantage">advantage</a></li>
       <li data-target="architecture"><a href="#architecture">architecture</a></li>
+      <li data-target="swarm"><a href="#swarm">swarm</a></li>
       <li data-target="governance"><a href="#governance">governance</a></li>
       <li data-target="roadmap"><a href="#roadmap">roadmap</a></li>
       <li data-target="resources"><a href="#resources">resources</a></li>
@@ -880,6 +939,7 @@
         <p>You rolled out coding agents. Engineers are faster. PRs flood in. But code reviews pile up. Dependencies stall. Incidents still need a human at the keyboard.</p>
         <p>AI productivity has reached a <strong style="color:var(--slate-900)">local maximum</strong>. The SDLC itself is the constraint &mdash; not the speed of writing code. Current AI tools are localhost-bound: they fight for your machine state, drain battery, and stop when the laptop closes.</p>
         <p>The gains are compounding with the individual, not the organization. Your DORA metrics are flat. The backlog grows faster than you can drain it.</p>
+        <p>None of this is a contested reading any more. It is the premise most serious practitioners now start from &mdash; which makes the useful question not <em>whether</em> verification is the constraint, but what you do about it on a codebase you already have.</p>
       </div>
 
       <div class="reveal" style="animation-delay:0.15s">
@@ -909,6 +969,13 @@
         </div>
       </div>
     </div>
+
+    <div class="cite reveal">
+      <span class="cite-label">External evidence</span>
+      <p>Addy Osmani, who runs Chrome Developer Experience at Google, states it as <strong>&ldquo;verification, not generation, is the real constraint on a factory&rdquo;</strong> &mdash; and names what accrues when a team ignores it: <strong>comprehension debt</strong>, the gap between the volume of code shipped and the amount any human still understands. He cites Dex Horthy running a fully automated pipeline for four months with no human code review. The tests passed. The system became unmaintainable.</p>
+      <p>Osmani also supplies the honest counterweight to any speed claim, ours included: in one run he measured, tasks took <strong>two to four times as long</strong> once verification, retries and browser checks were counted. That is a single anecdote and not a study &mdash; but it is the right order of magnitude to plan against, and it is the number most vendor material leaves out.</p>
+      <p class="cite-src"><a href="https://addyosmani.com/blog/software-factories/" target="_blank" rel="noopener">Software Factories, Light and Dark</a> &middot; <a href="https://addyosmani.com/blog/human-judgment-doesnt-leave-the-software/" target="_blank" rel="noopener">Human judgment doesn&rsquo;t leave the software factory. It relocates.</a> &mdash; July and August 2026</p>
+    </div>
   </div>
 </section>
 
@@ -927,6 +994,7 @@
       <span class="label label--primary">The Paradigm Shift</span>
       <h2>From copilots to background agents</h2>
       <p style="max-width:650px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">The next leap isn't "better autocomplete." It's moving from AI-assisted development to a fully Agentic SDLC where autonomous agents run on your cloud infrastructure.</p>
+      <p style="max-width:650px;margin:1rem auto 0;font-size:1rem;color:var(--slate-500);">Which is the easy half to say. The hard half is making agent output <strong style="color:var(--slate-700)">verifiable</strong> on an estate nobody on the current team wrote, and keeping the layers underneath the agents <strong style="color:var(--slate-700)">replaceable</strong> when the model you standardised on is superseded. That is the whole of what follows &mdash; <a href="method.html" style="color:var(--primary);">a method</a> for the first, an architecture for the second.</p>
     </div>
 
     <div class="shift-grid reveal">
@@ -1091,11 +1159,19 @@
         </div>
       </div>
     </div>
+
+    <div class="cite reveal">
+      <span class="cite-label">External evidence</span>
+      <p>Anthropic shipped this decomposition and published what it bought them. They split a running agent into three independently replaceable parts: a stateless <strong>brain</strong> (model plus harness) that calls every tool through one uniform interface; the <strong>hands</strong> &mdash; sandboxes, containers, MCP servers &mdash; all behind that same interface, so that, in their words, &ldquo;the harness doesn&rsquo;t know whether the sandbox is a container, a phone, or a Pok&eacute;mon emulator&rdquo;; and a durable append-only <strong>session log</strong> held outside the harness.</p>
+      <p>That third part is the one most architectures omit, and it is what separates work that can be <em>restarted</em> from work that can merely be <em>retried</em>. When a harness dies, a new one boots and resumes from the last logged event rather than from the beginning. Credentials never enter the sandbox at all.</p>
+      <p>The measured result of decoupling, on their own production traffic: <strong>p50 time-to-first-token fell roughly 60%, p95 by over 90%</strong>, because container provisioning left the critical path.</p>
+      <p class="cite-src"><a href="https://www.anthropic.com/engineering/managed-agents" target="_blank" rel="noopener">Scaling Managed Agents: decoupling the brain from the hands</a> &mdash; Anthropic Engineering, April 2026</p>
+    </div>
   </div>
 </section>
 
 <!-- ═══ SWARM PATTERNS ═══ -->
-<section class="swarm-section">
+<section class="swarm-section" id="swarm">
   <div class="container">
     <div class="reveal" style="text-align:center;">
       <span class="label label--primary">Scaling Patterns</span>
@@ -1207,6 +1283,13 @@
         <div class="caption">Each agent works on a different facet. Results converge into one outcome.</div>
       </div>
     </div>
+    <div class="cite reveal">
+      <span class="cite-label">The counter-metric</span>
+      <p>Both patterns are usually sold on throughput, and throughput is the wrong thing to watch. The cost of running agents in parallel is not what it takes to start them &mdash; it is what gets imported <em>back</em> into the orchestrator afterwards, and then degrades every turn that follows. Transcripts, intermediate reasoning and raw tool output land in the parent context and stay there for the rest of the session.</p>
+      <p>So the test for adding a subagent is not how much wall-clock it saves. It is <strong>what it keeps out of the orchestrator&rsquo;s context</strong>. A subagent whose entire transcript comes home has cost you more than running the work serially would have. Budget parent context the way you budget any shared, non-renewable resource in a run, and make the return contract explicit &mdash; a result, not a log.</p>
+      <p>Worth noting how thin the evidence is. This comes from one practitioner writing up one incident, who is explicit that he had no per-call token accounting and that the ranking is &ldquo;the orchestrator&rsquo;s account, not a measured fact.&rdquo; We repeat it because the mechanism is sound and the failure mode is real, not because it has been quantified. It has not.</p>
+      <p class="cite-src"><a href="https://martinfowler.com/articles/orchestrator-tax.html" target="_blank" rel="noopener">The Orchestrator&rsquo;s Tax</a> &mdash; martinfowler.com, July 2026</p>
+    </div>
   </div>
 </section>
 
@@ -1283,6 +1366,28 @@
         <p>Session state in object storage. Fork an agent's 2-hour research session and resume with full context.</p>
       </div>
     </div>
+
+    <div class="contract reveal">
+      <div class="contract-head">
+        <h3>The run contract</h3>
+        <p>Governance at the execution layer needs something concrete to enforce. This is it &mdash; the eight fields every autonomous run declares before it starts. An agent that cannot fill them in is not ready to run unattended.</p>
+      </div>
+      <div class="contract-row"><div class="contract-key">goal</div><div class="contract-val">What changes in the world if this succeeds. Stated as an outcome, not a task list.</div></div>
+      <div class="contract-row"><div class="contract-key">scope</div><div class="contract-val">Which repositories, paths and systems are in play.</div></div>
+      <div class="contract-row"><div class="contract-key">non_goals</div><div class="contract-val">What the agent must not touch even if touching it would help. The field that prevents scope creep in an unsupervised run &mdash; and the one most often left blank.</div></div>
+      <div class="contract-row"><div class="contract-key">permissions</div><div class="contract-val">The scoped identity, its tools, and how long the credentials live.</div></div>
+      <div class="contract-row"><div class="contract-key">stopping_conditions</div><div class="contract-val">Machine-checkable exit criteria. <strong>&ldquo;Looks done&rdquo; is not one.</strong></div></div>
+      <div class="contract-row"><div class="contract-key">evidence</div><div class="contract-val">What is produced to prove the goal was met, independent of the agent's own account of its work.</div></div>
+      <div class="contract-row"><div class="contract-key">escalation</div><div class="contract-val">The conditions under which a human is paged, and who.</div></div>
+      <div class="contract-row"><div class="contract-key">token_budget</div><div class="contract-val">The ceiling, and what happens on reaching it. An unbounded run is an unbounded invoice.</div></div>
+    </div>
+
+    <div class="cite reveal">
+      <span class="cite-label">Calibrating autonomy</span>
+      <p>How much autonomy a given run should get is not a question about the agent. Addy Osmani&rsquo;s framing is that three properties decide it, and they are all properties of the <em>task</em>: <strong>speed of detection</strong> (how fast you would notice this going wrong), <strong>reversibility</strong> (whether the change can be cleanly undone), and <strong>evidence quality</strong> (whether success can be demonstrated independently of the agent).</p>
+      <p>A task scoring well on all three can run unattended regardless of how important it looks. A task scoring badly on any one of them needs a human in the loop regardless of how routine it looks. Autonomy tracks verifiability, not prestige &mdash; which is the same argument this whole page makes, applied one run at a time.</p>
+      <p class="cite-src">Framework: <a href="https://addyosmani.com/blog/agentic-autonomy-levels/" target="_blank" rel="noopener">Agentic Autonomy Levels</a> &mdash; Addy Osmani, July 2026</p>
+    </div>
   </div>
 </section>
 
@@ -1323,6 +1428,8 @@
         <p>Full orchestration across your codebase. Agent swarms, fleet coordination, centralized governance.</p>
       </div>
     </div>
+
+    <p class="reveal" style="max-width:720px;margin:2.5rem auto 0;font-size:0.95rem;color:var(--slate-500);text-align:center;">These phases move the <em>organisation</em>. They do not decide how much rope any individual run gets &mdash; that is settled per task by detection speed, reversibility and evidence quality, under <a href="#governance" style="color:var(--primary);">the run contract</a>. The two axes are independent: a Phase 4 organisation still runs plenty of work at arm's length, and a Phase 2 team can safely let a well-evidenced, trivially reversible job run unattended tonight.</p>
   </div>
 </section>
 
@@ -1379,7 +1486,6 @@
 </footer>
 
 <!-- ═══ SCRIPTS ═══ -->
-<script src="nav.js" defer></script>
 <script>
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
