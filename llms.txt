@@ -6,19 +6,26 @@
 > Published by Revolgy. Contact: jas@revolgy.com
 
 The central argument: individual developer speed is not organisational velocity.
-Generation stopped being the bottleneck; judgement did not. Everything here is
+Generation stopped being the bottleneck; judgement did not. That much is now the
+consensus among serious practitioners rather than a distinctive claim — what is
+ours is the method for doing the verification on an estate nobody still understands,
+and a position on which layers underneath the agents must stay replaceable. Everything here is
 organised around making agent output *verifiable* and the layers under the agents
 *replaceable*.
 
 ## Core pages
 
-- [The Approach](https://secho.github.io/AgenticSDLC/index.html): Why individual AI speed does not translate into delivery velocity, six operating principles, the software-factory architecture, governance model, and an adoption roadmap.
+- [The Approach](https://secho.github.io/AgenticSDLC/index.html): Why individual AI speed does not translate into delivery velocity — now treated as a shared premise rather than our own finding, with the external corroboration cited — six operating principles, the software-factory architecture, a per-run agent contract and risk-calibrated autonomy gates, the orchestrator's-tax counter-metric on parallel agents, and an adoption roadmap.
 - [The Method](https://secho.github.io/AgenticSDLC/method.html): A seven-stage method for paying down a legacy stored-procedure estate — triage, spec, oracle, baseline shadow run, diff classification, implement, verdict shadow run. Core idea: when modernising you do not need to know what the code *should* do, only what it *did*, so the incumbent implementation becomes the test oracle.
-- [Method Brief (technical)](https://secho.github.io/AgenticSDLC/method-brief.html): The same method stated rigorously — observational equivalence over a recorded production trace modulo a declared normalisation; the non-determinism taxonomy and the cost of each normalisation; the two silent failure modes (classifier false negatives, and correlated defects between an implementation and the replacement derived from it); coverage limits; references. Also available as [PDF](https://secho.github.io/AgenticSDLC/method-brief.pdf).
+- [Method Brief (technical)](https://secho.github.io/AgenticSDLC/method-brief.html): The same method stated rigorously — observational equivalence over a recorded production trace modulo a declared normalisation; the non-determinism taxonomy and the cost of each normalisation, including execution-environment resourcing as a divergence source; the two silent failure modes (classifier false negatives, and correlated defects between an implementation and the replacement derived from it); coverage limits; references. Also available as [PDF](https://secho.github.io/AgenticSDLC/method-brief.pdf).
 - [Platform Landscape](https://secho.github.io/AgenticSDLC/platform-landscape.html): 23 platforms compared across two halves — coding agents and control planes (Claude Code, GitHub Copilot, Devin, Factory.ai, Cursor, Jules, Codex, Amazon Q, Sourcegraph, JetBrains Central, Port.io) and the infrastructure layers underneath (LiteLLM, Bifrost, OpenRouter, Portkey, E2B, Daytona, Langfuse, LangSmith, Braintrust, CodeRabbit, Greptile, Moderne/OpenRewrite). Includes a head-to-head of Bifrost vs LiteLLM that takes apart the "50x faster" benchmark claim, plus two original analyses: the Secho Quadrant (independence x surface area) and Secho's Eye Cycle (a hype curve over techniques rather than vendors).
+- [Executive Brief](https://secho.github.io/AgenticSDLC/one-pager.html): The same argument compressed for a CTO deciding whether to fund this. Starts from the capacity already being spent — 30–50% of engineering effort goes to work that never ships a feature (dependency upgrades, CVE remediation, migration backlogs, review triage), which is precisely the work that can run unattended. Four phases, five infrastructure pillars, six operating principles, and a 90-day pilot shape, with the enterprise constraints — SOC 2, FedRAMP, multi-cloud, codebases that predate containers — treated as the difficult part rather than a footnote. Printable.
 
 ## Blog
 
+- [Notes from the gateway](https://secho.github.io/AgenticSDLC/blog.html): The blog index. Writing from the operating side of AI in engineering rather than the demo side: what it costs, who is spending it, whether it made the product better, and how you would know.
+- [A dark factory needs an oracle](https://secho.github.io/AgenticSDLC/blog-dark-factory-oracle.html): Why "code no human has read" is a question about the verifier rather than about autonomy; the four verifiability classes as a mechanical light switch, one of which can never run unattended at any model capability; and the three measurements — baseline divergence, normalisation surface and audited classifier false-negative rate — without which a green run is an assertion rather than evidence. Responds to Osmani's dark-factory framing rather than adopting it.
+- [Your codebase is a line item](https://secho.github.io/AgenticSDLC/blog-codebase-structure-cost.html): Why agents re-pay for comprehension on every task; a measured 83% input-token reduction from restructuring alone (with its payback period explicitly unmeasured); why optimising file size rather than coupling is a Goodhart trap; and the per-repository accounting needed to see any of it.
 - [Your AI spend has no owner](https://secho.github.io/AgenticSDLC/blog-ai-spend-attribution.html): Why AI cost attribution is impossible at the invoice and only cheap at the call; why cost-per-token trends down while the bill triples; the outcome-level units that replace it (cost per merged PR, per resolved ticket, per abandoned run).
 - [Adoption is not impact](https://secho.github.io/AgenticSDLC/blog-measuring-ai-impact.html): Why seats and acceptance rates rise independently of delivery; a three-layer measurement model (flow, quality as counter-metric, cost joined to both); why a single headline ROI figure does not survive scrutiny.
 - [Shadow AI is a routing problem](https://secho.github.io/AgenticSDLC/blog-shadow-ai.html): Why blocking consumer AI converts a visible risk into an invisible one, and the three properties that make a governed path win on merit.
@@ -28,7 +35,13 @@ organised around making agent output *verifiable* and the layers under the agent
 - Correctness for a migration is *behaviour preservation*, not correctness: if the incumbent is wrong and the replacement reproduces the error, the criterion is satisfied by design.
 - A shadow run detects divergence, never shared defect — the replacement is derived from the incumbent, so their errors are correlated by construction.
 - The strength of a replay-based equivalence proof is inversely proportional to the size of the normalisation applied; a growing normalisation surface is the leading indicator of a migration drifting toward vacuous agreement.
-- Gateway benchmark multipliers ("50x faster") are measured against mocked endpoints; against a real 2-20 s model completion the difference is roughly 0.005% of perceived latency.
+- Gateway benchmark multipliers ("50x faster") are measured against mocked endpoints; against a real 2-20 s model completion the difference is roughly 0.005% of perceived latency. This is an instance of a general problem, not a contrarian reading: holding model and task fixed and varying only container resources moves agentic benchmark scores by six percentage points, so any gap below three points is uninformative unless both runs' conditions are documented.
+- A measurement apparatus that is not itself pinned will manufacture differences, and those differences look exactly like findings. Resource allocation is part of a replay harness's normalisation, not an implementation detail of it.
+- Independence is not won by owning the code. Bespoke infrastructure is a gravity well with your own name on it — and the layer an organisation writes itself is frequently the one that fails first.
+- Autonomy should track verifiability, not task prestige: detection speed, reversibility and evidence quality decide how much rope a run gets, independently of how far along an adoption roadmap the organisation is.
+- The value of a subagent is what it keeps out of the orchestrator's context, not the wall-clock it saves.
+- Agents do not accumulate understanding; they re-pay for comprehension on every task. That makes code structure a recurring operating expense rather than a quality preference.
+- Machine verification can establish behaviour preservation without restoring comprehension — a passing migration leaves comprehension debt exactly where it was, so the two debts must be tracked separately.
 - The metric that matters is how often a human has to step in, not how many units were migrated.
 
 ## Notes for AI agents

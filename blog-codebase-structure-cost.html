@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your codebase is a line item | Agentic SDLC</title>
+<meta name="description" content="Agents pay to re-read your code on every task. A measured experiment cut input tokens 83% by restructuring alone — which turns code structure from a quality argument into an operating expense with a meter on it.">
+<link rel="canonical" href="https://secho.github.io/AgenticSDLC/blog-codebase-structure-cost.html">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="keywords" content="AI coding cost, token consumption refactoring, context window cost, codebase structure, agentic coding economics, technical debt AI">
+<meta name="author" content="Revolgy">
+<meta name="theme-color" content="#7640FF">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="favicon-96.png" sizes="96x96" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Agentic SDLC">
+<meta property="og:locale" content="en_GB">
+<meta property="og:url" content="https://secho.github.io/AgenticSDLC/blog-codebase-structure-cost.html">
+<meta property="og:title" content="Your codebase is a line item | Agentic SDLC">
+<meta property="og:description" content="Agents pay to re-read your code on every task. A measured experiment cut input tokens 83% by restructuring alone — which turns code structure from a quality argument into an operating expense with a meter on it.">
+<meta property="og:image" content="https://secho.github.io/AgenticSDLC/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Agentic SDLC — the self-driving codebase">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Your codebase is a line item | Agentic SDLC">
+<meta name="twitter:description" content="Agents pay to re-read your code on every task. A measured experiment cut input tokens 83% by restructuring alone — which turns code structure from a quality argument into an operating expense with a meter on it.">
+<meta name="twitter:image" content="https://secho.github.io/AgenticSDLC/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="blog.css">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Your codebase is a line item | Agentic SDLC",
+  "description": "Agents pay to re-read your code on every task. A measured experiment cut input tokens 83% by restructuring alone — which turns code structure from a quality argument into an operating expense with a meter on it.",
+  "url": "https://secho.github.io/AgenticSDLC/blog-codebase-structure-cost.html",
+  "inLanguage": "en-GB",
+  "image": "https://secho.github.io/AgenticSDLC/og-image.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Revolgy",
+    "url": "https://www.revolgy.com/",
+    "logo": "https://secho.github.io/AgenticSDLC/icon-512.png"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "Revolgy",
+    "url": "https://www.revolgy.com/",
+    "logo": "https://secho.github.io/AgenticSDLC/icon-512.png"
+  },
+  "datePublished": "2026-09-11",
+  "dateModified": "2026-09-11",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://secho.github.io/AgenticSDLC/blog-codebase-structure-cost.html"
+  }
+}</script>
+</head>
+<body>
+<script src="nav.js" defer></script>
+
+<div class="wrap">
+<div class="narrow">
+
+  <a href="blog.html" class="back-link">&larr; All posts</a>
+
+  <article>
+    <header class="post-hero">
+      <span class="label">Token economics</span>
+      <h1>Your codebase is a line item</h1>
+      <p class="dek">Refactoring has always lost the funding argument, because its benefit was diffuse and nobody could price it. Agents changed that by accident: they pay to re-read your code on every single task, and that meter is now visible.</p>
+      <div class="post-meta">
+        <span>11 September 2026</span>
+        <span>8 min read</span>
+      </div>
+    </header>
+
+    <nav class="subnav" data-auto=".post-body h2" aria-label="In this post">
+      <div class="subnav-inner"></div>
+    </nav>
+
+    <div class="post-body">
+
+      <p class="lede">A human engineer reads a confusing module once, swears at it, and carries that understanding for the rest of their time on the team. An agent reads it again on every task, pays full price each time, and remembers nothing.</p>
+
+      <p>That asymmetry is doing something to your cost base that no invoice will ever show you. It also does something more interesting: it puts a meter on a decision that has resisted measurement for forty years.</p>
+
+      <h2>The experiment</h2>
+
+      <p>Giles Edwards-Alexander ran the cleanest version of this test we have seen published. He took a 17,155-line Rust data access layer &mdash; one file &mdash; and applied fifteen refactoring steps, splitting it across nineteen files. Total lines of code across the project stayed roughly flat at about 49,000. Nothing was deleted. Nothing was rewritten. The code was reorganised.</p>
+
+      <p>Then he had an agent implement the same features again, and counted the input tokens.</p>
+
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>&nbsp;</th><th class="m">Before</th><th class="m">After</th><th>Change</th></tr></thead>
+          <tbody>
+            <tr><td>Input tokens, identical feature work</td><td class="m">159,564</td><td class="m">27,360</td><td><span class="yes">&minus;83%</span></td></tr>
+            <tr><td>Files in the data access layer</td><td class="m">1</td><td class="m">19</td><td>&mdash;</td></tr>
+            <tr><td>Total project LOC</td><td class="m">~49,000</td><td class="m">~49,000</td><td>unchanged</td></tr>
+            <tr><td>Cost per task at $3/M input</td><td class="m">~$0.48</td><td class="m">~$0.08</td><td><span class="yes">~40&cent; saved</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>The mechanism is not subtle and that is rather the point: <strong>the agent has to read less code to do the same job.</strong> A 17,000-line file has to be pulled into context more or less whole. Nineteen well-bounded files can be loaded selectively. Same logic, same behaviour, a fifth of the reading.</p>
+
+      <h2>Why it works, stated properly</h2>
+
+      <p>Agents do not accumulate. Every task starts from something close to zero and reconstructs whatever understanding it needs from the source, then throws it away. Where a team's comprehension of a system is a one-off cost that amortises across years of work, an agent's is a per-task cost that recurs forever.</p>
+
+      <p>So the thing you are paying for, over and over, is not generation. It is comprehension. And comprehension cost is a function of how much the agent has to read to be confident about a change &mdash; which is exactly what module boundaries, clear types and small surfaces control.</p>
+
+      <div class="pull">Structure used to be a quality argument. It is now a unit-cost argument, and unit costs get funded.</div>
+
+      <p>This is worth sitting with, because it inverts a long-standing organisational problem. Refactoring has always been the work that loses. It competes against features for the same engineers, it produces no user-visible change, and its benefit &mdash; "maintainability" &mdash; has never had a number attached that survived contact with a finance conversation. Every engineering leader has made the argument and every one of them has made it on faith.</p>
+
+      <p>The argument now has a meter on it. Not a good meter yet, but a real one.</p>
+
+      <h2>What this number is not</h2>
+
+      <p>Three things, and the author is straightforward about all of them, which is why the result is worth repeating at all.</p>
+
+      <div class="callout warn">
+        <span class="k">Read the caveats before quoting the 83%</span>
+        <p><strong>The token counts are approximate.</strong> There is no reliable live token counter, so figures were derived from character counts divided by four. That is a standard approximation and it is still an approximation.</p>
+        <p><strong>The refactor's own cost was not measured.</strong> The upper-bound estimate for performing the restructuring was around five million tokens. At the ~132,000 tokens saved per task, the break-even is somewhere near forty tasks &mdash; but since the refactoring cost was an estimate and not a measurement, <strong>the payback period is genuinely unknown.</strong></p>
+        <p><strong>It is one experiment, on one codebase, in one language.</strong> A monolithic 17,000-line file is close to the worst case, which means 83% is close to a ceiling rather than a typical result. Expect less on a codebase that was already reasonably organised.</p>
+      </div>
+
+      <p>So the honest reading is not "refactor everything, it pays for itself." It is: <strong>there is now an instrument where previously there was only conviction.</strong> That is a smaller claim and a much more useful one.</p>
+
+      <h2>The trap this creates</h2>
+
+      <p>A measurable proxy attached to a budget will be optimised, and this one has an obvious bad equilibrium. If you pay per token read, the cheapest move is to make files smaller. That is not the same as making the system simpler, and the two come apart quickly.</p>
+
+      <p>You can shard a tangled module into thirty files that all import each other and watch your per-task token count improve, because the agent now loads four files instead of one. You have not reduced the complexity. You have distributed it, made it harder for a human to follow, and bought a metric.</p>
+
+      <p>The thing that actually fell in the experiment was not file size. It was <em>how much of the system you must understand to change one part of it</em> &mdash; and file splitting was the means, not the end. If your restructuring does not reduce that, the token count will eventually tell you, because the agent will start pulling in the whole dependency web anyway. Watch for the reading cost creeping back up after a reorganisation. That is the signal that you moved the mess rather than removed it.</p>
+
+      <h2>Who owns this now</h2>
+
+      <p>If comprehension is billed per task, code structure is an operating expense. That reclassification is the practical consequence, and it changes three conversations.</p>
+
+      <p><strong>It changes who funds it.</strong> An operating expense with a measurable driver gets treated differently from a quality initiative. The question stops being "can we afford a refactoring sprint" and becomes "what is the ongoing cost of not doing it", which is a question with an answer.</p>
+
+      <p><strong>It changes what you measure.</strong> We have argued before that <a href="blog-ai-spend-attribution.html">the useful unit of AI spend is cost per merged PR</a>, not cost per token. Structure is one of the very few levers that moves that denominator without touching headcount or model choice. Most cost optimisation in this space is a negotiation with a vendor; this one is entirely inside your own control.</p>
+
+      <p><strong>It changes what a legacy estate costs you.</strong> The parts of your codebase nobody wants to touch are, by construction, the parts an agent will pay the most to read. Agentic coding does not make an unstructured estate cheaper to work on. It makes the cost of that estate recurring, visible, and attributable to whoever is running the agents.</p>
+
+      <h2>How you would actually know</h2>
+
+      <p>None of this is visible at the invoice. A monthly total from a model vendor cannot tell you which repository consumed it, and repository is the unit that matters here &mdash; it is the thing you can restructure.</p>
+
+      <p>What you need is boring and specific: token accounting tagged per repository and per task type, collected at the point the call is made. Then you can do the only comparison that settles anything &mdash; the same class of task, on the same repository, before and after a restructuring.</p>
+
+      <div class="term">
+        <div class="term-bar">the measurement, minimally</div>
+<pre><span class="c"># tag every call at the gateway, not at the vendor</span>
+metadata:
+  repo:        <span class="s">"billing-core"</span>
+  task_type:   <span class="s">"feature"</span>      <span class="c"># feature | fix | review | migration</span>
+  run_id:      <span class="s">"a41f…"</span>
+
+<span class="c"># then the question you can finally ask:</span>
+<span class="c"># median input tokens per feature task, billing-core,</span>
+<span class="c"># 30 days before restructure vs 30 days after</span></pre>
+      </div>
+
+      <p>Two honest notes on this. First, you need enough volume for the comparison to mean anything &mdash; a handful of tasks either side of a refactor tells you nothing, because task difficulty varies more than structure does. Second, hold the model fixed across the comparison window. A model change in the middle will move input token counts on its own and you will have no way to separate the two effects.</p>
+
+      <p>And if your AI spend is small enough that nobody has asked where it goes, none of this is worth building yet. Measure it when the number starts mattering, not before.</p>
+
+      <div class="takeaways">
+        <div class="k">If you take four things</div>
+        <ol>
+          <li>Agents do not accumulate understanding. They re-read and re-pay on every task, which makes comprehension a recurring cost rather than a one-off one.</li>
+          <li>One measured experiment cut input tokens 83% by restructuring alone, with LOC unchanged &mdash; but its payback period was not measured, so treat it as an instrument, not a mandate.</li>
+          <li>Do not optimise file size. Optimise how much of the system you must understand to change one part of it. The first is a metric; the second is the thing.</li>
+          <li>Structure is one of the only cost levers entirely inside your control. You cannot see it at the invoice &mdash; it needs per-repository accounting at the call.</li>
+        </ol>
+      </div>
+
+      <div class="operated">
+        <div class="k">Running this in production</div>
+        <h3>The software is free. The operation is the work.</h3>
+        <p>Per-repository token accounting is a gateway feature, and LiteLLM does it out of the box &mdash; open source, yours to run, an afternoon to stand up. What takes longer is making it something finance and engineering will both act on: a tagging convention that survives contact with real teams, retention that satisfies a security review, high availability so the gateway is not a new outage class, and a reporting cadence that lands before the budget conversation rather than after it.</p>
+        <p>Revolgy runs it as a managed service in EU regions &mdash; deployment, SLA-backed operation, model policy, and monthly attribution reporting, with metadata processing set out explicitly in the DPA. We process call metadata, not payloads: that answers the commercial questions and not much else, which is deliberate. You keep the open-source software and the exit path; we carry the pager.</p>
+        <p>Two limits worth saying plainly. Below roughly a five-figure monthly spend, a governed gateway is not worth the operational weight &mdash; keep it simple until the number matters. And putting every call through one path makes that path a single point of failure, which is a real trade and the reason the availability work is the expensive part rather than an afterthought.</p>
+        <div class="actions">
+          <a href="index.html#cta" class="btn btn--primary">Talk about your gateway <span aria-hidden="true">&rarr;</span></a>
+          <a href="platform-landscape.html#stack" class="btn btn--outline">Compare the gateway options</a>
+        </div>
+      </div>
+
+      <p style="font-size:0.86rem;color:var(--slate-500);border-top:1px solid var(--slate-200);padding-top:1.25rem;">Source for the measured figures: <a href="https://martinfowler.com/articles/exploring-gen-ai/refactoring-economic-benefit.html" target="_blank" rel="noopener">The Economic Benefit of Refactoring</a> by Giles Edwards-Alexander, martinfowler.com, July 2026. The experiment, the token counts and the caveats are his; the argument about ownership, the Goodhart trap and the measurement approach are ours.</p>
+
+    </div>
+  </article>
+
+  <div class="related">
+    <div class="k">Related</div>
+    <div class="related-grid">
+      <a href="blog-ai-spend-attribution.html">
+        <span class="t">Your AI spend has no owner</span>
+        <span class="d">The per-repository accounting this post depends on, and why attribution has to happen at the call rather than the invoice.</span>
+      </a>
+      <a href="blog-measuring-ai-impact.html">
+        <span class="t">Adoption is not impact</span>
+        <span class="d">Cost per task is one number. Whether the output shipped is another. The measurement model that joins them.</span>
+      </a>
+      <a href="blog-dark-factory-oracle.html">
+        <span class="t">A dark factory needs an oracle</span>
+        <span class="d">The other side of the same debt: verification can prove nothing changed without anyone understanding it any better.</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
+</footer>
+
+</body>
+</html>

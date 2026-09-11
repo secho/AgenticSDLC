@@ -247,6 +247,7 @@
   }
   .figure-scroll svg { display: block; min-width: 660px; width: 100%; height: auto; }
   .fig-note { font-size: 0.82rem; color: var(--slate-500); line-height: 1.6; margin-top: 0.75rem; }
+  .mono { font-family: var(--font-mono); font-size: 0.9em; color: var(--slate-700); }
   .fig-scroll-hint { display: none; font-size: 0.72rem; color: var(--slate-400); margin-top: 0.4rem; font-family: var(--font-mono); }
   @media (max-width: 720px) { .fig-scroll-hint { display: block; } }
 
@@ -366,7 +367,7 @@
     "logo": "https://secho.github.io/AgenticSDLC/icon-512.png"
   },
   "datePublished": "2026-07-24",
-  "dateModified": "2026-08-18",
+  "dateModified": "2026-09-11",
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://secho.github.io/AgenticSDLC/platform-landscape.html"
@@ -832,6 +833,7 @@
         <li><span class="k">Traction</span><span>Reports use at ~94% of the Fortune 100; 1B+ sandboxes started, ~3.5M monthly SDK downloads</span></li>
         <li><span class="k">Best for</span><span>Running agent-written code where the isolation boundary has to hold</span></li>
         <li><span class="k">Watch for</span><span>microVM start-up is slower than containers &mdash; the price of the stronger boundary</span></li>
+        <li><span class="k">Counter-view</span><span>Teams shipping this in production have declined microVMs as operationally heavy and stacked weaker primitives instead &mdash; see below</span></li>
       </ul>
     </div>
     <div class="platform-block">
@@ -843,7 +845,18 @@
         <li><span class="k">Strengths</span><span>~90&nbsp;ms cold start; stateful workspaces that survive across agent turns</span></li>
         <li><span class="k">Best for</span><span>Latency-sensitive, long-lived agent sessions on trusted-ish code</span></li>
         <li><span class="k">Watch for</span><span>Closed-source since mid-2026 &mdash; managed-only, so it is a dependency, not a component</span></li>
+        <li><span class="k">Note</span><span>&ldquo;Shared host kernel&rdquo; is the starting point of the argument, not the end of it &mdash; see below</span></li>
       </ul>
+    </div>
+
+    <div class="platform-block" style="border-bottom:none;">
+      <h3>The trade is not microVM versus container</h3>
+      <p>Comparing isolation primitives head-to-head, as the two profiles above do, gets you halfway. It frames the choice as strength of boundary and treats the microVM as the strictly better option you buy with start-up latency. Two organisations that shipped agent sandboxing in 2026 and wrote up what they did both landed somewhere else, and their reasoning is worth more than the primitive comparison.</p>
+      <p><strong>Nilenso explicitly rejected microVMs</strong> as &ldquo;attractive from an isolation perspective, but heavier operationally&rdquo;, and rejected plain Docker as insufficient. What they shipped is four stacked layers: application hardening, network denial via <span class="mono">seccomp</span> during tool execution, filesystem isolation via <span class="mono">bubblewrap</span> and Linux namespaces, and runtime isolation via <span class="mono">gVisor</span> inside a container. The stated limits are as useful as the design &mdash; Linux-only, per-tool-call worker overhead, and their conclusion that full isolation &ldquo;still needs operational guardrails&rdquo;: timeouts, storage limits and CPU/memory caps applied at the orchestration layer.</p>
+      <p><strong>Anthropic layers by concern rather than by primitive</strong>, defending at three levels simultaneously &mdash; environment (sandbox, filesystem boundary, egress control), model (system prompts, classifiers), and content (which external resources the agent can reach at all) &mdash; with a different threat model per product. Claude Code uses OS-level sandboxing with network denied by default; their Cowork product uses a full VM behind an egress allowlist and a man-in-the-middle proxy, with credentials held in the host keychain and the agent loop running outside the VM.</p>
+      <p>So the real variable is <strong>how many layers you stack and what each one costs to operate</strong>, not which single primitive you picked. A deliberate choice of the weaker primitive, wrapped in three other things, is a more informative data point than a benchmark of kernel boundaries.</p>
+      <p>Two numbers keep this honest. Anthropic reports that <strong>roughly 17% of risky actions get past their classifier</strong>, that endpoint detection cannot see inside a sandboxed VM at all, and that the user remains an undefended prompt-injection vector. &ldquo;Network denied by default&rdquo; is a stance, not a solved problem: both write-ups end at orchestration-layer guardrails rather than at the isolation boundary. Anyone selling you a sandbox as a completed control should be asked which of these three they have closed.</p>
+      <p style="font-size:0.85rem;color:var(--slate-500);"><a class="vlink" href="https://blog.nilenso.com/blog/2026/06/25/sandboxing-ai-agents/" target="_blank" rel="noopener">Sandboxing Megasthenes</a>, Nilenso, June 2026 &middot; <a class="vlink" href="https://www.anthropic.com/engineering/how-we-contain-claude" target="_blank" rel="noopener">How we contain Claude across products</a>, Anthropic Engineering</p>
     </div>
 
     <h2 class="category-heading">Observability &amp; evaluation</h2>
@@ -969,6 +982,8 @@
     </div>
 
     <p>A 50&times; faster gateway makes no difference a developer or an agent can feel, because the gateway was never the slow part. Choosing on this number is the same error the <a href="#eye-cycle">Eye Cycle</a> flags as terminal for agent selection: optimising a benchmark that does not match the workload.</p>
+
+    <p>This is not a contrarian reading of one vendor's chart. It is an instance of a problem a frontier lab has now measured directly. Anthropic held model and task fixed on an agentic coding benchmark and varied only the container resources the agent ran in: scores moved <strong>six percentage points</strong> between the least- and most-resourced configurations, and the infrastructure-induced failure rate ranged from 5.8% to 0.5% depending on the caps. Their conclusion is the one to carry into any comparison on this page &mdash; <strong>a gap below three percentage points means nothing unless the conditions of both runs are documented</strong>. Apply the same standard to a 50&times; measured against mocked endpoints. <a href="https://www.anthropic.com/engineering/infrastructure-noise" target="_blank" rel="noopener">Quantifying infrastructure noise in agentic coding evals</a>, February 2026.</p>
 
     <h2 class="category-heading">Where the difference is real</h2>
 
@@ -1102,6 +1117,12 @@
     <p><strong>Swappable parts</strong> is where most of the infrastructure sits, and low surface area is the feature. LiteLLM, Bifrost, Langfuse, E2B and OpenRewrite each do one job, are open source, and cost roughly a day to remove. Bifrost sits marginally left of LiteLLM on independence for one reason that has nothing to do with its licence, which is more permissive: it is stewarded by a single vendor, where LiteLLM has a thousand contributors. That is the same consideration you would apply to any other dependency. JetBrains Central sits here rather than in load-bearing for one reason only: it is not generally available yet. Delivered scope is what the vertical axis measures, and an early-access product has not delivered it.</p>
     <p><strong>Ecosystem bets</strong> is the quadrant that needs the most honesty. Google Jules and Amazon Q are genuinely good inside Google Cloud and AWS respectively and weak outside them &mdash; correct choices if that commitment is already made, poor ones as a hedge. Daytona and the proprietary observability tools land here on packaging rather than capability: a managed-only sandbox and an Enterprise-gated trace store are fine products that you cannot take with you.</p>
     <p>The diagonal is the actual finding. <strong>Almost nothing sits in the top-right.</strong> The market has not yet produced a platform that does most of the lifecycle without owning most of your architecture &mdash; which is precisely why the working pattern is a load-bearing or gravity-well agent on top, with independent, swappable layers underneath.</p>
+
+    <h2 class="category-heading">The axis nobody wants to hear about</h2>
+    <p>There is a fifth position this chart cannot plot, because it has no vendor: building the layer yourself. It is the reflex answer to a dependency you dislike &mdash; write our own gateway, our own sandbox, our own trace store &mdash; and on this chart it looks like maximum independence at whatever surface area you choose.</p>
+    <p>It is worth reading what happens when an organisation with every advantage tries it. Anthropic, documenting their own containment architecture, found that the components which failed were the ones they had written themselves: a self-built proxy allowed exfiltration to an allowlisted destination, where battle-tested hypervisors held. Their conclusion is blunt enough to quote directly &mdash; <strong>&ldquo;the software you build yourself is often the weakest layer.&rdquo;</strong></p>
+    <p>That is the strongest available argument for the right-hand side of this chart, and it is not the argument people expect. Independence is not won by owning the code. It is won by choosing components with small surfaces, open licences and real alternatives &mdash; things that cost a day to remove because something else speaks the same protocol. A bespoke gateway you must now maintain, patch and staff is not independence. It is a gravity well with your own name on it, and it will not appear in any procurement review as a dependency, which is exactly what makes it dangerous.</p>
+    <p class="fig-note"><a class="vlink" href="https://www.anthropic.com/engineering/how-we-contain-claude" target="_blank" rel="noopener">How we contain Claude across products</a> &mdash; Anthropic Engineering.</p>
   </div>
 
   <div class="sep"></div>
@@ -1220,7 +1241,7 @@
     <h2 class="category-heading">The calls worth arguing about</h2>
     <p><strong>The genuinely new work is on the far left, and it is about proof, not generation (1&ndash;3).</strong> Learned world-models of a codebase, proof-carrying agent output, and auto-formalisation of legacy code into machine-checkable specifications are all early &mdash; papers, prototypes, and internal experiments. They share a direction that is worth noticing: every one attacks <em>verification</em> rather than authorship. That is the tell for where the field's remaining hard problems actually are, and it is why these are the ones to watch even though none is deployable today.</p>
     <p><strong>Continuous shadow production (4) is the sleeper.</strong> Shadow running is currently framed as a migration technique &mdash; you stand it up, you cut over, you tear it down. The interesting move is to never tear it down: keep a permanent parallel-run of the service so every change, human or agent, is differentially compared against the incumbent before promotion. That converts verification from a project into infrastructure, and it is the single change that would most widen what agents can be trusted to do unsupervised.</p>
-    <p><strong>Fully unattended ticket-to-PR (12) is over the peak, not through it.</strong> The capability is real and the demos are honest; what has not held is the economics at organizational scale. Independent evaluation keeps landing well below benchmark headlines, and the cost that matters is not inference &mdash; it is senior review time spent on plausible-looking output. It arrives, but as a governed subset of tickets rather than the default intake path.</p>
+    <p><strong>Fully unattended ticket-to-PR (12) is over the peak, not through it.</strong> The capability is real and the demos are honest; what has not held is the economics at organizational scale. Independent evaluation keeps landing well below benchmark headlines, and the cost that matters is not inference &mdash; it is senior review time spent on plausible-looking output. It arrives, but as a governed subset of tickets rather than the default intake path. This is the position the &ldquo;dark factory&rdquo; framing usually skips &mdash; shipping code no human has read is a claim about the verifier rather than about the agent, and <a href="blog-dark-factory-oracle.html">which loops can actually earn it</a> is decidable per artefact rather than adopted wholesale.</p>
     <p><strong>Benchmark-led agent selection (15) will not recover.</strong> Choosing tools by SWE-bench-style scores is being abandoned rather than improved: the benchmarks are saturated, contaminated, and measure a task shape that does not match legacy estates. What replaces it is not a better benchmark &mdash; it is evaluation on your own code, which is technique 21, and it is why that one is nearly load-bearing.</p>
     <p><strong>Shadow-run verification (20) is the most under-rated position on this curve.</strong> It never had a peak because it is unglamorous, and it is the closest thing the field has to a solved problem: replay recorded production traffic against old and new implementations and compare. It is the mechanism behind <a href="method.html">The Method</a>, and the reason it matters more than any generation technique is arithmetic &mdash; generation stopped being the constraint some time ago, and judgement never did.</p>
     <p><strong>Deterministic rule-based refactoring (26) has been load-bearing the whole time.</strong> It is the technique most often skipped because it predates the current cycle and does not involve a model. For everything expressible as a rule, it beats an agent outright: no review budget, no verification harness, no possibility of surprise. The mature stack uses recipes where a rule fits and reserves agents for work that actually needs judgement.</p>

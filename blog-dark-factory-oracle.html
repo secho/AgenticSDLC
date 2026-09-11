@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A dark factory needs an oracle, not a bigger model | Agentic SDLC</title>
+<meta name="description" content="A dark factory ships code no human has read, verified only by machines. Which loops can earn that, decided mechanically — and the three numbers that tell you when the verification has started lying to you.">
+<link rel="canonical" href="https://secho.github.io/AgenticSDLC/blog-dark-factory-oracle.html">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="keywords" content="dark factory, software factory, agent autonomy, verification, equivalence oracle, shadow run, comprehension debt, legacy modernisation">
+<meta name="author" content="Revolgy">
+<meta name="theme-color" content="#7640FF">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="favicon-96.png" sizes="96x96" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Agentic SDLC">
+<meta property="og:locale" content="en_GB">
+<meta property="og:url" content="https://secho.github.io/AgenticSDLC/blog-dark-factory-oracle.html">
+<meta property="og:title" content="A dark factory needs an oracle, not a bigger model | Agentic SDLC">
+<meta property="og:description" content="A dark factory ships code no human has read, verified only by machines. Which loops can earn that, decided mechanically — and the three numbers that tell you when the verification has started lying to you.">
+<meta property="og:image" content="https://secho.github.io/AgenticSDLC/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Agentic SDLC — the self-driving codebase">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A dark factory needs an oracle, not a bigger model | Agentic SDLC">
+<meta name="twitter:description" content="A dark factory ships code no human has read, verified only by machines. Which loops can earn that, decided mechanically — and the three numbers that tell you when the verification has started lying to you.">
+<meta name="twitter:image" content="https://secho.github.io/AgenticSDLC/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="blog.css">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "A dark factory needs an oracle, not a bigger model | Agentic SDLC",
+  "description": "A dark factory ships code no human has read, verified only by machines. Which loops can earn that, decided mechanically — and the three numbers that tell you when the verification has started lying to you.",
+  "url": "https://secho.github.io/AgenticSDLC/blog-dark-factory-oracle.html",
+  "inLanguage": "en-GB",
+  "image": "https://secho.github.io/AgenticSDLC/og-image.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Revolgy",
+    "url": "https://www.revolgy.com/",
+    "logo": "https://secho.github.io/AgenticSDLC/icon-512.png"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "Revolgy",
+    "url": "https://www.revolgy.com/",
+    "logo": "https://secho.github.io/AgenticSDLC/icon-512.png"
+  },
+  "datePublished": "2026-09-11",
+  "dateModified": "2026-09-11",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://secho.github.io/AgenticSDLC/blog-dark-factory-oracle.html"
+  }
+}</script>
+</head>
+<body>
+<script src="nav.js" defer></script>
+
+<div class="wrap">
+<div class="narrow">
+
+  <a href="blog.html" class="back-link">&larr; All posts</a>
+
+  <article>
+    <header class="post-hero">
+      <span class="label">Verification</span>
+      <h1>A dark factory needs an oracle, not a bigger model</h1>
+      <p class="dek">Shipping code no human has read is easy for about four months. The question was never who read it &mdash; it is what &ldquo;verified&rdquo; was doing in that sentence.</p>
+      <div class="post-meta">
+        <span>11 September 2026</span>
+        <span>10 min read</span>
+      </div>
+    </header>
+
+    <nav class="subnav" data-auto=".post-body h2" aria-label="In this post">
+      <div class="subnav-inner"></div>
+    </nav>
+
+    <div class="post-body">
+
+      <p class="lede">A dark factory ships code that no human has read, verified only by other machines. Most of the argument about whether that is reckless is spent on the wrong half of the sentence. The interesting half is the second one.</p>
+
+      <p>The term is borrowed from manufacturing, where it is literal: the lights are off because the only things on the floor are robots, and robots do not need to see. FANUC has run plants like that since 2001. The software version turns the diff into the factory floor &mdash; nobody wrote it by hand, nobody reviewed it, nobody read it before it shipped.</p>
+
+      <h2>What a dark factory actually is</h2>
+
+      <p>The framing comes from Addy Osmani's <a href="https://addyosmani.com/blog/software-factories/" target="_blank" rel="noopener">Software Factories, Light and Dark</a> (July 2026), and it is worth being clear about what he does with it, because the phrase has escaped the essay and is being used to sell things the essay argues against.</p>
+
+      <p>Osmani is not recommending the dark factory. He is describing it carefully in order to say where it fails. His charge is <strong>comprehension debt</strong> &mdash; the widening gap between how much code exists and how much any human still understands &mdash; and his line about it is the one worth keeping: a dark factory does not pay that debt down, it takes it on as fast as it can, with the tests green the whole way. His prediction is not a catastrophe. It is that the reckoning arrives quietly and late.</p>
+
+      <p>His evidence is one reported experience: Dex Horthy running a fully automated pipeline for about four months with nobody reading the code, and a failure that took painstaking manual debugging to locate. <strong>That is a single case, reported second-hand, not a measurement.</strong> The same applies to the rule of thumb that gets quoted alongside it &mdash; that an agent holds up for three to ten steps and starts losing the thread past twenty. Both are worth knowing. Neither is a number you can plan against, and treating them as findings does the argument no favours.</p>
+
+      <p>What Osmani actually lands on is not a verdict on darkness but a job description: the skilled work is deciding, loop by loop, where the light switch goes. All dark and you are dismantling the thing four months later. All lit and nobody can get a review done. Our disagreement with him, such as it is, is narrow &mdash; it is about what counts as evidence that a particular switch can be flipped, and we think that question has a more mechanical answer than he gives it.</p>
+
+      <h2>The one thing everyone agrees on</h2>
+
+      <p>Generation is cheap. Acceptance is not. Osmani puts it as verification rather than generation being the real constraint on a factory; we have been putting it as <a href="method.html#oracle">an agent being able to write a replacement in a minute and unable to tell you whether you may deploy it</a>. Same sentence, arrived at from opposite ends.</p>
+
+      <p>This is now consensus among people who have run this work at scale, and we no longer claim it as a distinctive finding &mdash; it is the premise, and the rest of this post is what follows from it. If you want the claim in its original form it is cited on <a href="index.html#shift">the approach page</a>, where it belongs to Osmani rather than to us.</p>
+
+      <h2>Your estate is already dark</h2>
+
+      <p>Here is the part that tends to go missing. A dark factory produces code that ships without human comprehension. Most large organisations already own a very large quantity of exactly that.</p>
+
+      <p>Ten thousand stored procedures, accreted over fifteen years, written by people who have left, with no documentation and no tests. Nobody has read them in a decade. They run the business. That is code shipped and maintained without human comprehension &mdash; it simply took fifteen years and a payroll to produce it, so nobody thought to call it a factory.</p>
+
+      <div class="pull">The dark factory does not introduce unread code. It manufactures it faster.</div>
+
+      <p>This changes the question. If comprehension debt were only a risk you might take on in future, you could decline it. It is not: it is the opening balance on most legacy estates. And it now has a running cost attached, because <a href="blog-codebase-structure-cost.html">an agent re-pays for comprehension on every single task</a> rather than accumulating it the way a team does. The parts of the estate nobody understands are, by construction, the parts an agent pays most to read.</p>
+
+      <p>So the practical question is not whether to allow unread code into existence. It is what you are able to prove about the unread code you already have, and what that permits you to automate.</p>
+
+      <h2>What a loop has to prove</h2>
+
+      <p>Osmani's test for full autonomy is a good one, and we would not change it: the check has to be cheap, run at high frequency, rely on something that cannot easily be faked, answer immediately, and not drift over time. Green-or-red oracles qualify. Type gates qualify. A review agent with a real rubric qualifies.</p>
+
+      <p>The difficulty is that most codebases cannot answer it. A fifteen-year-old procedure has no types worth the name, no seams, and no test suite &mdash; and the architectural safety net Osmani recommends, the types and boundaries and dependency injection, is exactly what you cannot retrofit into it this quarter. That is not a criticism of his prescription. It is a statement about which codebases it reaches.</p>
+
+      <p>For an estate like that there is one oracle available, and it is already running: <strong>the incumbent implementation</strong>. Record what production actually does &mdash; arguments, returned rows, the full set of rows written &mdash; and those recordings become the test suite. It is cheap, it runs per call, it answers immediately, and it is hard to fake because nobody authored it. Hand-written tests encode the author's model of the system, which is precisely the artefact that left the company in 2016. Recorded traffic encodes what the system does, in the proportions it does it, including the states nobody would have thought to construct.</p>
+
+      <h2>The switch is decidable</h2>
+
+      <p>This is where we would push past Osmani rather than paraphrase him. He gives criteria for what earns the dark. He does not give a procedure for deciding it per artefact, and at ten thousand procedures the difference between a criterion and a procedure is the whole job.</p>
+
+      <p>The procedure is a <a href="method.html#triage">first pass that reads for verifiability rather than for meaning</a>. For each procedure it answers one question: what class of evidence could, even in principle, establish that a replacement behaves identically? The answer is a property of the code, decidable by static analysis, not a matter of opinion &mdash; and it sets a hard ceiling on how much autonomy anything can ever be given over that procedure.</p>
+
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th class="m">Class</th><th>May it run dark</th><th>What proves it</th><th>What takes it off the table</th></tr></thead>
+          <tbody>
+            <tr><td class="m">pure read</td><td><span class="yes">yes</span></td><td>Result-set comparison; replay is side-effect-free</td><td>Nothing in the class &mdash; but coverage still bounds the claim</td></tr>
+            <tr><td class="m">deterministic write</td><td><span class="yes">yes</span></td><td>Transactional capture and rollback; the write-set compared in full</td><td>A normalisation set that grows faster than the evidence</td></tr>
+            <tr><td class="m">non-deterministic</td><td><span class="no">not yet</span></td><td>Nothing, until a seam makes the dependency injectable</td><td>Clock reads, generated identifiers, unstable ordering</td></tr>
+            <tr><td class="m">external effect</td><td><span class="no">never</span></td><td>No replay is possible &mdash; the effect escapes the transaction</td><td>Rollback does not un-send a message or un-write a file</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Note the last row, because it is the one that does not move. A procedure that reaches outside the transactional boundary cannot be verified this way at <em>any</em> model capability. Better models do not change it; it is a property of what can be observed, not of what can be reasoned about. Whatever else gets automated, that class keeps a person on it permanently.</p>
+
+      <p>This is the same instinct as <a href="index.html#principles">matching agent freedom to task risk</a>, with one improvement: risk is a judgement someone has to make and defend, while verifiability class is mechanical, cheap, and total. It should never be sampled. Run it across the whole estate, because it is the pass that decides everything afterwards.</p>
+
+      <h2>What honest dark looks like</h2>
+
+      <p>On a real procedure, <a href="method.html#verdict">the verdict run</a> looks like this: 2,190 recorded cases replayed against the replacement, 2,178 matching on both the returned rows and the full intended write-set, twelve differences routed to a person with the evidence attached. The customer sees only the incumbent's answer throughout; the replacement runs inside a transaction that is always rolled back.</p>
+
+      <p>Nobody read 2,178 diffs. That is genuinely lights-out, and it is more than the nightly lint-fix cron that usually gets offered as the safe example of unattended work. But it is only worth anything if the machinery doing the accepting is itself under measurement, and this is the part that gets skipped.</p>
+
+      <div class="callout warn">
+        <span class="k">Green tests are not evidence</span>
+        <p>The dangerous failure of an automated pipeline is not a red build. It is a suite that passes while checking less every month. Three numbers catch it, and none of them is optional if the pipeline runs unattended.</p>
+        <p><strong>Baseline divergence.</strong> Replay the recorded traffic against the incumbent, before replacing anything. The answer must be zero. If the old code cannot be shown to match itself, every later verdict inherits that noise as an error bar and none of them carry information.</p>
+        <p><strong>The normalisation surface, and its trend.</strong> Every field you quotient out to suppress false differences &mdash; a timestamp, a generated id, a floating-point tail &mdash; is a field on which nothing is being checked. A growing normalisation set is the leading indicator of a migration drifting toward agreement that means nothing. Track the count, not just the contents.</p>
+        <p><strong>Audited classifier false-negative rate.</strong> Something has to label the thousands of raw differences as noise or as real change, and its false negatives are the only silent failure in the whole method: a false positive costs a reviewer five minutes, a false negative ships a behaviour change with a certificate saying it did not happen. Sample the noise bucket by hand every run and publish the rate. An unaudited classifier has an unknown error rate, and an unknown error rate is not evidence.</p>
+      </div>
+
+      <p>Which turns the acceptance of a dark run into something publishable rather than something asserted:</p>
+
+      <div class="term">
+        <div class="term-bar"><span>acceptance record</span><span>per procedure</span></div>
+<pre><span class="c"># publish this, or the verdict is an assertion rather than a result</span>
+<span class="k">trace</span>:                <span class="s">"18,442 calls / 14 days -> 2,190 distinct cases"</span>
+<span class="k">baseline_divergence</span>:  <span class="n">0</span>        <span class="c"># incumbent vs itself. non-zero = error bar on everything below</span>
+<span class="k">branch_coverage</span>:      <span class="n">71</span><span class="s">%</span>      <span class="c"># the other 29% is unverified, not passing</span>
+<span class="k">normalisation</span>:        <span class="n">6</span>        <span class="c"># fields quotiented out, each justified. the TREND is the metric</span>
+<span class="k">classifier_fnr</span>:       <span class="n">0.4</span><span class="s">%</span>     <span class="c"># from audited sampling. unmeasured = unknown = not evidence</span>
+<span class="k">adjudicated</span>:          <span class="n">12</span>       <span class="c"># each with decision and rationale recorded</span></pre>
+      </div>
+
+      <p>Every line there is a number somebody can disagree with. That is the point of it. <a href="method-brief.html">The technical brief</a> sets out the normalisation taxonomy and the instrumentation in full, including what each normalisation costs you in strength.</p>
+
+      <h2>What the dark cannot reach</h2>
+
+      <p>A method that claims no limits should not be believed, and this one has a hard structural ceiling that no amount of model improvement moves.</p>
+
+      <p>The replacement is derived from the incumbent &mdash; through the specification, and often by a model that read the original directly. Their errors are not merely correlated; shared error is the design intent, because preserving behaviour is the whole objective. Classical N-version programming assumed independently written implementations fail independently, and Knight and Leveson refuted that assumption forty years ago. Here it is not even assumed.</p>
+
+      <div class="pull">A shadow run detects divergence, never shared defect.</div>
+
+      <p>So machine verification of this kind can tell you that nothing changed. It cannot tell you that anything is right. That is a real bound on what "verified only by machines" is ever going to mean, and it is why the guarantee is stated as behaviour preservation rather than correctness.</p>
+
+      <p>Three more, briefly, and then the one the site has not said before.</p>
+
+      <p><strong>Some work stays lit regardless of the metrics.</strong> Changes that are irreversible and unverifiable at the same time &mdash; schema migrations against a live core, anything with accounting or regulatory consequence &mdash; fall outside rollback-and-compare entirely, because you cannot take the observation without committing it. Those remain with people not because a model could not attempt them, but because the cost of being wrong is out of all proportion to what automation saves. <a href="method.html#limits">The rest of the limits are set out here.</a></p>
+
+      <p><strong>A permanent comparator costs money forever.</strong> Keeping the shadow run going after cut-over is the single change that most widens what agents can be trusted to do unsupervised, and it is duplicate compute indefinitely plus the standing cost of maintaining the normalisation set and auditing the classifier. Below a certain estate size that does not pay, and you should say so out loud rather than discover it in a budget review.</p>
+
+      <p>And the one that matters most here: <strong>a green verdict run preserves behaviour without restoring comprehension.</strong> On the procedure we use as the worked example, a status code has been excluded from a calculation since 2011 and nobody knows why. The migration reproduces that exclusion deliberately &mdash; preserve behaviour, do not fix bugs, or the comparison stops distinguishing "the new code is broken" from "the new code is better". The replacement passes. Nobody understands it any better than they did. Osmani's comprehension debt survives a successful migration completely untouched.</p>
+
+      <p>This method pays down change-risk debt: it makes an estate safe to modify. It does not pay down comprehension debt, and anyone selling it as though it does is overselling it. The two are different balances and only one of them is being serviced.</p>
+
+      <h2>Where the lights go</h2>
+
+      <p>Osmani's closing move is that the person never left the factory, they moved &mdash; up from the line to the end of it, designing the thing and guarding the gate. We would add the operational half: the gate has a width, and you can measure it.</p>
+
+      <p>Twelve adjudications out of 2,190 cases is a number. It goes up when the instructions are wrong and down when they are right, and it is the same measurement whether the work is a migration or anything else an agent runs unattended. <a href="blog-measuring-ai-impact.html">The intervention rate</a> is the one metric here that is meaningful without a baseline, and it is what should gate expansion. You do not widen what agents may do on their own because a vendor shipped a better model. You widen it because the intervention rate in the current scope fell and stayed down.</p>
+
+      <p>Which is also why we still have <a href="platform-landscape.html#eye-cycle">fully unattended ticket-to-PR sitting in the reckoning phase</a> rather than the plateau. The capability is real and the demos are honest. What has not held is the economics at organisational scale, and the cost that bites is not inference &mdash; it is senior review time spent on plausible-looking output. Dark arrives as a governed subset of work that earned it, procedure by procedure, not as the default intake path.</p>
+
+      <p>Turn the lights off where a machine can prove the thing. Leave them on everywhere else. The skill is knowing which is which, and that turns out to be a question about evidence rather than a question about ambition.</p>
+
+      <div class="takeaways">
+        <div class="k">If you take four things</div>
+        <ol>
+          <li>&ldquo;Verified only by machines&rdquo; is a claim about the verifier, not about the code. Interrogate the verifier.</li>
+          <li>Which loops may run dark is decidable mechanically, by what evidence could ever establish equivalence &mdash; and one class can never run dark at any model capability.</li>
+          <li>Baseline divergence, normalisation surface and audited classifier false-negative rate are what separate an honest dark run from a green suite that checks nothing.</li>
+          <li>A passing migration preserves behaviour without restoring understanding. Comprehension debt is a separate balance and nothing here services it.</li>
+        </ol>
+      </div>
+
+      <div class="operated">
+        <div class="k">Running this in production</div>
+        <h3>The harness is the work, and it is nobody's full-time job</h3>
+        <p>Everything above depends on machinery that has to be built once and then kept honest: recording production traffic without perturbing it, maintaining the normalisation set and justifying each entry, sampling the classifier's noise bucket often enough that the false-negative rate is measured rather than assumed, and keeping the comparator running after cut-over so distribution shift shows up as divergence instead of as an incident.</p>
+        <p>None of that is exotic and none of it is a product. It is ordinary operational discipline applied to a component that usually gets stood up for one migration and then quietly becomes the thing your autonomy budget rests on. Revolgy runs it as an operated service: the replay harness, the normalisation set under review, the audit sampling, and the acceptance record published per procedure so the evidence outlives the engagement.</p>
+        <p>Two limits worth stating before anyone signs anything. The comparator is duplicate compute for as long as you run it, so below a few hundred procedures the arithmetic usually does not work &mdash; do it by hand and spend the money elsewhere. And we do not adjudicate divergences. The system surfaces them with evidence attached; deciding whether a fifteen-year-old behaviour was intentional is a question about your business, and it stays with your people.</p>
+        <div class="actions">
+          <a href="index.html#cta" class="btn btn--primary">Talk about verification <span aria-hidden="true">&rarr;</span></a>
+          <a href="method.html" class="btn btn--outline">Read The Method</a>
+        </div>
+      </div>
+
+    </div>
+  </article>
+
+  <div class="related">
+    <div class="k">Related</div>
+    <div class="related-grid">
+      <a href="blog-codebase-structure-cost.html">
+        <span class="t">Your codebase is a line item</span>
+        <span class="d">The other half of comprehension debt: agents re-pay to read what nobody understands, on every task, forever.</span>
+      </a>
+      <a href="blog-measuring-ai-impact.html">
+        <span class="t">Adoption is not impact</span>
+        <span class="d">The intervention rate in full, and why it is the number that gates how much autonomy widens.</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <p>The Self-Driving Codebase &middot; Agentic SDLC</p>
+</footer>
+
+</body>
+</html>

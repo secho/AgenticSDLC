@@ -32,6 +32,7 @@
         { label: 'Principles', href: 'index.html#principles' },
         { label: 'Frontier Stack Advantage', href: 'index.html#advantage' },
         { label: 'Architecture', href: 'index.html#architecture' },
+        { label: 'Fleets and Swarms', href: 'index.html#swarm' },
         { label: 'Governance', href: 'index.html#governance' },
         { label: 'Roadmap', href: 'index.html#roadmap' },
         { label: 'Resources', href: 'index.html#resources' }
@@ -72,6 +73,8 @@
       match: 'blog',
       dropdown: [
         { label: 'All posts', href: 'blog.html' },
+        { label: 'A dark factory needs an oracle', href: 'blog-dark-factory-oracle.html' },
+        { label: 'Your codebase is a line item', href: 'blog-codebase-structure-cost.html' },
         { label: 'Your AI spend has no owner', href: 'blog-ai-spend-attribution.html' },
         { label: 'Adoption is not impact', href: 'blog-measuring-ai-impact.html' },
         { label: 'Shadow AI is a routing problem', href: 'blog-shadow-ai.html' }

@@ -387,6 +387,10 @@
     margin-bottom: 0.7rem;
   }
   .callout p { font-size: 1rem; color: var(--slate-700); margin-bottom: 0; }
+  .callout p + p { margin-top: 0.85rem; }
+  .callout .callout-src { font-size: 0.82rem; color: var(--slate-500); }
+  .callout .callout-src a { color: var(--slate-600); text-decoration: underline; text-decoration-color: var(--slate-300); text-underline-offset: 2px; }
+  .callout .callout-src a:hover { color: var(--primary); text-decoration-color: var(--primary); }
 
   .pivot-lede {
     font-size: clamp(1.05rem, 1.6vw, 1.2rem);
@@ -541,7 +545,7 @@
     "logo": "https://secho.github.io/AgenticSDLC/icon-512.png"
   },
   "datePublished": "2026-07-24",
-  "dateModified": "2026-08-18",
+  "dateModified": "2026-09-11",
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://secho.github.io/AgenticSDLC/method.html"
@@ -624,6 +628,14 @@
       <p class="pivot-lede">The reason legacy modernisation is slow is not that the code is hard to read. It is that nobody can say whether a rewrite is correct. There is no specification to check against — the specification left the company in 2016.</p>
       <p>The pivot that makes the whole thing tractable is this: <strong>when you are modernising, you don't need to know what the code should do. You only need to know what it did.</strong> Correctness stops meaning "matches the intent" and starts meaning "behaves exactly as it behaved yesterday". And that is knowable, because the old code is running in production right now and can be watched.</p>
       <p>Everything below follows from that one move.</p>
+
+      <div class="callout">
+        <span class="callout-label">What the success stories leave out</span>
+        <p>2026 produced a steady run of published AI migration wins. Asana moved off Enzyme in two weeks — work that, in their own account, would otherwise have been postponed indefinitely. Airbnb and Uber report much the same. The acceleration is real and we are not disputing it.</p>
+        <p>What none of them publish is <strong>how anyone knew the migrated system still did what the old one did.</strong> No equivalence criterion, no verification method, no failure modes, no account of what was checked and what was assumed. The unit of success being reported is elapsed time.</p>
+        <p>A framework migration with a real test suite can perhaps get away with that. A commission calculation with no tests, written by someone who left in 2016, cannot. That gap is the whole of what follows.</p>
+        <p class="callout-src"><a href="https://newsletter.pragmaticengineer.com/p/the-pulse-we-need-to-talk-about-migrations" target="_blank" rel="noopener">The Pulse: We need to talk about migrations with AI</a> — The Pragmatic Engineer, August 2026</p>
+      </div>
     </div>
 
   </div>
@@ -1048,6 +1060,18 @@ END</div>
         <span class="callout-label">The bookkeeper</span>
         <p>A bookkeeper of fifteen years is leaving. She calculates commissions by rules that were never written down. You don't ask the new hire whether she can do it — you have her work in parallel for a month and compare the numbers. That parallel run is the oracle. You never needed the rules. You needed a reference and a way to compare.</p>
       </div>
+
+      <p>The obvious alternative is to use the existing test suite as the oracle, and it is worth being specific about why we do not. <strong>An inherited test suite is an assertion about the code's behaviour that nobody has checked in years.</strong> It can pass while testing nothing.</p>
+
+      <div class="callout">
+        <span class="callout-label">The tests were lying</span>
+        <p>Writing up the modernisation of a Java 1.5 estate with an LLM, one engineer found the legacy tests were <strong>silently swallowing exceptions</strong> — catching and discarding failures, so a green suite meant only that the code had finished running. He had to strip the error-handling out of the tests before they would report honestly, and only then could he see what the system actually did.</p>
+        <p>He also describes the failure mode on the other side: asked an open question about the build, the model produced a confident, plausible configuration that hallucinated modern dependency versions and ignored the real directory layout. He calls it <em>structural gaslighting</em> — an answer whose fluency is unrelated to its accuracy.</p>
+        <p>Notably, he never closes the loop. The modernised code is never formally shown to produce the same output as the original. That is not a criticism of a careful write-up; it is what happens when the only available reference is a test suite you have just discovered was lying to you.</p>
+        <p class="callout-src"><a href="https://martinfowler.com/articles/archaeologist-copilot.html" target="_blank" rel="noopener">The Archaeologist's Copilot</a> — martinfowler.com, July 2026</p>
+      </div>
+
+      <p>A recorded production trace has none of that failure mode. It is not an assertion about the code — it is an observation of it. It cannot swallow an exception, because it records whatever actually happened, including the exception. That is the entire reason the oracle here is the running system and not the tests around it.</p>
     </div>
 
   </div>
@@ -1452,6 +1476,7 @@ END</div>
         <p><strong>Knowledge that was never written down is gone.</strong> If a rule lived only in the head of someone who has left, an agent can read from the code what happens. It cannot read whether that was the intention. The difference between a bug and a feature in fifteen-year-old code is not a question a model can settle.</p>
         <p><strong>Some changes are irreversible and unverifiable at the same time.</strong> Schema migrations on the core, anything with accounting or regulatory consequences. These stay with people — not because the model is not capable, but because the cost of being wrong is wildly out of proportion to what automation saves.</p>
         <p><strong>Some code has no oracle at all.</strong> A score computed by rules accreted over a decade, where the correct answer is by definition whatever the current code returns, can be shown to be equivalent — but the moment you want to change it, there is nothing to measure against. Plan for people there. Do not wait for it to solve itself.</p>
+        <p><strong>And a passing verdict preserves behaviour without restoring comprehension.</strong> The status code excluded since 2011 is reproduced deliberately, and afterwards nobody understands it any better than before. This method makes an estate safe to change; it does not make it understood. Those are separate balances — <a href="blog-dark-factory-oracle.html">why that matters for anything you intend to run unattended</a>.</p>
       </div>
     </div>
   </div>
@@ -1465,6 +1490,7 @@ END</div>
       <h2 id="h-metric">The metric that actually matters</h2>
       <p class="metric">Not <span class="strike">procedures migrated</span>. How often a human has to step in.</p>
       <p>When that number falls, the boundary of what agents may do on their own moves outward, and debt repayment becomes a by-product rather than a programme. It is also the honest measure of whether any of this is working — a system that needs constant correction is telling you its instructions are wrong, not that the model is weak.</p>
+      <p>Contrast it with the unit the industry currently reports. <strong>"Two weeks"</strong> tells you how fast a migration went. It tells you nothing about whether it was right, and nothing at all about whether the next one will go the same way. Elapsed time is a measure of the run you already finished. Intervention rate is a measure of whether you can trust the next one — which is the only number that compounds.</p>
       <div class="close-actions">
         <a href="index.html#cta" class="btn btn--primary">Book a Strategy Session <span aria-hidden="true">&rarr;</span></a>
         <a href="method-brief.pdf" class="btn btn--outline" download>Download the Method Brief (PDF)</a>
