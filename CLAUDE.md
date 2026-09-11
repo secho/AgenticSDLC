@@ -67,7 +67,9 @@ Print layout is controlled by `@page` plus the `@media print` block at the end o
 
 `#pivot` → `#triage` → `#spec` → `#oracle` → `#baseline` → `#diff` → `#implement` → `#verdict` → `#limits` → `#metric`
 
-The seven stage ids after `#pivot` are also the second-level nav's targets — renaming one means editing the `<li data-target="…">` entries and the `NAV` dropdown in `nav.js` too.
+The seven stage ids after `#pivot` are also the second-level nav's targets — renaming one means editing the `<li data-target="…">` entries and, in `nav.js`, the section list nested under **Methods → Refactoring a legacy estate**.
+
+This page is *one* method, not the method. The nav's `Methods` entry is a category built to hold several; see the nav section below before adding another.
 
 This page carries two tokens the other pages do not: `--match` / `--match-ink` (agreement, the `═` glyph) and `--differ` / `--differ-ink` (difference, the `≠` glyph). They are the page's only new colours; everything else comes from the shared tokens.
 
@@ -77,9 +79,15 @@ Its figures are one continuous artefact — a dark terminal-style panel reusing 
 
 The top nav is a shared component, not inline per page. Each page includes `<script src="nav.js" defer></script>` right after `<body>`; the script injects its own `<style>`, the `<nav>` markup, and a `.nav-spacer` at the top of `<body>`, then wires up dropdowns + the mobile hamburger drawer.
 
-- **To add/rename/reorder a menu item, edit the `NAV` array (and `CTA`) at the top of `nav.js` only** — every page updates automatically. A top-level entry is `{label, href}`, `{label, dropdown:[{label,href}, …]}`, or `{label, href, dropdown:[…]}`. The third form renders the trigger as a real `<a>` — it navigates on click and still opens the menu on hover — and is the right shape when the parent is an actual page with sections (Platform Landscape uses it). The plain `dropdown` form renders a `<button>` that cannot be clicked through to, which is correct only when there is no parent page (Resources). Items with both get `.has-link`, which skips the click-toggle so the link keeps working, and hides their children in the mobile drawer — the parent link plus that page's own sticky sub-nav covers it, and expanding all of them would make a ~30-row drawer. A dropdown child may add `download: true` to emit `<a download>` so the file saves instead of opening (used for `method-brief.pdf`). A top-level entry may add `match: '<prefix>'` to own a whole family of pages for active-state highlighting — Blog uses `match: 'blog'` so every `blog-*.html` post keeps the nav item lit.
+- **To add/rename/reorder a menu item, edit the `NAV` array (and `CTA`) at the top of `nav.js` only** — every page updates automatically. A top-level entry is `{label, href}`, `{label, dropdown:[{label,href}, …]}`, or `{label, href, dropdown:[…]}`. The third form renders the trigger as a real `<a>` — it navigates on click and still opens the menu on hover — and is the right shape when the parent is an actual page with sections (Platform Landscape uses it). The plain `dropdown` form renders a `<button>` that cannot be clicked through to, which is correct only when there is no parent page (Resources). Items with both get `.has-link`, which skips the click-toggle so the link keeps working, and hides their children in the mobile drawer — the parent link plus that page's own sticky sub-nav covers it, and expanding all of them would make a ~30-row drawer. A dropdown child may add `download: true` to emit `<a download>` so the file saves instead of opening (used for `method-brief.pdf`). A top-level entry may add `match: '<prefix>'` to own a whole family of pages for active-state highlighting — Blog uses `match: 'blog'` so every `blog-*.html` post keeps the nav item lit. A dropdown child may itself carry a `dropdown` — **one further level, and no more**. That renders a hover flyout on desktop (`.nav-subitem` / `.nav-sub`) and flattens in the mobile drawer to just the parent link, on the same reasoning as `.has-link`. Use it when a top-level entry is a *category* rather than a page.
 - Active-state highlighting is derived from the current filename; index sections live under the "The Approach" dropdown as `index.html#…` anchors.
 - `nav.js` hard-codes its easing (no dependence on a page-level `--ease` token) but otherwise relies on the shared `--primary` / `--slate-*` / `--font-*` tokens each page defines in `:root`. It hides itself in `@media print` so the one-pager stays printable.
+
+### The `Methods` category
+
+`Methods` is a top-level entry with no page of its own — a `{label, dropdown:[…]}` button, like `Resources`. Each child is a *whole method*, with its own `href` and its own nested `dropdown` of that method's sections. Today there is one: **Refactoring a legacy estate** → `method.html`.
+
+**To add a method**: append a sibling under `Methods` with its `label`, `href` and section list. That is the only change — the flyout, the mobile flattening and the active-state highlighting all follow from the data. If the category ever grows past about five methods, or if the individual methods start needing to be compared, give `Methods` a real index page and switch it to the `{label, href, dropdown:[…]}` form so the parent becomes clickable.
 
 ### Second-level navigation
 

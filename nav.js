@@ -22,6 +22,10 @@
   //   plus that page's own sticky sub-nav covers it, and expanding every child
   //   would make a ~30-row drawer.
   // A dropdown child may add `download: true` to save the file instead of opening it.
+  // A dropdown child may itself carry a `dropdown` — one more level, rendered as a
+  //   hover flyout on desktop and flattened to just the parent link in the mobile
+  //   drawer. Use it when a top-level entry is a CATEGORY holding several pages that
+  //   each have their own sections (Methods). Do not nest a third level.
   var NAV = [
     {
       label: 'The Approach',
@@ -39,19 +43,28 @@
       ]
     },
     {
-      label: 'The Method',
-      href: 'method.html',
+      // A category, not a page: it holds one method today and will hold more.
+      // Each child is a whole method; its own `dropdown` is that method's
+      // sections. Adding a second method is a data change only — append a
+      // sibling here with its own href and section list.
+      label: 'Methods',
       dropdown: [
-        { label: 'The pivot', href: 'method.html#pivot' },
-        { label: '01 &middot; Triage', href: 'method.html#triage' },
-        { label: '02 &middot; Spec', href: 'method.html#spec' },
-        { label: '03 &middot; Oracle', href: 'method.html#oracle' },
-        { label: '04 &middot; Baseline shadow run', href: 'method.html#baseline' },
-        { label: '05 &middot; Diff classification', href: 'method.html#diff' },
-        { label: '06 &middot; Implement', href: 'method.html#implement' },
-        { label: '07 &middot; Verdict shadow run', href: 'method.html#verdict' },
-        { label: 'Where it stops', href: 'method.html#limits' },
-        { label: 'The metric', href: 'method.html#metric' }
+        {
+          label: 'Refactoring a legacy estate',
+          href: 'method.html',
+          dropdown: [
+            { label: 'The pivot', href: 'method.html#pivot' },
+            { label: '01 &middot; Triage', href: 'method.html#triage' },
+            { label: '02 &middot; Spec', href: 'method.html#spec' },
+            { label: '03 &middot; Oracle', href: 'method.html#oracle' },
+            { label: '04 &middot; Baseline shadow run', href: 'method.html#baseline' },
+            { label: '05 &middot; Diff classification', href: 'method.html#diff' },
+            { label: '06 &middot; Implement', href: 'method.html#implement' },
+            { label: '07 &middot; Verdict shadow run', href: 'method.html#verdict' },
+            { label: 'Where it stops', href: 'method.html#limits' },
+            { label: 'The metric', href: 'method.html#metric' }
+          ]
+        }
       ]
     },
     {
@@ -108,7 +121,8 @@
     // e.g. Blog owns blog.html and every blog-*.html post.
     if (item.match && current.indexOf(item.match) === 0) return true;
     if (item.href && fileOf(item.href) === current) return true;
-    if (item.dropdown) return item.dropdown.some(function (c) { return fileOf(c.href) === current; });
+    // Recurses, so a method nested under a category still lights its parent.
+    if (item.dropdown) return item.dropdown.some(isActive);
     return false;
   }
 
@@ -130,6 +144,10 @@
   .site-nav .nav-dropdown{display:none;position:absolute;top:100%;left:0;min-width:230px;background:#fff;border:1px solid var(--slate-200);box-shadow:0 12px 30px rgba(15,23,42,0.10);padding:0.4rem;}\
   .site-nav .nav-dropdown a{display:block;padding:0.6rem 0.8rem;color:var(--slate-600);text-decoration:none;font-size:0.85rem;font-weight:500;white-space:nowrap;transition:background 0.12s,color 0.12s;}\
   .site-nav .nav-dropdown a:hover{background:var(--slate-50);color:var(--slate-900);}\
+  .site-nav .nav-subitem{position:relative;}\
+  .site-nav .nav-subitem > a{display:flex;align-items:center;gap:0.6rem;color:var(--slate-800);font-weight:600;}\
+  .site-nav .nav-subcaret{width:9px;height:9px;margin-left:auto;opacity:0.5;flex-shrink:0;}\
+  .site-nav .nav-sub{display:none;position:absolute;top:-0.4rem;left:100%;min-width:230px;background:#fff;border:1px solid var(--slate-200);box-shadow:0 12px 30px rgba(15,23,42,0.10);padding:0.4rem;}\
   .site-nav .nav-cta{display:inline-flex;align-items:center;gap:0.5rem;margin-left:0.6rem;padding:0.5rem 1.2rem;background:var(--primary);color:#fff;text-decoration:none;font-family:var(--font-body);font-size:0.85rem;font-weight:600;border:2px solid var(--primary);transition:background 0.15s ' + EASE + ';}\
   .site-nav .nav-cta:hover{background:var(--primary-dark);border-color:var(--primary-dark);}\
   .nav-spacer{height:4rem;}\
@@ -142,6 +160,8 @@
     .site-nav .nav-item.has-dropdown:hover .nav-dropdown,\
     .site-nav .nav-item.has-dropdown:focus-within .nav-dropdown,\
     .site-nav .nav-item.has-dropdown.open .nav-dropdown{display:block;}\
+    .site-nav .nav-subitem:hover .nav-sub,\
+    .site-nav .nav-subitem:focus-within .nav-sub{display:block;}\
   }\
   @media (min-width:1024px){.site-nav{height:5rem;}.nav-spacer{height:5rem;}.site-nav .nav-mark{width:24px;height:24px;}}\
   @media (max-width:768px){\
@@ -156,6 +176,9 @@
     .site-nav .nav-item.has-link .nav-dropdown{display:none;}\
     .site-nav .nav-item.has-link .nav-caret{display:none;}\
     .site-nav .nav-dropdown a{padding:0.55rem 0;font-size:0.95rem;color:var(--slate-500);}\
+    .site-nav .nav-sub{display:none;}\
+    .site-nav .nav-subcaret{display:none;}\
+    .site-nav .nav-subitem > a{color:var(--slate-700);}\
     .site-nav .nav-cta{margin:1.2rem 0 0;justify-content:center;padding:0.9rem 1.5rem;}\
   }\
   @media print{.site-nav{display:none;}.nav-spacer{display:none;}}\
@@ -184,6 +207,7 @@
     '<path d="M20 17 L36 32 L20 47" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>' +
     '<rect x="38" y="41" width="14" height="6" fill="#fff"/></svg>';
 
+  var subCaretSVG = '<svg class="nav-subcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
   var caretSVG = '<svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 
   // ── Build markup ─────────────────────────────────────────────────────
@@ -191,7 +215,18 @@
     var active = isActive(item) ? ' active' : '';
     if (item.dropdown) {
       var links = item.dropdown.map(function (c) {
-        return '<a href="' + c.href + '"' + (c.download ? ' download' : '') + '>' + c.label + '</a>';
+        var link = '<a href="' + c.href + '"' + (c.download ? ' download' : '') + '>' + c.label +
+          (c.dropdown ? subCaretSVG : '') + '</a>';
+        // A child with its own dropdown is a section of the site in its own
+        // right — a whole method under Methods, say. It stays a real link; the
+        // submenu is hover-only on desktop and hidden in the mobile drawer,
+        // where the parent link plus that page's sticky sub-nav already covers it.
+        if (!c.dropdown) return link;
+        var subLinks = c.dropdown.map(function (g) {
+          return '<a href="' + g.href + '"' + (g.download ? ' download' : '') + '>' + g.label + '</a>';
+        }).join('');
+        return '<div class="nav-subitem">' + link +
+          '<div class="nav-sub">' + subLinks + '</div></div>';
       }).join('');
       // With an href the trigger is a real link: it navigates on click and
       // still opens the menu on hover/focus. Without one it stays a button,
